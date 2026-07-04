@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">First_project</string>
+    <string name="store_title">فروشگاه من</string>
+    <string name="product_name_hint">نام محصول</string>
+    <string name="product_price_hint">قیمت محصول</string>
+    <string name="add_button">افزودن محصول</string>
+    <string name="delete_icon_desc">حذف محصول</string>
+</resources>
