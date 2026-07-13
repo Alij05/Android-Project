@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.hw6mp"
+    namespace = "com.example.sickimfy"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.hw6mp"
+        applicationId = "com.example.sickimfy"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
