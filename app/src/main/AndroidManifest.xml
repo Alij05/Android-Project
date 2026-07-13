@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name="com.example.hw6mp.JournalApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,14 +10,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.First_project"
+        android:theme="@style/Theme.Sickimfy"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name="com.example.hw6mp.MainActivity"
+            android:name="com.example.sickimfy.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.First_project">
+            android:theme="@style/Theme.Sickimfy">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

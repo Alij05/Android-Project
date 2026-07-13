@@ -2,4 +2,8 @@
 <resources>
     <string name="app_name">سیکیمفی</string>
     <string name="greeting">سلام!</string>
+
+    <string name="settings_desc">تنظیمات</string>
+    <string name="notifications_desc">اعلان‌ها</string>
+    <string name="app_logo_desc">لوگوی برنامه</string>
 </resources>

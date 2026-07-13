@@ -1,4 +1,4 @@
-package com.example.musicapp.core.designsystem
+package com.example.sickimfy.core.designsystem
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">Sickimfy</string>
     <string name="greeting">Hello!</string>
+
+    <string name="settings_desc">Settings</string>
+    <string name="notifications_desc">Notifications</string>
+    <string name="app_logo_desc">App Logo</string>
+
+
 </resources>
