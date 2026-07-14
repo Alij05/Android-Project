@@ -4,4 +4,17 @@
     <string name="cd_notification_bell">اعلان‌ها</string>
     <string name="cd_settings_gear">تنظیمات</string>
     <string name="cd_profile_picture">پروفایل کاربری</string>
+
+    <!-- Home Quick Actions -->
+    <string name="qa_liked_songs">آهنگ‌های لایک شده</string>
+    <string name="qa_recently_played">اخیراً شنیده شده</string>
+    <string name="qa_my_playlists">پلی‌لیست‌های من</string>
+    <string name="qa_top_artists">هنرمندان برتر</string>
+
+    <!-- Home Feed Sliders Headers -->
+    <string name="section_popular">محبوب‌ترین‌ها</string>
+    <string name="section_new_releases">جدیدترین‌ها</string>
+    <string name="section_global_playlists">پلی‌لیست‌های جهانی</string>
+    <string name="section_local_playlists">پلی‌لیست‌های محلی</string>
+    <string name="cd_track_cover">تصویر کاور آهنگ</string>
 </resources>
