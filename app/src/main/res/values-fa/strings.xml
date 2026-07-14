@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">سیکیمفی</string>
-    <string name="greeting">سلام!</string>
-
-    <string name="settings_desc">تنظیمات</string>
-    <string name="notifications_desc">اعلان‌ها</string>
-    <string name="app_logo_desc">لوگوی برنامه</string>
+    <string name="app_name">سیکیمفای</string>
+    <string name="cd_notification_bell">اعلان‌ها</string>
+    <string name="cd_settings_gear">تنظیمات</string>
+    <string name="cd_profile_picture">پروفایل کاربری</string>
 </resources>
