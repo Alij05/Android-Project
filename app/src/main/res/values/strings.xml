@@ -29,4 +29,13 @@
     <string name="clear_history">Clear</string>
     <string name="cd_clear_search">Clear search query</string>
     <string name="cd_delete_history_item">Delete item from history</string>
+
+    <!-- Downloads Screen -->
+    <string name="downloads_title">Downloads</string>
+    <string name="sort_by">Sort by:</string>
+    <string name="sort_date">Date Added</string>
+    <string name="sort_title">Title</string>
+    <string name="sort_artist">Artist</string>
+    <string name="cd_delete_track">Delete Track</string>
+    <string name="empty_downloads">No downloaded tracks yet.</string>
 </resources>
