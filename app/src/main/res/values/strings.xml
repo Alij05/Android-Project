@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sickimfy</string>
+    <string name="cd_notification_bell">Notifications</string>
+    <string name="cd_settings_gear">Settings</string>
+    <string name="cd_profile_picture">User Profile</string>
 </resources>
