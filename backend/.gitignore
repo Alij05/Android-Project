@@ -1,0 +1,9 @@
+.env
+.gradle/
+.gradle-backend/
+build/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+media/*
+!media/.gitkeep

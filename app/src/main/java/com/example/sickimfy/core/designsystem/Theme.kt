@@ -1,4 +1,4 @@
-package com.example.musicapp.core.designsystem
+package com.example.sickimfy.core.designsystem
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,22 +13,35 @@ import androidx.compose.ui.platform.LocalContext
 // Dark color scheme using the palette defined in Color.kt
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
+    onPrimary = OnPrimaryDark,
+    secondary = SecondaryDark,
+    onSecondary = OnSecondaryDark,
     background = BackgroundDark,
-    // Add other colors here based on your Color.kt definitions
+    onBackground = OnBackgroundDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceDark,
+    error = ErrorDark,
+    onError = OnErrorDark
 )
 
 // Light color scheme using the palette defined in Color.kt
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
+    onPrimary = OnPrimaryLight,
+    secondary = SecondaryLight,
+    onSecondary = OnSecondaryLight,
     background = BackgroundLight,
-    // Add other colors here based on your Color.kt definitions
+    onBackground = OnBackgroundLight,
+    surface = SurfaceLight,
+    onSurface = OnSurfaceLight,
+    error = ErrorLight,
+    onError = OnErrorLight
 )
 
 @Composable
 fun MusicAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+ (API 31+)
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -40,7 +53,6 @@ fun MusicAppTheme(
         else -> LightColorScheme
     }
 
-    // Combine all design system elements
     MaterialTheme(
         colorScheme = colorScheme,
         typography = MusicAppTypography,
