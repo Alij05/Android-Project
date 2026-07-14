@@ -38,4 +38,11 @@
     <string name="sort_artist">Artist</string>
     <string name="cd_delete_track">Delete Track</string>
     <string name="empty_downloads">No downloaded tracks yet.</string>
+
+    <!-- Playlists Screen -->
+    <string name="playlists_title">Playlists</string>
+    <string name="section_intl_music">International Music</string>
+    <string name="section_local_music">Domestic Music</string>
+    <string name="section_user_playlists">Your Playlists</string>
+    <string name="tracks_count_format">%1$d Tracks</string>
 </resources>
