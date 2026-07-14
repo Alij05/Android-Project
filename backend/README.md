@@ -8,6 +8,7 @@
 
 ```powershell
 cd backend
+$env:JAVA_HOME = "C:\\Path\\To\\JDK-21"
 $env:JWT_SECRET = "a-long-random-development-secret"
 $env:ADMIN_KEY = "local-admin-key"
 ..\gradlew.bat run
@@ -19,6 +20,7 @@ $env:ADMIN_KEY = "local-admin-key"
 
 ```powershell
 cd backend
+$env:JAVA_HOME = "C:\\Path\\To\\JDK-21"
 ..\gradlew.bat test
 ```
 
