@@ -28,4 +28,13 @@
     <string name="clear_history">پاک‌سازی</string>
     <string name="cd_clear_search">پاک کردن متن جستجو</string>
     <string name="cd_delete_history_item">حذف مورد از تاریخچه</string>
+
+    <!-- Downloads Screen -->
+    <string name="downloads_title">دانلودها</string>
+    <string name="sort_by">مرتب‌سازی بر اساس:</string>
+    <string name="sort_date">تاریخ افزودن</string>
+    <string name="sort_title">عنوان</string>
+    <string name="sort_artist">هنرمند</string>
+    <string name="cd_delete_track">حذف آهنگ</string>
+    <string name="empty_downloads">هیچ آهنگی دانلود نشده است.</string>
 </resources>
