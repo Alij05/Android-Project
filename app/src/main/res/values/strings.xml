@@ -45,4 +45,15 @@
     <string name="section_local_music">Domestic Music</string>
     <string name="section_user_playlists">Your Playlists</string>
     <string name="tracks_count_format">%1$d Tracks</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">My Profile</string>
+    <string name="change_avatar">Change Avatar</string>
+    <string name="premium_member">Premium</string>
+    <string name="standard_member">Standard</string>
+    <string name="upgrade_premium">Upgrade to Premium</string>
+    <string name="settings_title">Settings</string>
+    <string name="theme_settings">Theme</string>
+    <string name="language_settings">Language</string>
+    <string name="upgrading_wait">Processing...</string>
 </resources>

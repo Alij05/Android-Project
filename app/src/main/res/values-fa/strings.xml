@@ -44,4 +44,15 @@
     <string name="section_local_music">موسیقی داخلی</string>
     <string name="section_user_playlists">پلی‌لیست‌های شما</string>
     <string name="tracks_count_format">%1$d آهنگ</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">پروفایل من</string>
+    <string name="change_avatar">تغییر آواتار</string>
+    <string name="premium_member">ویژه (Premium)</string>
+    <string name="standard_member">کاربر عادی</string>
+    <string name="upgrade_premium">خرید / تمدید اشتراک</string>
+    <string name="settings_title">تنظیمات</string>
+    <string name="theme_settings">پوسته (Theme)</string>
+    <string name="language_settings">زبان برنامه</string>
+    <string name="upgrading_wait">در حال پردازش...</string>
 </resources>
