@@ -37,4 +37,11 @@
     <string name="sort_artist">هنرمند</string>
     <string name="cd_delete_track">حذف آهنگ</string>
     <string name="empty_downloads">هیچ آهنگی دانلود نشده است.</string>
+
+    <!-- Playlists Screen -->
+    <string name="playlists_title">پلی‌لیست‌ها</string>
+    <string name="section_intl_music">موسیقی جهان</string>
+    <string name="section_local_music">موسیقی داخلی</string>
+    <string name="section_user_playlists">پلی‌لیست‌های شما</string>
+    <string name="tracks_count_format">%1$d آهنگ</string>
 </resources>
