@@ -18,4 +18,15 @@
     <string name="section_global_playlists">Global Playlists</string>
     <string name="section_local_playlists">Local Playlists</string>
     <string name="cd_track_cover">Track Cover Image</string>
+
+    <!-- Search Screen -->
+    <string name="search_hint">What do you want to listen to?</string>
+    <string name="filter_all">All</string>
+    <string name="filter_tracks">Tracks</string>
+    <string name="filter_artists">Artists</string>
+    <string name="filter_albums">Albums</string>
+    <string name="recent_searches">Recent Searches</string>
+    <string name="clear_history">Clear</string>
+    <string name="cd_clear_search">Clear search query</string>
+    <string name="cd_delete_history_item">Delete item from history</string>
 </resources>

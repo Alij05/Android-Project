@@ -17,4 +17,15 @@
     <string name="section_global_playlists">پلی‌لیست‌های جهانی</string>
     <string name="section_local_playlists">پلی‌لیست‌های محلی</string>
     <string name="cd_track_cover">تصویر کاور آهنگ</string>
+
+    <!-- Search Screen -->
+    <string name="search_hint">به چه چیزی می‌خواهی گوش دهی؟</string>
+    <string name="filter_all">همه</string>
+    <string name="filter_tracks">آهنگ‌ها</string>
+    <string name="filter_artists">هنرمندان</string>
+    <string name="filter_albums">آلبوم‌ها</string>
+    <string name="recent_searches">جستجوهای اخیر</string>
+    <string name="clear_history">پاک‌سازی</string>
+    <string name="cd_clear_search">پاک کردن متن جستجو</string>
+    <string name="cd_delete_history_item">حذف مورد از تاریخچه</string>
 </resources>
