@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "hw6mp"
+rootProject.name = "Sickimfy"
 include(":app")
