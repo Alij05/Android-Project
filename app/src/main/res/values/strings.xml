@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Top Bar Strings -->
     <string name="app_name">Sickimfy</string>
     <string name="cd_notification_bell">Notifications</string>
     <string name="cd_settings_gear">Settings</string>
     <string name="cd_profile_picture">User Profile</string>
+
+    <!-- Home Quick Actions -->
+    <string name="qa_liked_songs">Liked Songs</string>
+    <string name="qa_recently_played">Recently Played</string>
+    <string name="qa_my_playlists">My Playlists</string>
+    <string name="qa_top_artists">Top Artists</string>
+
+    <!-- Home Feed Sliders Headers -->
+    <string name="section_popular">Most Popular</string>
+    <string name="section_new_releases">New Releases</string>
+    <string name="section_global_playlists">Global Playlists</string>
+    <string name="section_local_playlists">Local Playlists</string>
+    <string name="cd_track_cover">Track Cover Image</string>
 </resources>
