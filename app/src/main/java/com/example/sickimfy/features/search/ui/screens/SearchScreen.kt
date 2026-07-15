@@ -38,6 +38,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +50,9 @@ import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.features.search.ui.SearchEvent
 import com.example.sickimfy.features.search.ui.SearchFilter
 import com.example.sickimfy.features.search.ui.SearchUiState
+import com.example.sickimfy.features.home.domain.model.Track
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
 @Composable
 fun SearchScreen(
@@ -84,18 +91,27 @@ fun SearchScreen(
                     onClearAllClick = { onEvent(SearchEvent.OnClearSearchHistory) }
                 )
             } else {
-                // Here we would display the Paging3 list of tracks.
-                // Since data layer is handled by teammates, we leave a placeholder.
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    if (uiState.isSearching) {
+                when {
+                    uiState.isSearching -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    } else if (uiState.searchResults.isEmpty()) {
+                    }
+                    uiState.errorMessage != null -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No results found for '${uiState.query}'",
+                            text = stringResource(R.string.search_error),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    uiState.searchResults.isEmpty() -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.no_results_format, uiState.query),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
+                    else -> SearchResults(
+                        tracks = uiState.searchResults,
+                        onTrackClick = { onEvent(SearchEvent.OnTrackSelected(it.id)) }
+                    )
                 }
             }
         }
@@ -242,6 +258,38 @@ private fun SearchHistorySection(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchResults(
+    tracks: List<Track>,
+    onTrackClick: (Track) -> Unit
+) {
+    LazyColumn(contentPadding = PaddingValues(vertical = Dimens.paddingSmall)) {
+        items(tracks, key = { it.id }) { track ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onTrackClick(track) }
+                    .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current).data(track.imageUrl).crossfade(true).build(),
+                    contentDescription = stringResource(R.string.cd_track_cover),
+                    placeholder = painterResource(android.R.drawable.ic_menu_gallery),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp))
+                )
+                Spacer(modifier = Modifier.width(Dimens.paddingMedium))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(track.title, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                    Text(track.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
+                }
+                Text(track.duration, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
