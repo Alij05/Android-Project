@@ -147,7 +147,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(Dimens.paddingMedium))
                         Button(onClick = { onEvent(HomeEvent.OnRetryClicked) }) {
-                            Text(text = "Retry")
+                            Text(text = stringResource(R.string.retry))
                         }
                     }
                 }

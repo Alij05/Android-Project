@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -61,6 +62,17 @@ fun PlaylistsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        } else if (uiState.errorMessage != null) {
+            Column(
+                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(stringResource(R.string.playlists_error), color = MaterialTheme.colorScheme.error)
+                Button(onClick = { onEvent(PlaylistsEvent.OnRetryClick) }) {
+                    Text(stringResource(R.string.retry))
+                }
             }
         } else {
             // Grouping data to distribute cleanly over the dynamic grid

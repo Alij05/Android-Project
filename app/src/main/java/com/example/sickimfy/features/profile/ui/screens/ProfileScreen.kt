@@ -63,6 +63,22 @@ fun ProfileScreen(
     onEvent: (ProfileEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (uiState.isLoading) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+        return
+    }
+    if (uiState.errorMessage != null && uiState.userName.isBlank()) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = stringResource(R.string.profile_sign_in_required),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(Dimens.paddingMedium)
+            )
+        }
+        return
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background

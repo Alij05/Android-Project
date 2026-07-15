@@ -60,4 +60,9 @@
     <string name="theme_settings">پوسته (Theme)</string>
     <string name="language_settings">زبان برنامه</string>
     <string name="upgrading_wait">در حال پردازش...</string>
+    <string name="retry">تلاش دوباره</string>
+    <string name="search_error">نتایج جستجو بارگذاری نشد.</string>
+    <string name="no_results_format">نتیجه‌ای برای «%1$s» پیدا نشد.</string>
+    <string name="playlists_error">پلی‌لیست‌ها بارگذاری نشدند.</string>
+    <string name="profile_sign_in_required">برای مشاهده پروفایل باید وارد حساب شوید.</string>
 </resources>

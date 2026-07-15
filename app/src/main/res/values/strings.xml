@@ -61,4 +61,9 @@
     <string name="theme_settings">Theme</string>
     <string name="language_settings">Language</string>
     <string name="upgrading_wait">Processing...</string>
+    <string name="retry">Retry</string>
+    <string name="search_error">Could not load search results.</string>
+    <string name="no_results_format">No results found for “%1$s”.</string>
+    <string name="playlists_error">Could not load playlists.</string>
+    <string name="profile_sign_in_required">Sign in is required to load your profile.</string>
 </resources>
