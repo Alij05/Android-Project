@@ -28,8 +28,39 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
+            
+            // Resolve language code
+            val language = when (preferences.languageCode) {
+                "system" -> {
+                    val systemLocale = java.util.Locale.getDefault().language
+                    if (systemLocale == "fa") "fa" else "en"
+                }
+                else -> preferences.languageCode
+            }
+
+            // Dynamic locale configuration reload
+            val context = androidx.compose.ui.platform.LocalContext.current
+            androidx.compose.runtime.LaunchedEffect(language) {
+                val locale = java.util.Locale(language)
+                java.util.Locale.setDefault(locale)
+                val resources = context.resources
+                val config = resources.configuration
+                config.setLocale(locale)
+                resources.updateConfiguration(config, resources.displayMetrics)
+            }
+
+            val layoutDirection = if (language == "fa") {
+                androidx.compose.ui.unit.LayoutDirection.Rtl
+            } else {
+                androidx.compose.ui.unit.LayoutDirection.Ltr
+            }
+
             MusicAppTheme(darkTheme = useDarkTheme) {
-                SickimfyApp()
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.ui.platform.LocalLayoutDirection provides layoutDirection
+                ) {
+                    SickimfyApp()
+                }
             }
         }
     }
