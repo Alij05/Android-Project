@@ -2,6 +2,11 @@
 <resources>
     <!-- Top Bar Strings -->
     <string name="app_name">Sickimfy</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_downloads">Downloads</string>
+    <string name="nav_playlists">Playlists</string>
+    <string name="nav_profile">Profile</string>
     <string name="cd_notification_bell">Notifications</string>
     <string name="cd_settings_gear">Settings</string>
     <string name="cd_profile_picture">User Profile</string>

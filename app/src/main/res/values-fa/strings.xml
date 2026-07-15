@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">سیکیمفای</string>
+    <string name="nav_home">خانه</string>
+    <string name="nav_search">جستجو</string>
+    <string name="nav_downloads">دانلودها</string>
+    <string name="nav_playlists">پلی‌لیست‌ها</string>
+    <string name="nav_profile">پروفایل</string>
     <string name="cd_notification_bell">اعلان‌ها</string>
     <string name="cd_settings_gear">تنظیمات</string>
     <string name="cd_profile_picture">پروفایل کاربری</string>
