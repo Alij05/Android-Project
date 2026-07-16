@@ -20,7 +20,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, "sickimfy.db").build()
+        Room.databaseBuilder(context, AppDatabase::class.java, "sickimfy.db")
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
 
     @Provides fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao = database.searchHistoryDao()
     @Provides fun provideLikedTrackDao(database: AppDatabase): LikedTrackDao = database.likedTrackDao()

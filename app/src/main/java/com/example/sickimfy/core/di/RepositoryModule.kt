@@ -1,5 +1,7 @@
 package com.example.sickimfy.core.di
 
+import com.example.sickimfy.features.chat.data.repository.ChatRepositoryImpl
+import com.example.sickimfy.features.chat.domain.repository.ChatRepository
 import com.example.sickimfy.features.home.data.repository.HomeRepositoryImpl
 import com.example.sickimfy.features.home.domain.repository.HomeRepository
 import com.example.sickimfy.features.playlists.data.repository.PlaylistsRepositoryImpl
@@ -20,4 +22,5 @@ abstract class RepositoryModule {
     @Binds abstract fun bindSearchRepository(implementation: SearchRepositoryImpl): SearchRepository
     @Binds abstract fun bindPlaylistsRepository(implementation: PlaylistsRepositoryImpl): PlaylistsRepository
     @Binds abstract fun bindProfileRepository(implementation: ProfileRepositoryImpl): ProfileRepository
+    @Binds abstract fun bindChatRepository(implementation: ChatRepositoryImpl): ChatRepository
 }
