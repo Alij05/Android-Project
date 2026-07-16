@@ -6,14 +6,17 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "offline_messages",
-    indices = [Index("conversationId")]
+    indices = [Index("receiverId"), Index("timestamp")]
 )
 data class OfflineMessageEntity(
-    @PrimaryKey val messageId: Int,
-    val conversationId: Int,
-    val senderId: Int,
-    val content: String?,
-    val sharedTrackId: Int?,
+    @PrimaryKey val messageId: String,
+    val senderId: String,
+    val receiverId: String,
+    val content: String,
+    val timestamp: Long,
     val status: String,
-    val createdAt: String
+    val trackId: String? = null,
+    val trackTitle: String? = null,
+    val trackArtist: String? = null,
+    val trackCoverUrl: String? = null
 )

@@ -66,4 +66,56 @@
     <string name="no_results_format">No results found for “%1$s”.</string>
     <string name="playlists_error">Could not load playlists.</string>
     <string name="profile_sign_in_required">Sign in is required to load your profile.</string>
+
+    <!-- Player Screen -->
+    <string name="now_playing">Now Playing</string>
+    <string name="cd_play">Play</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_next">Next</string>
+    <string name="cd_previous">Previous</string>
+    <string name="cd_shuffle">Shuffle</string>
+    <string name="cd_repeat">Repeat</string>
+    <string name="cd_favorite">Favorite</string>
+    <string name="cd_queue">Queue</string>
+    <string name="cd_close_player">Close player</string>
+    <string name="cd_speed_control">Playback speed</string>
+    <string name="cd_sleep_timer">Sleep timer</string>
+
+    <!-- Sleep Timer -->
+    <string name="sleep_timer_title">Sleep Timer</string>
+    <string name="sleep_timer_off">Off</string>
+    <string name="sleep_timer_15">15 minutes</string>
+    <string name="sleep_timer_30">30 minutes</string>
+    <string name="sleep_timer_45">45 minutes</string>
+    <string name="sleep_timer_60">60 minutes</string>
+    <string name="sleep_timer_active">Timer: %1$d min left</string>
+
+    <!-- Playback Speed -->
+    <string name="speed_label">Speed</string>
+    <string name="speed_1x">1.0x</string>
+    <string name="speed_1_5x">1.5x</string>
+    <string name="speed_2x">2.0x</string>
+
+    <!-- Business Logic -->
+    <string name="premium_required">Premium Required</string>
+    <string name="premium_required_message">Upgrade to Premium to download tracks for offline listening.</string>
+    <string name="upgrade_now">Upgrade Now</string>
+    <string name="cancel">Cancel</string>
+    <string name="downloading">Downloading…</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_failed">Download failed</string>
+    <string name="playing_offline">Playing from local file</string>
+
+    <!-- Chat -->
+    <string name="chat_title">Messages</string>
+    <string name="chat_hint">Type a message…</string>
+    <string name="cd_send_message">Send message</string>
+    <string name="cd_shared_track">Shared track</string>
+    <string name="typing_indicator">is typing…</string>
+    <string name="message_sending">Sending</string>
+    <string name="message_sent">Sent</string>
+    <string name="message_delivered">Delivered</string>
+    <string name="message_read">Read</string>
+    <string name="empty_chat">No messages yet. Start the conversation!</string>
+    <string name="no_internet">No internet connection</string>
 </resources>
