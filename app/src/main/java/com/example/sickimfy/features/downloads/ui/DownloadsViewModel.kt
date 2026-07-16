@@ -3,6 +3,9 @@ package com.example.sickimfy.features.downloads.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.features.home.domain.model.Track
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
+import com.example.sickimfy.core.data.local.entity.DownloadedTrackEntity
+import com.example.sickimfy.core.playback.PlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,32 +14,26 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class DownloadsViewModel @Inject constructor(
-    // Dependencies like GetDownloadedTracksUseCase and DeleteDownloadedTrackUseCase go here
+    private val downloadedTrackDao: DownloadedTrackDao,
+    private val playbackManager: PlaybackManager
 ) : ViewModel() {
 
     private val _sortOption = MutableStateFlow(SortOption.DATE_ADDED)
 
-    // Mocked static data for UI implementation. This will be replaced by Room DB Flow.
-    private val _downloadedTracks = MutableStateFlow(
-        listOf(
-            Track("1", "Bohemian Rhapsody", "Queen", "https://mock.url/1", "5:55", "A Night at the Opera"),
-            Track("2", "Shape of You", "Ed Sheeran", "https://mock.url/2", "3:53", "Divide"),
-            Track("3", "Blinding Lights", "The Weeknd", "https://mock.url/3", "3:20", "After Hours")
-        )
-    )
-
     val uiState: StateFlow<DownloadsUiState> = combine(
-        _downloadedTracks,
+        downloadedTrackDao.observeAll(),
         _sortOption
-    ) { tracks, sortOption ->
+    ) { entities, sortOption ->
+        val tracks = entities.map { it.toDomain() }
         val sortedTracks = when (sortOption) {
             SortOption.TITLE -> tracks.sortedBy { it.title }
             SortOption.ARTIST -> tracks.sortedBy { it.artist }
-            SortOption.DATE_ADDED -> tracks // Assuming incoming flow is ordered by date
+            SortOption.DATE_ADDED -> tracks
         }
         DownloadsUiState(
             downloadedTracks = sortedTracks,
@@ -55,15 +52,43 @@ class DownloadsViewModel @Inject constructor(
                 _sortOption.value = event.option
             }
             is DownloadsEvent.OnDeleteTrack -> {
-                // Here you would call deleteUseCase(event.track.id)
-                // For UI state reflection:
-                _downloadedTracks.update { currentList ->
-                    currentList.filterNot { it.id == event.track.id }
+                viewModelScope.launch {
+                    val downloaded = downloadedTrackDao.find(event.track.id)
+                    if (downloaded != null) {
+                        val file = File(downloaded.localFilePath)
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                        downloadedTrackDao.delete(event.track.id)
+                    }
                 }
             }
             is DownloadsEvent.OnTrackSelected -> {
-                // Navigate to player
+                viewModelScope.launch {
+                    val downloaded = downloadedTrackDao.find(event.track.id)
+                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
+                        downloaded.localFilePath
+                    } else {
+                        event.track.audioUrl
+                    }
+                    playbackManager.play(
+                        trackId = event.track.id,
+                        title = event.track.title,
+                        artist = event.track.artist,
+                        coverUrl = event.track.imageUrl,
+                        audioUrl = playUrl
+                    )
+                }
             }
         }
     }
-}
+
+    private fun DownloadedTrackEntity.toDomain() = Track(
+        id = trackId,
+        title = title,
+        artist = artist,
+        imageUrl = imageUrl,
+        duration = "%d:%02d".format(durationSeconds / 60, durationSeconds % 60),
+        albumName = ""
+    )
+}
