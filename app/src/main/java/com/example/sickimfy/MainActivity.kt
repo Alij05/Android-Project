@@ -59,7 +59,11 @@ class MainActivity : ComponentActivity() {
                 androidx.compose.runtime.CompositionLocalProvider(
                     androidx.compose.ui.platform.LocalLayoutDirection provides layoutDirection
                 ) {
-                    SickimfyApp()
+                    if (preferences.accessToken.isNullOrBlank()) {
+                        com.example.sickimfy.features.auth.ui.AuthScreen()
+                    } else {
+                        SickimfyApp()
+                    }
                 }
             }
         }
