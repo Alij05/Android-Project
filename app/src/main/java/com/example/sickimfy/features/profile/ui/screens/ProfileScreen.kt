@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Language
@@ -61,6 +62,7 @@ val GoldenPremium = Color(0xFFFFD700)
 fun ProfileScreen(
     uiState: ProfileUiState,
     onEvent: (ProfileEvent) -> Unit,
+    onNavigateToChat: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (uiState.isLoading) {
@@ -123,7 +125,8 @@ fun ProfileScreen(
             // Settings Section
             SettingsSection(
                 onThemeClick = { onEvent(ProfileEvent.OnThemeSettingsClick) },
-                onLanguageClick = { onEvent(ProfileEvent.OnLanguageSettingsClick) }
+                onLanguageClick = { onEvent(ProfileEvent.OnLanguageSettingsClick) },
+                onChatClick = onNavigateToChat
             )
         }
     }
@@ -267,7 +270,8 @@ private fun PremiumUpgradeButton(
 @Composable
 private fun SettingsSection(
     onThemeClick: () -> Unit,
-    onLanguageClick: () -> Unit
+    onLanguageClick: () -> Unit,
+    onChatClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -293,6 +297,12 @@ private fun SettingsSection(
                     icon = Icons.Default.Language,
                     title = stringResource(id = R.string.language_settings),
                     onClick = onLanguageClick
+                )
+                Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
+                SettingItem(
+                    icon = Icons.Default.Chat,
+                    title = "گفتگوها / Direct Messages",
+                    onClick = onChatClick
                 )
             }
         }

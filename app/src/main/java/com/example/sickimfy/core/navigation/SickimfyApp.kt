@@ -121,7 +121,51 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.PROFILE.route) {
                     val viewModel: ProfileViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    ProfileScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    ProfileScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateToChat = { navController.navigate("conversations") }
+                    )
+                }
+                composable("conversations") {
+                    com.example.sickimfy.features.chat.ui.screens.ConversationsScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToChat = { convoId, otherId, otherName ->
+                            navController.navigate("chat/$convoId/$otherId/$otherName")
+                        },
+                        onNavigateToSocial = { navController.navigate("social") }
+                    )
+                }
+                composable("social") {
+                    com.example.sickimfy.features.social.ui.SocialScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToChat = { convoId ->
+                            navController.navigate("chat/$convoId/0/Friend")
+                        }
+                    )
+                }
+                composable(
+                    route = "chat/{conversationId}/{userId}/{userName}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("conversationId") { type = androidx.navigation.NavType.IntType },
+                        androidx.navigation.navArgument("userId") { type = androidx.navigation.NavType.StringType },
+                        androidx.navigation.navArgument("userName") { type = androidx.navigation.NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val conversationId = backStackEntry.arguments?.getInt("conversationId") ?: -1
+                    val otherUserId = backStackEntry.arguments?.getString("userId").orEmpty()
+
+                    val viewModel: com.example.sickimfy.features.chat.ui.ChatViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(conversationId, otherUserId) {
+                        viewModel.initialize(conversationId, otherUserId)
+                    }
+
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.chat.ui.screens.ChatScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
                 }
             }
         }
