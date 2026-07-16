@@ -132,7 +132,16 @@ fun ChatScreen(
                     MessageBubble(
                         message = message,
                         onTrackClick = { trackId ->
-                            // Handle track click - play in player
+                            if (message.trackTitle != null && message.trackArtist != null && message.trackCoverUrl != null) {
+                                onEvent(
+                                    ChatEvent.OnPlayTrack(
+                                        trackId = trackId,
+                                        title = message.trackTitle,
+                                        artist = message.trackArtist,
+                                        coverUrl = message.trackCoverUrl
+                                    )
+                                )
+                            }
                         }
                     )
                 }

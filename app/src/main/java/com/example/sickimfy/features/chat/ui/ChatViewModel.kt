@@ -2,7 +2,12 @@ package com.example.sickimfy.features.chat.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sickimfy.core.data.local.dao.LikedTrackDao
+import com.example.sickimfy.BuildConfig
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
+import com.example.sickimfy.core.network.SickimfyApi
+import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.features.chat.data.remote.ChatWebSocketClient
 import com.example.sickimfy.features.chat.domain.model.Message
 import com.example.sickimfy.features.chat.domain.repository.ChatRepository
 import com.example.sickimfy.features.player.ui.PlayerEvent
@@ -17,19 +22,36 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val chatWebSocketClient: ChatWebSocketClient,
+    private val preferences: UserPreferencesDataStore,
+    private val playbackManager: PlaybackManager,
+    private val downloadedTrackDao: DownloadedTrackDao,
+    private val api: SickimfyApi
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
     private var currentUserId: String = ""
+    private var conversationId: Int = -1
 
-    fun initialize(userId: String) {
+    fun initialize(conversationId: Int, userId: String) {
+        this.conversationId = conversationId
         currentUserId = userId
         loadMessages()
         observeTyping()
         observeConnection()
+
+        viewModelScope.launch {
+            val token = preferences.accessToken() ?: ""
+            chatWebSocketClient.connect(BuildConfig.API_BASE_URL, token, conversationId)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatWebSocketClient.disconnect()
     }
 
     fun onEvent(event: ChatEvent) {
@@ -61,6 +83,27 @@ class ChatViewModel @Inject constructor(
             }
             ChatEvent.OnRetryConnection -> {
                 loadMessages()
+            }
+            is ChatEvent.OnPlayTrack -> {
+                viewModelScope.launch {
+                    runCatching {
+                        val downloaded = downloadedTrackDao.find(event.trackId)
+                        if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
+                            downloaded.localFilePath
+                        } else {
+                            // Fetch from server to get audio URL
+                            api.getTrack(event.trackId.toInt()).audioUrl
+                        }
+                    }.onSuccess { playUrl ->
+                        playbackManager.play(
+                            trackId = event.trackId,
+                            title = event.title,
+                            artist = event.artist,
+                            coverUrl = event.coverUrl,
+                            audioUrl = playUrl
+                        )
+                    }
+                }
             }
         }
     }
