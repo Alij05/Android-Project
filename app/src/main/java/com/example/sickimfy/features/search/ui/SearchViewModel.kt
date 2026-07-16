@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.features.home.domain.model.Track
 import com.example.sickimfy.features.search.domain.repository.SearchRepository
 import com.example.sickimfy.features.search.domain.usecase.SearchTracksUseCase
+import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -27,7 +29,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchTracks: SearchTracksUseCase,
-    private val repository: SearchRepository
+    private val repository: SearchRepository,
+    private val playbackManager: PlaybackManager,
+    private val downloadedTrackDao: DownloadedTrackDao
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -71,7 +75,23 @@ class SearchViewModel @Inject constructor(
             SearchEvent.OnClearSearchHistory -> {
                 viewModelScope.launch { repository.clearHistory() }
             }
-            is SearchEvent.OnTrackSelected -> Unit
+            is SearchEvent.OnTrackSelected -> {
+                viewModelScope.launch {
+                    val downloaded = downloadedTrackDao.find(event.track.id)
+                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
+                        downloaded.localFilePath
+                    } else {
+                        event.track.audioUrl
+                    }
+                    playbackManager.play(
+                        trackId = event.track.id,
+                        title = event.track.title,
+                        artist = event.track.artist,
+                        coverUrl = event.track.imageUrl,
+                        audioUrl = playUrl
+                    )
+                }
+            }
         }
     }
 

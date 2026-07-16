@@ -3,6 +3,7 @@ package com.example.sickimfy.features.player.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
 import com.example.sickimfy.core.playback.PlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
-    private val likedTrackDao: LikedTrackDao
+    private val likedTrackDao: LikedTrackDao,
+    private val downloadedTrackDao: DownloadedTrackDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -78,13 +80,21 @@ class PlayerViewModel @Inject constructor(
             PlayerEvent.ToggleFavorite -> toggleFavorite()
 
             is PlayerEvent.PlayTrack -> {
-                playbackManager.play(
-                    trackId = event.trackId,
-                    title = event.title,
-                    artist = event.artist,
-                    coverUrl = event.coverUrl,
-                    audioUrl = event.audioUrl
-                )
+                viewModelScope.launch {
+                    val downloaded = downloadedTrackDao.find(event.trackId)
+                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
+                        downloaded.localFilePath
+                    } else {
+                        event.audioUrl
+                    }
+                    playbackManager.play(
+                        trackId = event.trackId,
+                        title = event.title,
+                        artist = event.artist,
+                        coverUrl = event.coverUrl,
+                        audioUrl = playUrl
+                    )
+                }
             }
         }
     }

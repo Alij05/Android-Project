@@ -6,6 +6,7 @@ import com.example.sickimfy.core.network.SickimfyApi
 import com.example.sickimfy.core.network.dto.PlaylistSummaryDto
 import com.example.sickimfy.features.playlists.domain.model.Playlist
 import com.example.sickimfy.features.playlists.domain.model.PlaylistType
+import com.example.sickimfy.core.network.dto.toDomain
 import com.example.sickimfy.features.playlists.domain.repository.PlaylistsRepository
 import javax.inject.Inject
 
@@ -21,6 +22,11 @@ class PlaylistsRepositoryImpl @Inject constructor(
             api.getMyPlaylists().map { it.toDomain(PlaylistType.USER) }
         }
         return (public + mine).distinctBy { it.id }
+    }
+
+    override suspend fun getPlaylistTracks(playlistId: String): List<com.example.sickimfy.features.home.domain.model.Track> {
+        val details = api.getPlaylistDetails(playlistId.toInt())
+        return details.tracks.map { it.toDomain() }
     }
 
     private fun PlaylistSummaryDto.toDomain(type: PlaylistType) = Playlist(
