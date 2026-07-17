@@ -180,7 +180,7 @@ class PlayerViewModel @Inject constructor(
 
     private fun checkFavorite(trackId: String) {
         viewModelScope.launch {
-            val exists = likedTrackDao.observeAll().value.any { it.trackId == trackId }
+            val exists = likedTrackDao.isLiked(trackId)
             _uiState.update { it.copy(isFavorite = exists) }
         }
     }

@@ -16,4 +16,7 @@ interface LikedTrackDao {
 
     @Query("DELETE FROM liked_tracks WHERE trackId = :trackId")
     suspend fun delete(trackId: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM liked_tracks WHERE trackId = :trackId)")
+    suspend fun isLiked(trackId: String): Boolean
 }
