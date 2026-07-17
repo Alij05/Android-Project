@@ -20,4 +20,6 @@ sealed interface PlayerEvent {
         val coverUrl: String,
         val audioUrl: String
     ) : PlayerEvent
+
+    data object DownloadTrack : PlayerEvent
 }

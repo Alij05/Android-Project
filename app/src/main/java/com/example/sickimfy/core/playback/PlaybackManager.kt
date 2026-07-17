@@ -197,6 +197,8 @@ class PlaybackManager @Inject constructor() {
 
     fun getCurrentTrackMediaId(): String? = _exoplayer?.currentMediaItem?.mediaId
 
+    fun getCurrentAudioUrl(): String? = _exoplayer?.currentMediaItem?.localConfiguration?.uri?.toString()
+
     fun getExoplayer(): ExoPlayer? = _exoplayer
 
     fun release() {

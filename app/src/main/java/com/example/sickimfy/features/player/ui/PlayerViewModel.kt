@@ -1,12 +1,16 @@
 package com.example.sickimfy.features.player.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +26,9 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
     private val likedTrackDao: LikedTrackDao,
-    private val downloadedTrackDao: DownloadedTrackDao
+    private val downloadedTrackDao: DownloadedTrackDao,
+    private val preferences: UserPreferencesDataStore,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -78,6 +85,27 @@ class PlayerViewModel @Inject constructor(
             PlayerEvent.CancelSleepTimer -> cancelSleepTimer()
 
             PlayerEvent.ToggleFavorite -> toggleFavorite()
+
+            PlayerEvent.DownloadTrack -> {
+                viewModelScope.launch {
+                    val isPremium = preferences.preferences.first().isPremium
+                    if (!isPremium) {
+                        _uiState.update { it.copy(error = "دانلود فقط برای کاربران ویژه فعال است / Download is only available for Premium members") }
+                        return@launch
+                    }
+                    val trackId = _uiState.value.trackId ?: return@launch
+                    val audioUrl = playbackManager.getCurrentAudioUrl() ?: return@launch
+                    DownloadWorker.enqueue(
+                        context = context,
+                        trackId = trackId,
+                        title = _uiState.value.title,
+                        artist = _uiState.value.artist,
+                        imageUrl = _uiState.value.coverUrl,
+                        audioUrl = audioUrl,
+                        durationSeconds = (_uiState.value.durationMs / 1000).toInt()
+                    )
+                }
+            }
 
             is PlayerEvent.PlayTrack -> {
                 viewModelScope.launch {

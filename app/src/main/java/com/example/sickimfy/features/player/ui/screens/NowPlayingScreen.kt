@@ -21,7 +21,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled Favorite
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -328,17 +329,37 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Favorite button
-            IconButton(
-                onClick = { onEvent(PlayerEvent.ToggleFavorite) },
-                modifier = Modifier.size(48.dp)
+            // Favorite and Download buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = stringResource(id = R.string.cd_favorite),
-                    tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(28.dp)
-                )
+                IconButton(
+                    onClick = { onEvent(PlayerEvent.ToggleFavorite) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(id = R.string.cd_favorite),
+                        tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(Dimens.paddingLarge))
+
+                IconButton(
+                    onClick = { onEvent(PlayerEvent.DownloadTrack) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = "Download",
+                        tint = Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
     }
