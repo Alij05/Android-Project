@@ -9,6 +9,7 @@ import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
 import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
+import androidx.media3.common.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -59,20 +60,18 @@ class PlayerViewModel @Inject constructor(
             is PlayerEvent.SetSpeed -> playbackManager.setPlaybackSpeed(event.speed)
 
             PlayerEvent.ToggleShuffle -> {
-                val currentState = playbackManager.playbackState.value
-                playbackManager.setShuffleMode(!currentState.isPlaying)
+                val currentShuffle = playbackManager.getShuffleEnabled()
+                playbackManager.setShuffleMode(!currentShuffle)
             }
 
             PlayerEvent.ToggleRepeat -> {
-                val player = playbackManager
-                val currentRepeat = 0
-                player.setRepeatMode(
-                    when (currentRepeat) {
-                        0 -> 1
-                        1 -> 2
-                        else -> 0
-                    }
-                )
+                val currentRepeat = playbackManager.getRepeatMode()
+                val nextRepeat = when (currentRepeat) {
+                    Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+                    Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+                    else -> Player.REPEAT_MODE_OFF
+                }
+                playbackManager.setRepeatMode(nextRepeat)
             }
 
             is PlayerEvent.SetSleepTimer -> {
@@ -141,7 +140,9 @@ class PlayerViewModel @Inject constructor(
                         durationMs = state.durationMs,
                         playbackSpeed = state.playbackSpeed,
                         isLoading = state.isLoading,
-                        error = state.error
+                        error = state.error,
+                        shuffleEnabled = state.shuffleEnabled,
+                        repeatMode = state.repeatMode
                     )
                 }
 

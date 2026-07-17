@@ -13,5 +13,7 @@ data class PlayerUiState(
     val isFavorite: Boolean = false,
     val sleepTimerMinutes: Int? = null,
     val sleepTimerRunning: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val shuffleEnabled: Boolean = false,
+    val repeatMode: Int = 0 // 0=OFF, 1=ALL, 2=ONE
 )

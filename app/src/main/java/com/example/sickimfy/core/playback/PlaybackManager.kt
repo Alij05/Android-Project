@@ -1,6 +1,8 @@
 package com.example.sickimfy.core.playback
 
 import android.content.Context
+import android.media.AudioManager
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -31,7 +33,9 @@ data class PlaybackState(
     val durationMs: Long = 0L,
     val playbackSpeed: Float = 1f,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val shuffleEnabled: Boolean = false,
+    val repeatMode: Int = Player.REPEAT_MODE_OFF
 )
 
 @Singleton
@@ -63,10 +67,16 @@ class PlaybackManager @Inject constructor() {
 
         val mediaSourceFactory = DefaultMediaSourceFactory(cacheDataSourceFactory)
 
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
         _exoplayer = ExoPlayer.Builder(context)
             .setMediaSourceFactory(mediaSourceFactory)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
+            .setAudioAttributes(audioAttributes, /* handleAudioFocus= */ true)
             .build()
             .apply {
                 addListener(playerListener)
@@ -185,11 +195,16 @@ class PlaybackManager @Inject constructor() {
 
     fun setShuffleMode(enabled: Boolean) {
         _exoplayer?.shuffleModeEnabled = enabled
+        _playbackState.update { it.copy(shuffleEnabled = enabled) }
     }
 
     fun setRepeatMode(mode: Int) {
         _exoplayer?.repeatMode = mode
+        _playbackState.update { it.copy(repeatMode = mode) }
     }
+
+    fun getShuffleEnabled(): Boolean = _exoplayer?.shuffleModeEnabled == true
+    fun getRepeatMode(): Int = _exoplayer?.repeatMode ?: Player.REPEAT_MODE_OFF
 
     fun getCurrentPosition(): Long = _exoplayer?.currentPosition ?: 0L
     fun getDuration(): Long = _exoplayer?.duration ?: 0L

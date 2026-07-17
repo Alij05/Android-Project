@@ -271,7 +271,7 @@ fun NowPlayingScreen(
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = stringResource(id = R.string.cd_shuffle),
-                        tint = if (uiState.isPlaying) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
+                        tint = if (uiState.shuffleEnabled) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -319,9 +319,9 @@ fun NowPlayingScreen(
                 // Repeat
                 IconButton(onClick = { onEvent(PlayerEvent.ToggleRepeat) }) {
                     Icon(
-                        imageVector = Icons.Default.Repeat,
+                        imageVector = if (uiState.repeatMode == 2) Icons.Default.RepeatOne else Icons.Default.Repeat,
                         contentDescription = stringResource(id = R.string.cd_repeat),
-                        tint = Color.White.copy(alpha = 0.5f),
+                        tint = if (uiState.repeatMode != 0) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
