@@ -329,6 +329,52 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
+            // Sleep Timer and Speed controls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        val newSpeed = when (uiState.playbackSpeed) {
+                            1.0f -> 1.5f
+                            1.5f -> 2.0f
+                            else -> 1.0f
+                        }
+                        onEvent(PlayerEvent.SetSpeed(newSpeed))
+                    }
+                ) {
+                    Text(
+                        text = "سرعت / Speed: ${uiState.playbackSpeed}x",
+                        color = Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        if (uiState.sleepTimerRunning) {
+                            onEvent(PlayerEvent.CancelSleepTimer)
+                        } else {
+                            onEvent(PlayerEvent.SetSleepTimer(15))
+                        }
+                    }
+                ) {
+                    Text(
+                        text = if (uiState.sleepTimerRunning) {
+                            "تایمر / Timer: ${uiState.sleepTimerMinutes}m"
+                        } else {
+                            "تایمر خواب / Sleep Timer"
+                        },
+                        color = if (uiState.sleepTimerRunning) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+
             // Favorite and Download buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
