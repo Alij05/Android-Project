@@ -113,7 +113,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onEvent = viewModel::onEvent,
                         onNavigateToLikedSongs = { navController.navigate("liked_songs") },
                         onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
-                        onSettingsClick = navigateToProfile,
+                        onSettingsClick = { navController.navigate("settings") },
                         onProfileClick = navigateToProfile
                     )
                 }
@@ -135,7 +135,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     DownloadsScreen(
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
-                        onSettingsClick = navigateToProfile,
+                        onSettingsClick = { navController.navigate("settings") },
                         onProfileClick = navigateToProfile
                     )
                 }
@@ -152,7 +152,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     PlaylistsScreen(
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
-                        onSettingsClick = navigateToProfile,
+                        onSettingsClick = { navController.navigate("settings") },
                         onProfileClick = navigateToProfile
                     )
                 }
@@ -193,6 +193,17 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onTrackSelected = viewModel::playTrack,
                         onRemoveTrack = viewModel::removeTrack,
                         onPlayAll = viewModel::playAll
+                    )
+                }
+                composable("settings") {
+                    val viewModel: com.example.sickimfy.features.settings.ui.SettingsViewModel = hiltViewModel()
+                    val settingsState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.settings.ui.SettingsScreen(
+                        state = settingsState,
+                        onThemeChange = viewModel::setThemeMode,
+                        onLanguageChange = viewModel::setLanguage,
+                        onFontScaleChange = viewModel::setFontScale,
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
                 composable("conversations") {
