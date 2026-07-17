@@ -92,3 +92,9 @@ data class SendMessageRequestDto(
     val sharedTrackId: Int? = null
 )
 
+data class PlaylistDetailsDto(
+    val playlist: PlaylistSummaryDto,
+    val tracks: List<TrackDto>
+)
+
+

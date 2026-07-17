@@ -78,6 +78,12 @@ interface SickimfyApi {
         @retrofit2.http.Path("id") conversationId: Int,
         @Body request: SendMessageRequestDto
     ): MessageDto
+
+    @GET("api/playlists/{id}")
+    suspend fun getPlaylistDetails(@retrofit2.http.Path("id") id: Int): com.example.sickimfy.core.network.dto.PlaylistDetailsDto
+
+    @GET("api/tracks/{id}")
+    suspend fun getTrack(@retrofit2.http.Path("id") id: Int): com.example.sickimfy.core.network.dto.TrackDto
 }
 
 data class UpdateProfileRequestDto(
