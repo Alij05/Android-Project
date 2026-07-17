@@ -101,7 +101,21 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.HOME.route) {
                     val viewModel: HomeViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    HomeScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    HomeScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateToLikedSongs = { navController.navigate("liked_songs") },
+                        onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
+                        onSettingsClick = navigateToProfile,
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.SEARCH.route) {
                     val viewModel: SearchViewModel = hiltViewModel()
@@ -111,12 +125,36 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.DOWNLOADS.route) {
                     val viewModel: DownloadsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    DownloadsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    DownloadsScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onSettingsClick = navigateToProfile,
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.PLAYLISTS.route) {
                     val viewModel: PlaylistsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    PlaylistsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    PlaylistsScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onSettingsClick = navigateToProfile,
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.PROFILE.route) {
                     val viewModel: ProfileViewModel = hiltViewModel()
@@ -125,6 +163,36 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
                         onNavigateToChat = { navController.navigate("conversations") }
+                    )
+                }
+                composable("liked_songs") {
+                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.LikedSongs)
+                    }
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
+                        title = uiState.title,
+                        tracks = uiState.tracks,
+                        onNavigateBack = { navController.popBackStack() },
+                        onTrackSelected = viewModel::playTrack,
+                        onRemoveTrack = viewModel::removeTrack,
+                        onPlayAll = viewModel::playAll
+                    )
+                }
+                composable("recently_played") {
+                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.RecentlyPlayed)
+                    }
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
+                        title = uiState.title,
+                        tracks = uiState.tracks,
+                        onNavigateBack = { navController.popBackStack() },
+                        onTrackSelected = viewModel::playTrack,
+                        onRemoveTrack = viewModel::removeTrack,
+                        onPlayAll = viewModel::playAll
                     )
                 }
                 composable("conversations") {

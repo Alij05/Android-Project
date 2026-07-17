@@ -65,6 +65,8 @@ import kotlinx.coroutines.delay
 fun DownloadsScreen(
     uiState: DownloadsUiState,
     onEvent: (DownloadsEvent) -> Unit,
+    onSettingsClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -72,8 +74,8 @@ fun DownloadsScreen(
         topBar = {
             MusicTopBar(
                 onNotificationClick = { },
-                onSettingsClick = { },
-                onProfileClick = { }
+                onSettingsClick = onSettingsClick,
+                onProfileClick = onProfileClick
             )
         }
     ) { innerPadding ->
