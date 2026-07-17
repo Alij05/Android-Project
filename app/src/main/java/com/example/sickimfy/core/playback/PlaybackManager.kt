@@ -52,7 +52,8 @@ class PlaybackManager @Inject constructor() {
 
         val cacheDir = File(context.cacheDir, "media_cache")
         val databaseProvider = StandaloneDatabaseProvider(context)
-        val simpleCache = SimpleCache(cacheDir, databaseProvider, DefaultHttpDataSource.Factory())
+        val evictor = androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor(100 * 1024 * 1024L) // 100MB
+        val simpleCache = SimpleCache(cacheDir, evictor, databaseProvider)
         _simpleCache = simpleCache
 
         val cacheDataSourceFactory = CacheDataSource.Factory()
