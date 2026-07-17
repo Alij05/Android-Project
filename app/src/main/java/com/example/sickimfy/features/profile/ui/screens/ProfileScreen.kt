@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Person
@@ -126,7 +127,8 @@ fun ProfileScreen(
             SettingsSection(
                 onThemeClick = { onEvent(ProfileEvent.OnThemeSettingsClick) },
                 onLanguageClick = { onEvent(ProfileEvent.OnLanguageSettingsClick) },
-                onChatClick = onNavigateToChat
+                onChatClick = onNavigateToChat,
+                onLogoutClick = { onEvent(ProfileEvent.OnLogoutClick) }
             )
         }
     }
@@ -271,7 +273,8 @@ private fun PremiumUpgradeButton(
 private fun SettingsSection(
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
-    onChatClick: () -> Unit
+    onChatClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -303,6 +306,12 @@ private fun SettingsSection(
                     icon = Icons.Default.Chat,
                     title = "گفتگوها / Direct Messages",
                     onClick = onChatClick
+                )
+                Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
+                SettingItem(
+                    icon = Icons.Default.ExitToApp,
+                    title = "خروج از حساب کاربری / Log Out",
+                    onClick = onLogoutClick
                 )
             }
         }

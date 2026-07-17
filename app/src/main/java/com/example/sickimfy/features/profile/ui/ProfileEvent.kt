@@ -5,4 +5,5 @@ sealed interface ProfileEvent {
     object OnUpgradePremiumClick : ProfileEvent
     object OnThemeSettingsClick : ProfileEvent
     object OnLanguageSettingsClick : ProfileEvent
+    object OnLogoutClick : ProfileEvent
 }
