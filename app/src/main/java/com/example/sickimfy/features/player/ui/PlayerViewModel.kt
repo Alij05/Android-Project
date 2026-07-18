@@ -11,7 +11,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,47 +35,30 @@ class PlayerViewModel @Inject constructor(
     fun onEvent(event: PlayerEvent) {
         when (event) {
             PlayerEvent.PlayPause -> playbackManager.togglePlayPause()
-
             PlayerEvent.SkipNext -> playbackManager.skipToNext()
-
             PlayerEvent.SkipPrevious -> playbackManager.skipToPrevious()
-
             PlayerEvent.SeekForward -> playbackManager.seekForward()
-
             PlayerEvent.SeekBackward -> playbackManager.seekBackward()
-
             is PlayerEvent.SeekTo -> playbackManager.seekTo(event.positionMs)
-
             is PlayerEvent.SetSpeed -> playbackManager.setPlaybackSpeed(event.speed)
 
             PlayerEvent.ToggleShuffle -> {
-                val currentState = playbackManager.playbackState.value
-                playbackManager.setShuffleMode(!currentState.isPlaying)
+                val currentShuffle = playbackManager.playbackState.value.isShuffleEnabled
+                playbackManager.setShuffleMode(!currentShuffle)
             }
 
             PlayerEvent.ToggleRepeat -> {
-                val player = playbackManager
-                val currentRepeat = 0
-                player.setRepeatMode(
-                    when (currentRepeat) {
-                        0 -> 1
-                        1 -> 2
-                        else -> 0
-                    }
-                )
+                val currentRepeat = playbackManager.playbackState.value.repeatMode
+                val nextRepeat = (currentRepeat + 1) % 3
+                playbackManager.setRepeatMode(nextRepeat)
             }
 
             is PlayerEvent.SetSleepTimer -> {
                 cancelSleepTimer()
-                event.minutes?.let { minutes ->
-                    startSleepTimer(minutes)
-                }
+                event.minutes?.let { startSleepTimer(it) }
             }
-
             PlayerEvent.CancelSleepTimer -> cancelSleepTimer()
-
             PlayerEvent.ToggleFavorite -> toggleFavorite()
-
             is PlayerEvent.PlayTrack -> {
                 playbackManager.play(
                     trackId = event.trackId,
@@ -106,10 +88,7 @@ class PlayerViewModel @Inject constructor(
                         error = state.error
                     )
                 }
-
-                state.currentTrackId?.let { trackId ->
-                    checkFavorite(trackId)
-                }
+                state.currentTrackId?.let { checkFavorite(it) }
             }
         }
     }
@@ -119,12 +98,10 @@ class PlayerViewModel @Inject constructor(
             while (true) {
                 delay(500)
                 if (playbackManager.isCurrentlyPlaying()) {
-                    val position = playbackManager.getCurrentPosition()
-                    val duration = playbackManager.getDuration()
                     _uiState.update {
                         it.copy(
-                            currentPositionMs = position,
-                            durationMs = duration
+                            currentPositionMs = playbackManager.getCurrentPosition(),
+                            durationMs = playbackManager.getDuration()
                         )
                     }
                 }
@@ -170,8 +147,9 @@ class PlayerViewModel @Inject constructor(
 
     private fun checkFavorite(trackId: String) {
         viewModelScope.launch {
-            val exists = likedTrackDao.observeAll().value.any { it.trackId == trackId }
-            _uiState.update { it.copy(isFavorite = exists) }
+            likedTrackDao.isTrackLiked(trackId).collect { exists ->
+                _uiState.update { it.copy(isFavorite = exists) }
+            }
         }
     }
 
