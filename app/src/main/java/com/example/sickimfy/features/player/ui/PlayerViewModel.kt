@@ -17,7 +17,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -46,17 +45,11 @@ class PlayerViewModel @Inject constructor(
     fun onEvent(event: PlayerEvent) {
         when (event) {
             PlayerEvent.PlayPause -> playbackManager.togglePlayPause()
-
             PlayerEvent.SkipNext -> playbackManager.skipToNext()
-
             PlayerEvent.SkipPrevious -> playbackManager.skipToPrevious()
-
             PlayerEvent.SeekForward -> playbackManager.seekForward()
-
             PlayerEvent.SeekBackward -> playbackManager.seekBackward()
-
             is PlayerEvent.SeekTo -> playbackManager.seekTo(event.positionMs)
-
             is PlayerEvent.SetSpeed -> playbackManager.setPlaybackSpeed(event.speed)
 
             PlayerEvent.ToggleShuffle -> {
@@ -76,13 +69,9 @@ class PlayerViewModel @Inject constructor(
 
             is PlayerEvent.SetSleepTimer -> {
                 cancelSleepTimer()
-                event.minutes?.let { minutes ->
-                    startSleepTimer(minutes)
-                }
+                event.minutes?.let { startSleepTimer(it) }
             }
-
             PlayerEvent.CancelSleepTimer -> cancelSleepTimer()
-
             PlayerEvent.ToggleFavorite -> toggleFavorite()
 
             PlayerEvent.DownloadTrack -> {
@@ -145,10 +134,7 @@ class PlayerViewModel @Inject constructor(
                         repeatMode = state.repeatMode
                     )
                 }
-
-                state.currentTrackId?.let { trackId ->
-                    checkFavorite(trackId)
-                }
+                state.currentTrackId?.let { checkFavorite(it) }
             }
         }
     }
@@ -158,12 +144,10 @@ class PlayerViewModel @Inject constructor(
             while (true) {
                 delay(500)
                 if (playbackManager.isCurrentlyPlaying()) {
-                    val position = playbackManager.getCurrentPosition()
-                    val duration = playbackManager.getDuration()
                     _uiState.update {
                         it.copy(
-                            currentPositionMs = position,
-                            durationMs = duration
+                            currentPositionMs = playbackManager.getCurrentPosition(),
+                            durationMs = playbackManager.getDuration()
                         )
                     }
                 }
@@ -209,8 +193,9 @@ class PlayerViewModel @Inject constructor(
 
     private fun checkFavorite(trackId: String) {
         viewModelScope.launch {
-            val exists = likedTrackDao.isLiked(trackId)
-            _uiState.update { it.copy(isFavorite = exists) }
+            likedTrackDao.isLiked(trackId).collect { exists ->
+                _uiState.update { it.copy(isFavorite = exists) }
+            }
         }
     }
 
