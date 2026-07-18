@@ -1,24 +1,34 @@
 package com.example.sickimfy.features.player.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
+import androidx.media3.common.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
-    private val likedTrackDao: LikedTrackDao
+    private val likedTrackDao: LikedTrackDao,
+    private val downloadedTrackDao: DownloadedTrackDao,
+    private val preferences: UserPreferencesDataStore,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -43,13 +53,17 @@ class PlayerViewModel @Inject constructor(
             is PlayerEvent.SetSpeed -> playbackManager.setPlaybackSpeed(event.speed)
 
             PlayerEvent.ToggleShuffle -> {
-                val currentShuffle = playbackManager.playbackState.value.isShuffleEnabled
+                val currentShuffle = playbackManager.getShuffleEnabled()
                 playbackManager.setShuffleMode(!currentShuffle)
             }
 
             PlayerEvent.ToggleRepeat -> {
-                val currentRepeat = playbackManager.playbackState.value.repeatMode
-                val nextRepeat = (currentRepeat + 1) % 3
+                val currentRepeat = playbackManager.getRepeatMode()
+                val nextRepeat = when (currentRepeat) {
+                    Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+                    Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+                    else -> Player.REPEAT_MODE_OFF
+                }
                 playbackManager.setRepeatMode(nextRepeat)
             }
 
@@ -59,14 +73,44 @@ class PlayerViewModel @Inject constructor(
             }
             PlayerEvent.CancelSleepTimer -> cancelSleepTimer()
             PlayerEvent.ToggleFavorite -> toggleFavorite()
+
+            PlayerEvent.DownloadTrack -> {
+                viewModelScope.launch {
+                    val isPremium = preferences.preferences.first().isPremium
+                    if (!isPremium) {
+                        _uiState.update { it.copy(error = "دانلود فقط برای کاربران ویژه فعال است / Download is only available for Premium members") }
+                        return@launch
+                    }
+                    val trackId = _uiState.value.trackId ?: return@launch
+                    val audioUrl = playbackManager.getCurrentAudioUrl() ?: return@launch
+                    DownloadWorker.enqueue(
+                        context = context,
+                        trackId = trackId,
+                        title = _uiState.value.title,
+                        artist = _uiState.value.artist,
+                        imageUrl = _uiState.value.coverUrl,
+                        audioUrl = audioUrl,
+                        durationSeconds = (_uiState.value.durationMs / 1000).toInt()
+                    )
+                }
+            }
+
             is PlayerEvent.PlayTrack -> {
-                playbackManager.play(
-                    trackId = event.trackId,
-                    title = event.title,
-                    artist = event.artist,
-                    coverUrl = event.coverUrl,
-                    audioUrl = event.audioUrl
-                )
+                viewModelScope.launch {
+                    val downloaded = downloadedTrackDao.find(event.trackId)
+                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
+                        downloaded.localFilePath
+                    } else {
+                        event.audioUrl
+                    }
+                    playbackManager.play(
+                        trackId = event.trackId,
+                        title = event.title,
+                        artist = event.artist,
+                        coverUrl = event.coverUrl,
+                        audioUrl = playUrl
+                    )
+                }
             }
         }
     }
@@ -85,7 +129,9 @@ class PlayerViewModel @Inject constructor(
                         durationMs = state.durationMs,
                         playbackSpeed = state.playbackSpeed,
                         isLoading = state.isLoading,
-                        error = state.error
+                        error = state.error,
+                        shuffleEnabled = state.shuffleEnabled,
+                        repeatMode = state.repeatMode
                     )
                 }
                 state.currentTrackId?.let { checkFavorite(it) }
@@ -147,7 +193,7 @@ class PlayerViewModel @Inject constructor(
 
     private fun checkFavorite(trackId: String) {
         viewModelScope.launch {
-            likedTrackDao.isTrackLiked(trackId).collect { exists ->
+            likedTrackDao.isLiked(trackId).collect { exists ->
                 _uiState.update { it.copy(isFavorite = exists) }
             }
         }
