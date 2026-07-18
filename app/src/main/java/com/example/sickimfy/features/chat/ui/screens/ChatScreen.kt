@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +51,7 @@ import com.example.sickimfy.features.chat.ui.screens.components.TypingIndicator
 fun ChatScreen(
     uiState: ChatUiState,
     onEvent: (ChatEvent) -> Unit,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -69,6 +71,14 @@ fun ChatScreen(
                         text = stringResource(id = R.string.chat_title),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -132,7 +142,16 @@ fun ChatScreen(
                     MessageBubble(
                         message = message,
                         onTrackClick = { trackId ->
-                            // Handle track click - play in player
+                            if (message.trackTitle != null && message.trackArtist != null && message.trackCoverUrl != null) {
+                                onEvent(
+                                    ChatEvent.OnPlayTrack(
+                                        trackId = trackId,
+                                        title = message.trackTitle,
+                                        artist = message.trackArtist,
+                                        coverUrl = message.trackCoverUrl
+                                    )
+                                )
+                            }
                         }
                     )
                 }

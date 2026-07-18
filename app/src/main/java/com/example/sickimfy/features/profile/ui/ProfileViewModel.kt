@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import com.example.sickimfy.core.auth.SessionRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
-    private val preferences: UserPreferencesDataStore
+    private val preferences: UserPreferencesDataStore,
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -40,6 +42,11 @@ class ProfileViewModel @Inject constructor(
             }
             ProfileEvent.OnLanguageSettingsClick -> {
                 toggleLanguage()
+            }
+            ProfileEvent.OnLogoutClick -> {
+                viewModelScope.launch {
+                    sessionRepository.logout()
+                }
             }
         }
     }

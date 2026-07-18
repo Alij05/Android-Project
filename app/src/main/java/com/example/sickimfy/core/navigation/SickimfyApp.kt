@@ -101,7 +101,21 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.HOME.route) {
                     val viewModel: HomeViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    HomeScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    HomeScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateToLikedSongs = { navController.navigate("liked_songs") },
+                        onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
+                        onSettingsClick = { navController.navigate("settings") },
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.SEARCH.route) {
                     val viewModel: SearchViewModel = hiltViewModel()
@@ -111,17 +125,126 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.DOWNLOADS.route) {
                     val viewModel: DownloadsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    DownloadsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    DownloadsScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onSettingsClick = { navController.navigate("settings") },
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.PLAYLISTS.route) {
                     val viewModel: PlaylistsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    PlaylistsScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    val navigateToProfile = {
+                        navController.navigate(AppDestination.PROFILE.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    PlaylistsScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onSettingsClick = { navController.navigate("settings") },
+                        onProfileClick = navigateToProfile
+                    )
                 }
                 composable(AppDestination.PROFILE.route) {
                     val viewModel: ProfileViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    ProfileScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    ProfileScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateToChat = { navController.navigate("conversations") }
+                    )
+                }
+                composable("liked_songs") {
+                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.LikedSongs)
+                    }
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
+                        title = uiState.title,
+                        tracks = uiState.tracks,
+                        onNavigateBack = { navController.popBackStack() },
+                        onTrackSelected = viewModel::playTrack,
+                        onRemoveTrack = viewModel::removeTrack,
+                        onPlayAll = viewModel::playAll
+                    )
+                }
+                composable("recently_played") {
+                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.RecentlyPlayed)
+                    }
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
+                        title = uiState.title,
+                        tracks = uiState.tracks,
+                        onNavigateBack = { navController.popBackStack() },
+                        onTrackSelected = viewModel::playTrack,
+                        onRemoveTrack = viewModel::removeTrack,
+                        onPlayAll = viewModel::playAll
+                    )
+                }
+                composable("settings") {
+                    val viewModel: com.example.sickimfy.features.settings.ui.SettingsViewModel = hiltViewModel()
+                    val settingsState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.settings.ui.SettingsScreen(
+                        state = settingsState,
+                        onThemeChange = viewModel::setThemeMode,
+                        onLanguageChange = viewModel::setLanguage,
+                        onFontScaleChange = viewModel::setFontScale,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+                composable("conversations") {
+                    com.example.sickimfy.features.chat.ui.screens.ConversationsScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToChat = { convoId, otherId, otherName ->
+                            navController.navigate("chat/$convoId/$otherId/$otherName")
+                        },
+                        onNavigateToSocial = { navController.navigate("social") }
+                    )
+                }
+                composable("social") {
+                    com.example.sickimfy.features.social.ui.SocialScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToChat = { convoId ->
+                            navController.navigate("chat/$convoId/0/Friend")
+                        }
+                    )
+                }
+                composable(
+                    route = "chat/{conversationId}/{userId}/{userName}",
+                    arguments = listOf(
+                        androidx.navigation.navArgument("conversationId") { type = androidx.navigation.NavType.IntType },
+                        androidx.navigation.navArgument("userId") { type = androidx.navigation.NavType.StringType },
+                        androidx.navigation.navArgument("userName") { type = androidx.navigation.NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val conversationId = backStackEntry.arguments?.getInt("conversationId") ?: -1
+                    val otherUserId = backStackEntry.arguments?.getString("userId").orEmpty()
+
+                    val viewModel: com.example.sickimfy.features.chat.ui.ChatViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(conversationId, otherUserId) {
+                        viewModel.initialize(conversationId, otherUserId)
+                    }
+
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    com.example.sickimfy.features.chat.ui.screens.ChatScreen(
+                        uiState = uiState,
+                        onEvent = viewModel::onEvent,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
                 }
             }
         }

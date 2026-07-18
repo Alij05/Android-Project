@@ -21,7 +21,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled Favorite
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -270,7 +271,7 @@ fun NowPlayingScreen(
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = stringResource(id = R.string.cd_shuffle),
-                        tint = if (uiState.isPlaying) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
+                        tint = if (uiState.shuffleEnabled) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -318,9 +319,9 @@ fun NowPlayingScreen(
                 // Repeat
                 IconButton(onClick = { onEvent(PlayerEvent.ToggleRepeat) }) {
                     Icon(
-                        imageVector = Icons.Default.Repeat,
+                        imageVector = if (uiState.repeatMode == 2) Icons.Default.RepeatOne else Icons.Default.Repeat,
                         contentDescription = stringResource(id = R.string.cd_repeat),
-                        tint = Color.White.copy(alpha = 0.5f),
+                        tint = if (uiState.repeatMode != 0) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -328,17 +329,83 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Favorite button
-            IconButton(
-                onClick = { onEvent(PlayerEvent.ToggleFavorite) },
-                modifier = Modifier.size(48.dp)
+            // Sleep Timer and Speed controls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = stringResource(id = R.string.cd_favorite),
-                    tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
-                    modifier = Modifier.size(28.dp)
-                )
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        val newSpeed = when (uiState.playbackSpeed) {
+                            1.0f -> 1.5f
+                            1.5f -> 2.0f
+                            else -> 1.0f
+                        }
+                        onEvent(PlayerEvent.SetSpeed(newSpeed))
+                    }
+                ) {
+                    Text(
+                        text = "سرعت / Speed: ${uiState.playbackSpeed}x",
+                        color = Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        if (uiState.sleepTimerRunning) {
+                            onEvent(PlayerEvent.CancelSleepTimer)
+                        } else {
+                            onEvent(PlayerEvent.SetSleepTimer(15))
+                        }
+                    }
+                ) {
+                    Text(
+                        text = if (uiState.sleepTimerRunning) {
+                            "تایمر / Timer: ${uiState.sleepTimerMinutes}m"
+                        } else {
+                            "تایمر خواب / Sleep Timer"
+                        },
+                        color = if (uiState.sleepTimerRunning) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+
+            // Favorite and Download buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { onEvent(PlayerEvent.ToggleFavorite) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(id = R.string.cd_favorite),
+                        tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(Dimens.paddingLarge))
+
+                IconButton(
+                    onClick = { onEvent(PlayerEvent.DownloadTrack) },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = "Download",
+                        tint = Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
     }

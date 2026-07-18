@@ -336,6 +336,23 @@ class AppDatabase(databasePath: String) {
         }
     }
 
+    fun searchUsers(query: String?, excludeId: Int): List<PublicProfile> = connection { connection ->
+        val sql = if (query.isNullOrBlank()) {
+            "SELECT id, display_name, avatar_url, is_premium FROM users WHERE id <> ? LIMIT 50"
+        } else {
+            "SELECT id, display_name, avatar_url, is_premium FROM users WHERE id <> ? AND (lower(display_name) LIKE ? OR lower(email) LIKE ?) LIMIT 50"
+        }
+        connection.prepareStatement(sql).use { statement ->
+            statement.setInt(1, excludeId)
+            if (!query.isNullOrBlank()) {
+                val q = "%${query.lowercase()}%"
+                statement.setString(2, q)
+                statement.setString(3, q)
+            }
+            statement.executeQuery().use { it.rows { row -> row.toPublicProfile() } }
+        }
+    }
+
     fun followedUsers(userId: Int): List<FollowedUser> = connection { connection ->
         connection.prepareStatement("""
             SELECT u.id,u.display_name,u.avatar_url,u.is_premium,f.created_at

@@ -35,6 +35,10 @@ import com.example.sickimfy.features.home.ui.screens.components.TrackSlider
 fun HomeScreen(
     uiState: HomeUiState,
     onEvent: (HomeEvent) -> Unit,
+    onNavigateToLikedSongs: () -> Unit,
+    onNavigateToRecentlyPlayed: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -42,8 +46,8 @@ fun HomeScreen(
         topBar = {
             MusicTopBar(
                 onNotificationClick = { /* Handle navigation to notifications */ },
-                onSettingsClick = { /* Handle navigation to settings */ },
-                onProfileClick = { /* Handle navigation to profile */ }
+                onSettingsClick = onSettingsClick,
+                onProfileClick = onProfileClick
             )
         }
     ) { innerPadding ->
@@ -99,7 +103,12 @@ fun HomeScreen(
                         // 2x2 Quick Actions Buttons
                         item {
                             QuickActionsGrid(
-                                onActionClick = { /* Handle specific quick action navigation */ }
+                                onActionClick = { actionId ->
+                                    when (actionId) {
+                                        "liked_songs" -> onNavigateToLikedSongs()
+                                        "recently_played" -> onNavigateToRecentlyPlayed()
+                                    }
+                                }
                             )
                         }
                         // Bottom Sliders Driven by Domain lists

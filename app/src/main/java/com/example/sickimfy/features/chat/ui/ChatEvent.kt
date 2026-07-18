@@ -11,4 +11,10 @@ sealed interface ChatEvent {
     ) : ChatEvent
     data class OnMessageRead(val messageId: String) : ChatEvent
     data object OnRetryConnection : ChatEvent
+    data class OnPlayTrack(
+        val trackId: String,
+        val title: String,
+        val artist: String,
+        val coverUrl: String
+    ) : ChatEvent
 }

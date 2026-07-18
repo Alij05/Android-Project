@@ -44,6 +44,7 @@ fun Route.apiRoutes(database: AppDatabase, tokens: TokenService, settings: Serve
 
         authenticate("auth-jwt") {
             get("/profile/me") { call.respond(io { database.profile(call.userId()) }) }
+            get("/users") { call.respond(io { database.searchUsers(call.request.queryParameters["query"], call.userId()) }) }
             patch("/profile/me") {
                 val request = call.receive<UpdateProfileRequest>()
                 call.respond(io { database.updateProfile(call.userId(), request) })

@@ -60,3 +60,41 @@ data class HomeResponseDto(
     val latestTracks: List<TrackDto>,
     val publicPlaylists: List<PlaylistSummaryDto>
 )
+
+data class FollowedUserDto(
+    val user: PublicProfileDto,
+    val followedAt: String
+)
+
+data class ConversationSummaryDto(
+    val id: Int,
+    val participant: PublicProfileDto,
+    val lastMessage: MessageDto?,
+    val createdAt: String
+)
+
+data class CreateConversationRequestDto(
+    val participantId: Int
+)
+
+data class MessageDto(
+    val id: Int,
+    val conversationId: Int,
+    val senderId: Int,
+    val content: String?,
+    val sharedTrack: TrackDto?,
+    val status: String,
+    val createdAt: String
+)
+
+data class SendMessageRequestDto(
+    val content: String? = null,
+    val sharedTrackId: Int? = null
+)
+
+data class PlaylistDetailsDto(
+    val playlist: PlaylistSummaryDto,
+    val tracks: List<TrackDto>
+)
+
+

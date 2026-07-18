@@ -42,6 +42,8 @@ import com.example.sickimfy.features.playlists.ui.PlaylistsUiState
 fun PlaylistsScreen(
     uiState: PlaylistsUiState,
     onEvent: (PlaylistsEvent) -> Unit,
+    onSettingsClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -49,8 +51,8 @@ fun PlaylistsScreen(
         topBar = {
             MusicTopBar(
                 onNotificationClick = { },
-                onSettingsClick = { },
-                onProfileClick = { }
+                onSettingsClick = onSettingsClick,
+                onProfileClick = onProfileClick
             )
         }
     ) { innerPadding ->

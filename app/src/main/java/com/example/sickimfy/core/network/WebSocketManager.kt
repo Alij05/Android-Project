@@ -46,13 +46,12 @@ class WebSocketManager @Inject constructor() {
     private val _messageStatuses = MutableSharedFlow<MessageStatusUpdate>(extraBufferCapacity = 16)
     val messageStatuses: SharedFlow<MessageStatusUpdate> = _messageStatuses.asSharedFlow()
 
-    private var reconnectAttempt = 0
-    private var baseUrl: String = ""
-    private var authToken: String = ""
+    private var conversationId: Int? = null
 
-    fun connect(baseUrl: String, authToken: String) {
+    fun connect(baseUrl: String, authToken: String, conversationId: Int) {
         this.baseUrl = baseUrl
         this.authToken = authToken
+        this.conversationId = conversationId
         reconnectAttempt = 0
         doConnect()
     }
@@ -60,8 +59,9 @@ class WebSocketManager @Inject constructor() {
     private fun doConnect() {
         _connectionState.value = ConnectionState.CONNECTING
 
+        val path = conversationId?.let { "ws/conversations/$it" } ?: "ws/chat"
         val request = Request.Builder()
-            .url("${baseUrl.replace("http", "ws")}ws/chat?token=$authToken")
+            .url("${baseUrl.replace("http", "ws")}$path?token=$authToken")
             .build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
