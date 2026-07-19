@@ -1,6 +1,7 @@
 package com.example.sickimfy.features.chat.domain.repository
 
 import com.example.sickimfy.features.chat.domain.model.Message
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
@@ -10,4 +11,4 @@ interface ChatRepository {
     fun observeTyping(userId: String): Flow<Boolean>
     fun observeConnectionState(): Flow<Boolean>
     suspend fun sendReadReceipt(messageId: String)
-}
+    suspend fun sendTypingIndicator(userId: String, isTyping: Boolean)}

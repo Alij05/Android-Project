@@ -38,6 +38,9 @@ import com.example.sickimfy.features.profile.ui.ProfileViewModel
 import com.example.sickimfy.features.profile.ui.screens.ProfileScreen
 import com.example.sickimfy.features.search.ui.SearchViewModel
 import com.example.sickimfy.features.search.ui.screens.SearchScreen
+import kotlinx.coroutines.coroutineScope
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SickimfyApp(modifier: Modifier = Modifier) {
@@ -47,6 +50,8 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
 
     val playerViewModel: PlayerViewModel = hiltViewModel()
     val playerUiState by playerViewModel.uiState.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+
 
     var showFullPlayer by remember { mutableStateOf(false) }
 
@@ -242,7 +247,11 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                     com.example.sickimfy.features.chat.ui.screens.ChatScreen(
                         uiState = uiState,
-                        onEvent = viewModel::onEvent,
+                        onEvent = { event ->
+                            coroutineScope.launch {
+                                viewModel.onEvent(event)
+                            }
+                        },
                         onNavigateBack = { navController.popBackStack() }
                     )
                 }

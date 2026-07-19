@@ -8,10 +8,7 @@ import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.network.SickimfyApi
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.chat.data.remote.ChatWebSocketClient
-import com.example.sickimfy.features.chat.domain.model.Message
 import com.example.sickimfy.features.chat.domain.repository.ChatRepository
-import com.example.sickimfy.features.player.ui.PlayerEvent
-import com.example.sickimfy.features.player.ui.PlayerViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +51,7 @@ class ChatViewModel @Inject constructor(
         chatWebSocketClient.disconnect()
     }
 
-    fun onEvent(event: ChatEvent) {
+    suspend fun onEvent(event: ChatEvent) {
         when (event) {
             is ChatEvent.OnMessageInputChanged -> {
                 _uiState.update { it.copy(messageInput = event.message) }

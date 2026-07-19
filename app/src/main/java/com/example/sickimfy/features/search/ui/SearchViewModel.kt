@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -77,19 +76,25 @@ class SearchViewModel @Inject constructor(
             }
             is SearchEvent.OnTrackSelected -> {
                 viewModelScope.launch {
-                    val downloaded = downloadedTrackDao.find(event.track.id)
-                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
-                        downloaded.localFilePath
-                    } else {
-                        event.track.audioUrl
+                    val downloaded = downloadedTrackDao.find(event.trackId)
+
+                    val trackDetails = _uiState.value.searchResults.find { it.id == event.trackId }
+
+                    if (trackDetails != null) {
+                        val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
+                            downloaded.localFilePath
+                        } else {
+                            trackDetails.audioUrl ?: ""
+                        }
+
+                        playbackManager.play(
+                            trackId = event.trackId,
+                            title = trackDetails.title ?: "Unknown Title",
+                            artist = trackDetails.artist ?: "Unknown Artist",
+                            coverUrl = trackDetails.imageUrl ?: "",
+                            audioUrl = playUrl
+                        )
                     }
-                    playbackManager.play(
-                        trackId = event.track.id,
-                        title = event.track.title,
-                        artist = event.track.artist,
-                        coverUrl = event.track.imageUrl,
-                        audioUrl = playUrl
-                    )
                 }
             }
         }

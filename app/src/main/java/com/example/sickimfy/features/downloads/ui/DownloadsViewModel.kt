@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -88,7 +87,7 @@ class DownloadsViewModel @Inject constructor(
         title = title,
         artist = artist,
         imageUrl = imageUrl,
-        duration = "%d:%02d".format(durationSeconds / 60, durationSeconds % 60),
+        duration = "%d:%02d".format(durationSeconds?.div(60), durationSeconds?.rem(60)),
         albumName = ""
     )
-}
+}

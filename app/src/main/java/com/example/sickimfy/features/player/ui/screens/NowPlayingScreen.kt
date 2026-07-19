@@ -95,8 +95,11 @@ fun NowPlayingScreen(
                     val bitmap = (drawable as? android.graphics.drawable.BitmapDrawable)?.bitmap
                     if (bitmap != null) {
                         val palette = Palette.from(bitmap).generate()
-                        dominantColor = palette.getDarkMutedColor(Color(0xFF1A1A2E)) ?: Color(0xFF1A1A2E)
-                        secondaryColor = palette.getDarkVibrantColor(Color(0xFF16213E)) ?: Color(0xFF16213E)
+                        val dominantInt = palette.getDarkMutedColor(0xFF1A1A2E.toInt())
+                        val secondaryInt = palette.getDarkVibrantColor(0xFF16213E.toInt())
+
+                        dominantColor = Color(dominantInt)
+                        secondaryColor = Color(secondaryInt)
                     }
                 }
             } catch (_: Exception) {
