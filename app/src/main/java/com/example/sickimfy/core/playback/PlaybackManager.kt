@@ -1,7 +1,6 @@
 package com.example.sickimfy.core.playback
 
 import android.content.Context
-import android.media.AudioManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -84,7 +83,7 @@ class PlaybackManager @Inject constructor() {
             }
     }
 
-    fun play(trackId: String, title: String, artist: String, coverUrl: String, audioUrl: String) {
+    fun play(trackId: String, title: String, artist: String, coverUrl: String, audioUrl: String?) {
         val player = _exoplayer ?: return
         val mediaItem = MediaItem.Builder()
             .setMediaId(trackId)

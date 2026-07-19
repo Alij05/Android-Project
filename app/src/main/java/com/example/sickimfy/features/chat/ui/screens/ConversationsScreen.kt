@@ -52,6 +52,7 @@ import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.ConversationSummaryDto
 import com.example.sickimfy.features.chat.ui.ConversationsViewModel
 import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
+import androidx.compose.foundation.layout.PaddingValues
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

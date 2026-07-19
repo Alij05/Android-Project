@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+import kotlinx.coroutines.flow.firstOrNull
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
@@ -193,9 +193,8 @@ class PlayerViewModel @Inject constructor(
 
     private fun checkFavorite(trackId: String) {
         viewModelScope.launch {
-            likedTrackDao.isLiked(trackId).collect { exists ->
-                _uiState.update { it.copy(isFavorite = exists) }
-            }
+            val exists = likedTrackDao.isLiked(trackId)
+            _uiState.update { it.copy(isFavorite = exists) }
         }
     }
 

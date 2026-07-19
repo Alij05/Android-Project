@@ -26,6 +26,9 @@ enum class ConnectionState {
 
 @Singleton
 class WebSocketManager @Inject constructor() {
+    private var baseUrl: String = ""
+    private var authToken: String = ""
+    private var reconnectAttempt: Int = 0
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var webSocket: WebSocket? = null

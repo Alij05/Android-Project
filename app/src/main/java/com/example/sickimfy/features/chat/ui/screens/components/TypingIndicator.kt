@@ -57,12 +57,13 @@ fun TypingIndicator(
                 ),
                 label = "dot$index"
             )
+            val circleColor = MaterialTheme.colorScheme.onSurfaceVariant
 
             androidx.compose.foundation.Canvas(
                 modifier = Modifier.size(8.dp)
             ) {
                 drawCircle(
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    color = circleColor.copy(
                         alpha = 0.4f + bounce * 0.6f
                     ),
                     radius = size.width / 2 * (0.6f + bounce * 0.4f)

@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 sealed interface TrackListMode {
     data object LikedSongs : TrackListMode
@@ -86,7 +86,11 @@ class TrackListViewModel @Inject constructor(
         val tracksList = uiState.value.tracks
         if (tracksList.isNotEmpty()) {
             val list = tracksList.map { Triple(it.id, it.title, it.audioUrl) }
-            playbackManager.playAll(list)
+//            playbackManager.playAll(list)
+            val safeList = list.map { triple ->
+                Triple(triple.first, triple.second, triple.third ?: "")
+            }
+            playbackManager.playAll(safeList)
         }
     }
 
