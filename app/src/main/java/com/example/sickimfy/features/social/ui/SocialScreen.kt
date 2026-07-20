@@ -75,7 +75,7 @@ fun SocialScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "شبکه اجتماعی / Social Feed", fontWeight = FontWeight.Bold) },
+                title = { Text(text = "Social Feed", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -104,7 +104,7 @@ fun SocialScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = Dimens.paddingSmall),
-                    placeholder = { Text("جستجو کاربران / Search Users") },
+                    placeholder = { Text("Search users") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -119,7 +119,7 @@ fun SocialScreen(
                 if (uiState.searchQuery.isNotBlank()) {
                     // Search Results List
                     Text(
-                        text = "نتایج جستجو / Search Results",
+                        text = "Search Results",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = Dimens.paddingSmall)
@@ -142,7 +142,7 @@ fun SocialScreen(
                 } else {
                     // Friends List (Followed users)
                     Text(
-                        text = "دوستان دنبال شده / Friends",
+                        text = "Friends",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(vertical = Dimens.paddingSmall)
@@ -156,7 +156,7 @@ fun SocialScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "هنوز کسی را دنبال نکرده‌اید. / No friends followed yet.",
+                                text = "No friends followed yet.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.secondary
                             )
@@ -243,7 +243,7 @@ fun SocialScreen(
                                 Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
                                 Text(
-                                    text = "پلی‌لیست‌های عمومی / Public Playlists",
+                                    text = "Public Playlists",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -252,7 +252,7 @@ fun SocialScreen(
 
                                 if (uiState.selectedUserPlaylists.isEmpty()) {
                                     Text(
-                                        text = "هیچ پلی‌لیست عمومی ندارد. / No public playlists available.",
+                                        text = "No public playlists available.",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.secondary,
                                         modifier = Modifier.padding(vertical = Dimens.paddingMedium)
@@ -288,7 +288,7 @@ fun SocialScreen(
                                     onClick = { viewModel.selectUser(null) },
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("بستن / Close")
+                                    Text("Close")
                                 }
                             }
                         }
@@ -378,7 +378,7 @@ private fun UserItem(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = if (isFollowing) "دنبال شده" else "دنبال کردن",
+                    text = if (isFollowing) "Following" else "Follow",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )

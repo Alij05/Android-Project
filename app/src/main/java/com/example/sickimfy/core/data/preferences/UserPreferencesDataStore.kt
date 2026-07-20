@@ -20,11 +20,10 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 data class UserPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val languageCode: String = "system",
+    val languageCode: String = "en",
     val fontScale: Float = 1f,
     val isPremium: Boolean = false,
-    val accessToken: String? = null,
-    val apiBaseUrl: String = "http://10.0.2.2:8080/"
+    val accessToken: String? = null
 )
 
 @Singleton
@@ -34,10 +33,8 @@ class UserPreferencesDataStore @Inject constructor(
     val preferences: Flow<UserPreferences> = context.userPreferencesDataStore.data.map(::mapPreferences)
 
     suspend fun setThemeMode(mode: ThemeMode) = update(ThemeModeKey, mode.name)
-    suspend fun setLanguageCode(languageCode: String) = update(LanguageKey, languageCode)
     suspend fun setFontScale(scale: Float) = update(FontScaleKey, scale.coerceIn(0.85f, 1.3f))
     suspend fun setPremium(isPremium: Boolean) = update(PremiumKey, isPremium)
-    suspend fun setApiBaseUrl(url: String) = update(ApiBaseUrlKey, url)
     suspend fun setAccessToken(token: String?) {
         context.userPreferencesDataStore.edit { values ->
             if (token.isNullOrBlank()) values.remove(AccessTokenKey) else values[AccessTokenKey] = token
@@ -52,19 +49,16 @@ class UserPreferencesDataStore @Inject constructor(
 
     private fun mapPreferences(values: Preferences) = UserPreferences(
         themeMode = values[ThemeModeKey]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
-        languageCode = values[LanguageKey] ?: "system",
+        languageCode = "en",
         fontScale = values[FontScaleKey] ?: 1f,
         isPremium = values[PremiumKey] ?: false,
-        accessToken = values[AccessTokenKey],
-        apiBaseUrl = values[ApiBaseUrlKey] ?: "http://10.0.2.2:8080/"
+        accessToken = values[AccessTokenKey]
     )
 
     private companion object {
         val ThemeModeKey = stringPreferencesKey("theme_mode")
-        val LanguageKey = stringPreferencesKey("language_code")
         val FontScaleKey = floatPreferencesKey("font_scale")
         val PremiumKey = booleanPreferencesKey("is_premium")
         val AccessTokenKey = stringPreferencesKey("access_token")
-        val ApiBaseUrlKey = stringPreferencesKey("api_base_url")
     }
 }

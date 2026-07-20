@@ -304,13 +304,13 @@ private fun SettingsSection(
                 Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
                 SettingItem(
                     icon = Icons.Default.Chat,
-                    title = "گفتگوها / Direct Messages",
+                    title = "Direct Messages",
                     onClick = onChatClick
                 )
                 Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
                 SettingItem(
                     icon = Icons.Default.ExitToApp,
-                    title = "خروج از حساب کاربری / Log Out",
+                    title = "Log Out",
                     onClick = onLogoutClick
                 )
             }

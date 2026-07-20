@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -85,10 +85,10 @@ fun MusicTopBar(
                 onClick = onProfileClick,
                 modifier = Modifier.padding(end = Dimens.paddingSmall)
             ) {
-                Image(
-                    painter = painterResource(id = android.R.drawable.sym_def_app_icon), // Placeholder for profile image
+                Icon(
+                    imageVector = Icons.Default.Person,
                     contentDescription = stringResource(id = R.string.cd_profile_picture),
-                    contentScale = ContentScale.Crop,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(Dimens.profileImageSize)
                         .clip(CircleShape)

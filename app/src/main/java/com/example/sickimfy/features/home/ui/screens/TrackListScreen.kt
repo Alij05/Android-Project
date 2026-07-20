@@ -92,7 +92,7 @@ fun TrackListScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "لیست خالی است / The list is empty",
+                        text = "The list is empty",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -111,7 +111,7 @@ fun TrackListScreen(
                     ) {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                        Text(text = "پخش همه / Play All")
+                        Text(text = "Play All")
                     }
                 }
 

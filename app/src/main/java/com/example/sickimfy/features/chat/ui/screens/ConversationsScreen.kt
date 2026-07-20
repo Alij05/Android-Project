@@ -74,7 +74,7 @@ fun ConversationsScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "گفتگوها / Direct Messages", fontWeight = FontWeight.Bold) },
+                title = { Text(text = "Direct Messages", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -103,7 +103,7 @@ fun ConversationsScreen(
             } else if (uiState.error != null && uiState.conversations.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "خطا در بارگذاری گفتگوها / Failed to load conversations",
+                        text = "Failed to load conversations",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -116,13 +116,13 @@ fun ConversationsScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "هنوز گفتگویی ندارید! / No active conversations yet.",
+                            text = "No active conversations yet.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Spacer(modifier = Modifier.height(Dimens.paddingMedium))
                         Text(
-                            text = "از آیکون بالا وارد بخش اجتماعی شده و چت با دوستان را آغاز کنید. / Go to social feed to chat.",
+                            text = "Open Social Feed to start chatting with friends.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(horizontal = Dimens.paddingMedium)
@@ -219,9 +219,9 @@ private fun ConversationItem(
                 // Last Message snippet
                 Text(
                     text = when {
-                        lastMsg == null -> "پیامی وجود ندارد / No messages"
+                        lastMsg == null -> "No messages"
                         lastMsg.content != null -> lastMsg.content
-                        lastMsg.sharedTrack != null -> "🎵 آهنگ اشتراک‌گذاری شده / Shared a track"
+                        lastMsg.sharedTrack != null -> "🎵 Shared a track"
                         else -> "..."
                     },
                     style = MaterialTheme.typography.bodySmall,

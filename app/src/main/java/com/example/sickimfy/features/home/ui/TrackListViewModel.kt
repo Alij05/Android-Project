@@ -49,14 +49,14 @@ class TrackListViewModel @Inject constructor(
         when (mode) {
             TrackListMode.LikedSongs -> {
                 TrackListUiState(
-                    title = "آهنگ‌های لایک شده / Liked Songs",
+                    title = "Liked Songs",
                     tracks = likedEntities.map { it.toDomain() },
                     isLoading = false
                 )
             }
             TrackListMode.RecentlyPlayed -> {
                 TrackListUiState(
-                    title = "اخیراً شنیده شده / Recently Played",
+                    title = "Recently Played",
                     tracks = recentTracks,
                     isLoading = false
                 )

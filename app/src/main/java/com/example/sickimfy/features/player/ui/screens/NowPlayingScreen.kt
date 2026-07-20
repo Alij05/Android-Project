@@ -349,7 +349,7 @@ fun NowPlayingScreen(
                     }
                 ) {
                     Text(
-                        text = "سرعت / Speed: ${uiState.playbackSpeed}x",
+                        text = "Speed: ${uiState.playbackSpeed}x",
                         color = Color.White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
@@ -366,9 +366,9 @@ fun NowPlayingScreen(
                 ) {
                     Text(
                         text = if (uiState.sleepTimerRunning) {
-                            "تایمر / Timer: ${uiState.sleepTimerMinutes}m"
+                            "Timer: ${uiState.sleepTimerMinutes}m"
                         } else {
-                            "تایمر خواب / Sleep Timer"
+                            "Sleep Timer"
                         },
                         color = if (uiState.sleepTimerRunning) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)

@@ -42,10 +42,8 @@ class ChatViewModel @Inject constructor(
         observeConnection()
 
         viewModelScope.launch {
-            val prefs = preferences.preferences.first()
-            val token = prefs.accessToken ?: ""
-            val baseUrl = prefs.apiBaseUrl
-            chatWebSocketClient.connect(baseUrl, token, conversationId)
+            val token = preferences.preferences.first().accessToken.orEmpty()
+            chatWebSocketClient.connect(BuildConfig.API_BASE_URL, token, conversationId)
         }
     }
 

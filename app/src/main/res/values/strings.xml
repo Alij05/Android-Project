@@ -118,4 +118,30 @@
     <string name="message_read">Read</string>
     <string name="empty_chat">No messages yet. Start the conversation!</string>
     <string name="no_internet">No internet connection</string>
+    <!-- Auth Screen -->
+    <string name="auth_display_name_label">Display Name</string>
+    <string name="auth_email_label">Email Address</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_sign_in_button">Sign In</string>
+    <string name="auth_register_button">Register</string>
+    <string name="auth_no_account_text">Don\'t have an account? Register</string>
+    <string name="auth_already_have_account_text">Already have an account? Sign In</string>
+    <string name="auth_invalid_email_error">Please enter a valid email address</string>
+    <string name="auth_invalid_password_error">Password must be at least 8 characters</string>
+    <string name="auth_display_name_required_error">Display name is required</string>
+    <string name="auth_generic_error">An error occurred</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title_label">Settings</string>
+    <string name="settings_theme_label">Theme</string>
+    <string name="settings_theme_system">System Default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language_label">Language</string>
+    <string name="settings_language_system">System Default</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_font_scale_label">Font Scale</string>
+    <string name="settings_font_scale_current">Current: %1$.2fx</string>
+    <string name="settings_font_scale_small">Small</string>
+    <string name="settings_font_scale_large">Large</string>
 </resources>
