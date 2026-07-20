@@ -20,7 +20,8 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,
-    val apiBaseUrl: String = "http://10.0.2.2:8080/"
+//    val apiBaseUrl: String = "http://10.0.2.2:8080/"
+    val apiBaseUrl: String = "http://127.0.0.1:8080/"
 )
 
 @HiltViewModel

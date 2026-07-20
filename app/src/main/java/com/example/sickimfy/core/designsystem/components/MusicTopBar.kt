@@ -1,6 +1,5 @@
 package com.example.sickimfy.core.designsystem.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
@@ -11,6 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,8 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.sickimfy.R
@@ -49,10 +48,11 @@ fun MusicTopBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Application Branding Logo
-                Image(
-                    painter = painterResource(id = android.R.drawable.ic_media_play), // Placeholder, replace with custom adaptive icon later
+                // Application Branding Logo - Replaced system drawable with Material Icon
+                Icon(
+                    imageVector = Icons.Default.PlayArrow, // Safe Vector Placeholder
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(Dimens.iconSizeLarge)
                 )
                 Spacer(modifier = Modifier.width(Dimens.paddingSmall))
@@ -85,14 +85,17 @@ fun MusicTopBar(
                 onClick = onProfileClick,
                 modifier = Modifier.padding(end = Dimens.paddingSmall)
             ) {
-                Image(
-                    painter = painterResource(id = android.R.drawable.sym_def_app_icon), // Placeholder for profile image
+                // Profile Placeholder - Replaced system adaptive icon with Material Icon
+                Icon(
+                    imageVector = Icons.Default.Person, // Safe Vector Placeholder
                     contentDescription = stringResource(id = R.string.cd_profile_picture),
-                    contentScale = ContentScale.Crop,
+                    tint = MaterialTheme.colorScheme.onPrimary, // Icon color
                     modifier = Modifier
                         .size(Dimens.profileImageSize)
                         .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary) // Background for profile circle
                         .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        .padding(4.dp) // Inner padding for the icon
                 )
             }
         }
