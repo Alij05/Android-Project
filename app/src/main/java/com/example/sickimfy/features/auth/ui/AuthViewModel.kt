@@ -3,6 +3,7 @@ package com.example.sickimfy.features.auth.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.auth.SessionRepository
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,16 +19,26 @@ data class AuthUiState(
     val isLogin: Boolean = true,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val apiBaseUrl: String = "http://10.0.2.2:8080/"
 )
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val preferences: UserPreferencesDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            preferences.preferences.collect { prefs ->
+                _uiState.update { it.copy(apiBaseUrl = prefs.apiBaseUrl) }
+            }
+        }
+    }
 
     fun onEmailChanged(value: String) {
         _uiState.update { it.copy(email = value, error = null) }
@@ -39,6 +50,13 @@ class AuthViewModel @Inject constructor(
 
     fun onDisplayNameChanged(value: String) {
         _uiState.update { it.copy(displayName = value, error = null) }
+    }
+
+    fun onApiBaseUrlChanged(value: String) {
+        _uiState.update { it.copy(apiBaseUrl = value, error = null) }
+        viewModelScope.launch {
+            preferences.setApiBaseUrl(value)
+        }
     }
 
     fun toggleMode() {

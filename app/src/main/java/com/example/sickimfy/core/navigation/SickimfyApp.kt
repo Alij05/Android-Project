@@ -208,6 +208,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onThemeChange = viewModel::setThemeMode,
                         onLanguageChange = viewModel::setLanguage,
                         onFontScaleChange = viewModel::setFontScale,
+                        onApiBaseUrlChange = viewModel::setApiBaseUrl,
                         onNavigateBack = { navController.popBackStack() }
                     )
                 }

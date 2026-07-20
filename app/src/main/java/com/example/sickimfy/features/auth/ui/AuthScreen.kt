@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -122,6 +124,28 @@ fun AuthScreen(
                 )
                 Spacer(modifier = Modifier.height(Dimens.paddingMedium))
             }
+
+            OutlinedTextField(
+                value = uiState.apiBaseUrl,
+                onValueChange = viewModel::onApiBaseUrlChanged,
+                label = { Text("آدرس سرور / Server URL") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Link,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
             OutlinedTextField(
                 value = uiState.email,

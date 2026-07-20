@@ -35,4 +35,8 @@ class SettingsViewModel @Inject constructor(
     fun setFontScale(scale: Float) {
         viewModelScope.launch { preferences.setFontScale(scale) }
     }
+
+    fun setApiBaseUrl(url: String) {
+        viewModelScope.launch { preferences.setApiBaseUrl(url) }
+    }
 }

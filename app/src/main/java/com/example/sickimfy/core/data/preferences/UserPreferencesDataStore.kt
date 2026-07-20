@@ -23,7 +23,8 @@ data class UserPreferences(
     val languageCode: String = "system",
     val fontScale: Float = 1f,
     val isPremium: Boolean = false,
-    val accessToken: String? = null
+    val accessToken: String? = null,
+    val apiBaseUrl: String = "http://10.0.2.2:8080/"
 )
 
 @Singleton
@@ -36,6 +37,7 @@ class UserPreferencesDataStore @Inject constructor(
     suspend fun setLanguageCode(languageCode: String) = update(LanguageKey, languageCode)
     suspend fun setFontScale(scale: Float) = update(FontScaleKey, scale.coerceIn(0.85f, 1.3f))
     suspend fun setPremium(isPremium: Boolean) = update(PremiumKey, isPremium)
+    suspend fun setApiBaseUrl(url: String) = update(ApiBaseUrlKey, url)
     suspend fun setAccessToken(token: String?) {
         context.userPreferencesDataStore.edit { values ->
             if (token.isNullOrBlank()) values.remove(AccessTokenKey) else values[AccessTokenKey] = token
@@ -53,7 +55,8 @@ class UserPreferencesDataStore @Inject constructor(
         languageCode = values[LanguageKey] ?: "system",
         fontScale = values[FontScaleKey] ?: 1f,
         isPremium = values[PremiumKey] ?: false,
-        accessToken = values[AccessTokenKey]
+        accessToken = values[AccessTokenKey],
+        apiBaseUrl = values[ApiBaseUrlKey] ?: "http://10.0.2.2:8080/"
     )
 
     private companion object {
@@ -62,5 +65,6 @@ class UserPreferencesDataStore @Inject constructor(
         val FontScaleKey = floatPreferencesKey("font_scale")
         val PremiumKey = booleanPreferencesKey("is_premium")
         val AccessTokenKey = stringPreferencesKey("access_token")
+        val ApiBaseUrlKey = stringPreferencesKey("api_base_url")
     }
 }

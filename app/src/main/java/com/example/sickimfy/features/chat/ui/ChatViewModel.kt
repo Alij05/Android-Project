@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,8 +42,10 @@ class ChatViewModel @Inject constructor(
         observeConnection()
 
         viewModelScope.launch {
-            val token = preferences.accessToken() ?: ""
-            chatWebSocketClient.connect(BuildConfig.API_BASE_URL, token, conversationId)
+            val prefs = preferences.preferences.first()
+            val token = prefs.accessToken ?: ""
+            val baseUrl = prefs.apiBaseUrl
+            chatWebSocketClient.connect(baseUrl, token, conversationId)
         }
     }
 
