@@ -4,43 +4,61 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.sickimfy.features.chat.ui.ChatViewModel
+import com.example.sickimfy.features.chat.ui.screens.ChatScreen
+import com.example.sickimfy.features.chat.ui.screens.ConversationsScreen
 import com.example.sickimfy.features.downloads.ui.DownloadsViewModel
 import com.example.sickimfy.features.downloads.ui.screens.DownloadsScreen
 import com.example.sickimfy.features.home.ui.HomeViewModel
+import com.example.sickimfy.features.home.ui.TrackListMode
+import com.example.sickimfy.features.home.ui.TrackListViewModel
 import com.example.sickimfy.features.home.ui.screens.HomeScreen
-import com.example.sickimfy.features.playlists.ui.PlaylistsViewModel
-import com.example.sickimfy.features.playlists.ui.screens.PlaylistsScreen
+import com.example.sickimfy.features.home.ui.screens.TrackListScreen
+import com.example.sickimfy.features.player.ui.PlayerEvent
 import com.example.sickimfy.features.player.ui.PlayerViewModel
 import com.example.sickimfy.features.player.ui.screens.MiniPlayer
 import com.example.sickimfy.features.player.ui.screens.NowPlayingScreen
+import com.example.sickimfy.features.playlists.ui.PlaylistsViewModel
+import com.example.sickimfy.features.playlists.ui.screens.PlaylistsScreen
 import com.example.sickimfy.features.profile.ui.ProfileViewModel
 import com.example.sickimfy.features.profile.ui.screens.ProfileScreen
 import com.example.sickimfy.features.search.ui.SearchViewModel
 import com.example.sickimfy.features.search.ui.screens.SearchScreen
-import kotlinx.coroutines.coroutineScope
-import androidx.compose.runtime.rememberCoroutineScope
+import com.example.sickimfy.features.settings.ui.SettingsScreen
+import com.example.sickimfy.features.settings.ui.SettingsViewModel
+import com.example.sickimfy.features.social.ui.SocialScreen
 import kotlinx.coroutines.launch
+import com.example.sickimfy.R
+
 
 @Composable
 fun SickimfyApp(modifier: Modifier = Modifier) {
@@ -52,20 +70,29 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
     val playerUiState by playerViewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
-
     var showFullPlayer by remember { mutableStateOf(false) }
 
-    if (showFullPlayer) {
-        NowPlayingScreen(
-            uiState = playerUiState,
-            onEvent = playerViewModel::onEvent,
-            onCollapse = { showFullPlayer = false }
-        )
-    } else {
+    // Root Box to overlay the full player on top of the entire application safely
+    Box(modifier = modifier.fillMaxSize()) {
+
+        // Main Application Scaffold
         Scaffold(
-            modifier = modifier,
             bottomBar = {
-                Box {
+                // Column to place MiniPlayer directly above the NavigationBar without overlapping
+                Column(modifier = Modifier.fillMaxWidth()) {
+
+                    // Mini Player
+                    AnimatedVisibility(
+                        visible = playerUiState.currentPositionMs > 0 || playerUiState.isPlaying // Show conditionally if a track is loaded or playing
+                    ) {
+                        MiniPlayer(
+                            uiState = playerUiState,
+                            onPlayPause = { playerViewModel.onEvent(PlayerEvent.PlayPause) },
+                            onExpand = { showFullPlayer = true }
+                        )
+                    }
+
+                    // Bottom Navigation Menu
                     NavigationBar {
                         AppDestination.entries.forEach { destination ->
                             NavigationBarItem(
@@ -83,18 +110,18 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                                         contentDescription = stringResource(destination.labelRes)
                                     )
                                 },
-                                label = { Text(stringResource(destination.labelRes)) }
+                                label = {
+                                    Text(
+                                        text = stringResource(destination.labelRes),
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis,
+                                        style = MaterialTheme.typography.labelSmall // Use smaller font and strict text limits to prevent layout breakage
+                                    )
+                                }
                             )
                         }
                     }
-
-                    // Mini Player floating above nav bar
-                    MiniPlayer(
-                        uiState = playerUiState,
-                        onPlayPause = { playerViewModel.onEvent(com.example.sickimfy.features.player.ui.PlayerEvent.PlayPause) },
-                        onExpand = { showFullPlayer = true },
-                        modifier = Modifier.align(Alignment.TopCenter)
-                    )
                 }
             }
         ) { innerPadding ->
@@ -106,20 +133,19 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.HOME.route) {
                     val viewModel: HomeViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    val navigateToProfile = {
-                        navController.navigate(AppDestination.PROFILE.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
                     HomeScreen(
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
                         onNavigateToLikedSongs = { navController.navigate("liked_songs") },
                         onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
                         onSettingsClick = { navController.navigate("settings") },
-                        onProfileClick = navigateToProfile
+                        onProfileClick = {
+                            navController.navigate(AppDestination.PROFILE.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
                 composable(AppDestination.SEARCH.route) {
@@ -130,35 +156,33 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.DOWNLOADS.route) {
                     val viewModel: DownloadsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    val navigateToProfile = {
-                        navController.navigate(AppDestination.PROFILE.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
                     DownloadsScreen(
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
                         onSettingsClick = { navController.navigate("settings") },
-                        onProfileClick = navigateToProfile
+                        onProfileClick = {
+                            navController.navigate(AppDestination.PROFILE.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
                 composable(AppDestination.PLAYLISTS.route) {
                     val viewModel: PlaylistsViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    val navigateToProfile = {
-                        navController.navigate(AppDestination.PROFILE.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
                     PlaylistsScreen(
                         uiState = uiState,
                         onEvent = viewModel::onEvent,
                         onSettingsClick = { navController.navigate("settings") },
-                        onProfileClick = navigateToProfile
+                        onProfileClick = {
+                            navController.navigate(AppDestination.PROFILE.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
                 composable(AppDestination.PROFILE.route) {
@@ -171,13 +195,15 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     )
                 }
                 composable("liked_songs") {
-                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
-                    androidx.compose.runtime.LaunchedEffect(Unit) {
-                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.LikedSongs)
-                    }
+                    val viewModel: TrackListViewModel = hiltViewModel()
+                    LaunchedEffect(Unit) { viewModel.setMode(TrackListMode.LikedSongs) }
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
-                        title = uiState.title,
+                    val title = when (uiState.mode) {
+                        TrackListMode.LikedSongs -> stringResource(R.string.title_liked_songs)
+                        TrackListMode.RecentlyPlayed -> stringResource(R.string.title_recently_played)
+                    }
+                    TrackListScreen(
+                        title = title,
                         tracks = uiState.tracks,
                         onNavigateBack = { navController.popBackStack() },
                         onTrackSelected = viewModel::playTrack,
@@ -186,13 +212,15 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     )
                 }
                 composable("recently_played") {
-                    val viewModel: com.example.sickimfy.features.home.ui.TrackListViewModel = hiltViewModel()
-                    androidx.compose.runtime.LaunchedEffect(Unit) {
-                        viewModel.setMode(com.example.sickimfy.features.home.ui.TrackListMode.RecentlyPlayed)
-                    }
+                    val viewModel: TrackListViewModel = hiltViewModel()
+                    LaunchedEffect(Unit) { viewModel.setMode(TrackListMode.RecentlyPlayed) }
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    com.example.sickimfy.features.home.ui.screens.TrackListScreen(
-                        title = uiState.title,
+                    val title = when (uiState.mode) {
+                        TrackListMode.LikedSongs -> stringResource(R.string.title_liked_songs)
+                        TrackListMode.RecentlyPlayed -> stringResource(R.string.title_recently_played)
+                    }
+                    TrackListScreen(
+                        title = title,
                         tracks = uiState.tracks,
                         onNavigateBack = { navController.popBackStack() },
                         onTrackSelected = viewModel::playTrack,
@@ -200,10 +228,11 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onPlayAll = viewModel::playAll
                     )
                 }
+
                 composable("settings") {
-                    val viewModel: com.example.sickimfy.features.settings.ui.SettingsViewModel = hiltViewModel()
+                    val viewModel: SettingsViewModel = hiltViewModel()
                     val settingsState by viewModel.uiState.collectAsStateWithLifecycle()
-                    com.example.sickimfy.features.settings.ui.SettingsScreen(
+                    SettingsScreen(
                         state = settingsState,
                         onThemeChange = viewModel::setThemeMode,
                         onFontScaleChange = viewModel::setFontScale,
@@ -211,7 +240,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     )
                 }
                 composable("conversations") {
-                    com.example.sickimfy.features.chat.ui.screens.ConversationsScreen(
+                    ConversationsScreen(
                         onNavigateBack = { navController.popBackStack() },
                         onNavigateToChat = { convoId, otherId, otherName ->
                             navController.navigate("chat/$convoId/$otherId/$otherName")
@@ -220,7 +249,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     )
                 }
                 composable("social") {
-                    com.example.sickimfy.features.social.ui.SocialScreen(
+                    SocialScreen(
                         onNavigateBack = { navController.popBackStack() },
                         onNavigateToChat = { convoId ->
                             navController.navigate("chat/$convoId/0/Friend")
@@ -230,21 +259,21 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(
                     route = "chat/{conversationId}/{userId}/{userName}",
                     arguments = listOf(
-                        androidx.navigation.navArgument("conversationId") { type = androidx.navigation.NavType.IntType },
-                        androidx.navigation.navArgument("userId") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("userName") { type = androidx.navigation.NavType.StringType }
+                        navArgument("conversationId") { type = NavType.IntType },
+                        navArgument("userId") { type = NavType.StringType },
+                        navArgument("userName") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
                     val conversationId = backStackEntry.arguments?.getInt("conversationId") ?: -1
                     val otherUserId = backStackEntry.arguments?.getString("userId").orEmpty()
 
-                    val viewModel: com.example.sickimfy.features.chat.ui.ChatViewModel = hiltViewModel()
-                    androidx.compose.runtime.LaunchedEffect(conversationId, otherUserId) {
+                    val viewModel: ChatViewModel = hiltViewModel()
+                    LaunchedEffect(conversationId, otherUserId) {
                         viewModel.initialize(conversationId, otherUserId)
                     }
 
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    com.example.sickimfy.features.chat.ui.screens.ChatScreen(
+                    ChatScreen(
                         uiState = uiState,
                         onEvent = { event ->
                             coroutineScope.launch {
@@ -255,6 +284,19 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     )
                 }
             }
+        }
+
+        // Full Player Screen with slide up/down animation
+        AnimatedVisibility(
+            visible = showFullPlayer,
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it })
+        ) {
+            NowPlayingScreen(
+                uiState = playerUiState,
+                onEvent = playerViewModel::onEvent,
+                onCollapse = { showFullPlayer = false }
+            )
         }
     }
 }

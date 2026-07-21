@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -49,13 +50,18 @@ fun MessageBubble(
     val bubbleColor = if (isFromMe) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.surfaceVariant
+        MaterialTheme.colorScheme.surface
     }
     val textColor = if (isFromMe) {
         MaterialTheme.colorScheme.onPrimary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        MaterialTheme.colorScheme.onSurface
     }
+
+    val bubbleShape = MaterialTheme.shapes.large.copy(
+        bottomStart = CornerSize(if (isFromMe) Dimens.paddingLarge else Dimens.paddingSmall),
+        bottomEnd = CornerSize(if (isFromMe) Dimens.paddingSmall else Dimens.paddingLarge)
+    )
 
     Row(
         modifier = modifier
@@ -66,23 +72,15 @@ fun MessageBubble(
         Column(
             modifier = Modifier
                 .width(280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (isFromMe) 16.dp else 4.dp,
-                        bottomEnd = if (isFromMe) 4.dp else 16.dp
-                    )
-                )
+                .clip(bubbleShape)
                 .background(bubbleColor)
                 .padding(Dimens.paddingMedium)
         ) {
-            // Track card if shared
             if (message.trackId != null) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f))
                         .clickable { onTrackClick?.invoke(message.trackId) }
                         .padding(Dimens.paddingSmall),
@@ -98,13 +96,13 @@ fun MessageBubble(
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(48.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(MaterialTheme.shapes.medium)
                         )
                     } else {
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
                             contentAlignment = Alignment.Center
                         ) {
@@ -112,7 +110,7 @@ fun MessageBubble(
                                 imageVector = Icons.Default.MusicNote,
                                 contentDescription = null,
                                 tint = textColor,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(Dimens.iconSizeNormal)
                             )
                         }
                     }
@@ -134,10 +132,9 @@ fun MessageBubble(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.paddingSmall))
             }
 
-            // Message text
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium,
@@ -146,7 +143,6 @@ fun MessageBubble(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Time and status
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -168,7 +164,7 @@ fun MessageBubble(
 }
 
 @Composable
-private fun StatusIcon(status: MessageStatus, tint: androidx.compose.ui.graphics.Color) {
+private fun StatusIcon(status: MessageStatus, tint: Color) {
     val icon = when (status) {
         MessageStatus.SENDING -> Icons.Default.Check
         MessageStatus.SENT -> Icons.Default.Check

@@ -11,15 +11,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -46,11 +44,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.features.home.domain.model.Track
 
@@ -69,10 +66,19 @@ fun TrackListScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = title, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        // AutoMirrored handles RTL direction automatically
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.cd_back)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -92,9 +98,9 @@ fun TrackListScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "The list is empty",
+                        text = stringResource(id = R.string.track_list_empty),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
@@ -107,18 +113,23 @@ fun TrackListScreen(
                     Button(
                         onClick = onPlayAll,
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                        Text(text = "Play All")
+                        Text(text = stringResource(id = R.string.play_all))
                     }
                 }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 100.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    // Use design system token for bottom padding
+                    contentPadding = PaddingValues(bottom = Dimens.playerBarHeight),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                 ) {
                     items(tracks, key = { it.id }) { track ->
                         val dismissState = rememberSwipeToDismissBoxState(
@@ -151,7 +162,7 @@ fun TrackListScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete",
+                                        contentDescription = stringResource(id = R.string.cd_delete_track),
                                         tint = MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 }
@@ -182,7 +193,7 @@ fun TrackItemRow(
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(horizontal = Dimens.paddingMedium),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
@@ -192,12 +203,16 @@ fun TrackItemRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(track.imageUrl).crossfade(true).build(),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(track.imageUrl)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    // Use design system token instead of hardcoded 48.dp
+                    .size(Dimens.trackThumbnailSize)
+                    .clip(MaterialTheme.shapes.medium)
             )
 
             Spacer(modifier = Modifier.width(Dimens.paddingMedium))
@@ -205,15 +220,16 @@ fun TrackItemRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = track.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    // titleSmall carries SemiBold weight in the design system typography
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = track.artist,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -223,8 +239,8 @@ fun TrackItemRow(
 
             Text(
                 text = track.duration,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.secondary
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

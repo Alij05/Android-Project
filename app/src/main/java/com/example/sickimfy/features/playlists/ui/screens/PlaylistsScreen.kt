@@ -14,9 +14,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,18 +25,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
+import com.example.sickimfy.core.designsystem.White
 import com.example.sickimfy.core.designsystem.components.MusicTopBar
 import com.example.sickimfy.features.playlists.domain.model.Playlist
 import com.example.sickimfy.features.playlists.domain.model.PlaylistType
 import com.example.sickimfy.features.playlists.ui.PlaylistsEvent
 import com.example.sickimfy.features.playlists.ui.PlaylistsUiState
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun PlaylistsScreen(
@@ -48,6 +50,7 @@ fun PlaylistsScreen(
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MusicTopBar(
                 onNotificationClick = { },
@@ -67,17 +70,30 @@ fun PlaylistsScreen(
             }
         } else if (uiState.errorMessage != null) {
             Column(
-                modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(R.string.playlists_error), color = MaterialTheme.colorScheme.error)
-                Button(onClick = { onEvent(PlaylistsEvent.OnRetryClick) }) {
+                Text(
+                    text = stringResource(R.string.playlists_error),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+                Button(
+                    onClick = { onEvent(PlaylistsEvent.OnRetryClick) },
+                    shape = MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
                     Text(stringResource(R.string.retry))
                 }
             }
         } else {
-            // Grouping data to distribute cleanly over the dynamic grid
             val groupedPlaylists = uiState.playlists.groupBy { it.type }
 
             LazyVerticalGrid(
@@ -86,7 +102,7 @@ fun PlaylistsScreen(
                     start = Dimens.paddingMedium,
                     end = Dimens.paddingMedium,
                     top = Dimens.paddingSmall,
-                    bottom = 100.dp // Avoid overlay block by future player sheets
+                    bottom = 100.dp
                 ),
                 horizontalArrangement = Arrangement.spacedBy(Dimens.paddingMedium),
                 verticalArrangement = Arrangement.spacedBy(Dimens.paddingMedium),
@@ -94,7 +110,6 @@ fun PlaylistsScreen(
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
-                // Group 1: International Music
                 groupedPlaylists[PlaylistType.INTERNATIONAL]?.let { list ->
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         SectionHeader(title = stringResource(id = R.string.section_intl_music))
@@ -104,7 +119,6 @@ fun PlaylistsScreen(
                     }
                 }
 
-                // Group 2: Local/Domestic Music
                 groupedPlaylists[PlaylistType.DOMESTIC]?.let { list ->
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         SectionHeader(title = stringResource(id = R.string.section_local_music))
@@ -114,7 +128,6 @@ fun PlaylistsScreen(
                     }
                 }
 
-                // Group 3: User Custom Playlists
                 groupedPlaylists[PlaylistType.USER]?.let { list ->
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         SectionHeader(title = stringResource(id = R.string.section_user_playlists))
@@ -135,7 +148,7 @@ private fun SectionHeader(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
         color = MaterialTheme.colorScheme.onBackground,
         modifier = modifier
             .fillMaxWidth()
@@ -152,8 +165,8 @@ private fun PlaylistGridCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(1.5f) // Keeps cards in a modern horizontal-rectangle proportion
-            .clip(RoundedCornerShape(16.dp))
+            .aspectRatio(1.5f)
+            .clip(MaterialTheme.shapes.large)
             .background(Brush.linearGradient(playlist.gradientColors))
             .clickable { onClick() }
             .padding(Dimens.paddingMedium),
@@ -162,15 +175,15 @@ private fun PlaylistGridCard(
         Column {
             Text(
                 text = playlist.title,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                color = White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = stringResource(id = R.string.tracks_count_format, playlist.trackCount),
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.8f)
+                color = White.copy(alpha = 0.8f)
             )
         }
     }

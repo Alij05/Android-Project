@@ -1,5 +1,6 @@
 package com.example.sickimfy.features.home.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,22 +10,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.designsystem.components.MusicTopBar
-import com.example.sickimfy.features.home.domain.model.Track
 import com.example.sickimfy.features.home.ui.HomeEvent
 import com.example.sickimfy.features.home.ui.HomeUiState
 import com.example.sickimfy.features.home.ui.screens.components.HomeCarousel
@@ -43,6 +52,7 @@ fun HomeScreen(
 ) {
     Scaffold(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MusicTopBar(
                 onNotificationClick = { /* Handle navigation to notifications */ },
@@ -58,14 +68,14 @@ fun HomeScreen(
         ) {
             when (uiState) {
                 is HomeUiState.Loading -> {
-                    // Render dynamic full shimmer loading placeholders
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingMedium)
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
+                        contentPadding = PaddingValues(
+                            top = Dimens.paddingMedium,
+                            bottom = Dimens.paddingLarge
+                        )
                     ) {
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.paddingSmall))
-                        }
                         item {
                             TrackSlider(
                                 title = stringResource(id = R.string.section_popular),
@@ -87,31 +97,38 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingMedium),
-                        contentPadding = PaddingValues(bottom = 100.dp) // Provide space so miniplayer doesn't overlap items
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge),
+                        contentPadding = PaddingValues(
+                            top = Dimens.paddingMedium,
+                            bottom = 100.dp
+                        )
                     ) {
-                        item {
-                            Spacer(modifier = Modifier.height(Dimens.paddingSmall))
-                        }
-                        // Featured Horizontal Carousel
                         item {
                             HomeCarousel(
                                 tracks = uiState.carouselTracks,
                                 onTrackClick = { onEvent(HomeEvent.OnTrackSelected(it)) }
                             )
                         }
-                        // 2x2 Quick Actions Buttons
                         item {
-                            QuickActionsGrid(
-                                onActionClick = { actionId ->
-                                    when (actionId) {
-                                        "liked_songs" -> onNavigateToLikedSongs()
-                                        "recently_played" -> onNavigateToRecentlyPlayed()
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.section_quick_actions),
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.padding(horizontal = Dimens.paddingMedium)
+                                )
+                                QuickActionsGrid(
+                                    onActionClick = { actionId ->
+                                        when (actionId) {
+                                            "liked_songs" -> onNavigateToLikedSongs()
+                                            "recently_played" -> onNavigateToRecentlyPlayed()
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
-                        // Bottom Sliders Driven by Domain lists
                         item {
                             TrackSlider(
                                 title = stringResource(id = R.string.section_popular),
@@ -143,19 +160,53 @@ fun HomeScreen(
                     }
                 }
                 is HomeUiState.Error -> {
-                    // Centralized error state UI with retry capability
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(Dimens.paddingLarge),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.ErrorOutline,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(Dimens.iconSizeLarge)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
+
                         Text(
                             text = uiState.message,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
                         )
-                        Spacer(modifier = Modifier.height(Dimens.paddingMedium))
-                        Button(onClick = { onEvent(HomeEvent.OnRetryClicked) }) {
+
+                        Spacer(modifier = Modifier.height(Dimens.paddingLarge))
+
+                        Button(
+                            onClick = { onEvent(HomeEvent.OnRetryClicked) },
+                            shape = MaterialTheme.shapes.medium,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.size(Dimens.iconSizeNormal)
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                             Text(text = stringResource(R.string.retry))
                         }
                     }

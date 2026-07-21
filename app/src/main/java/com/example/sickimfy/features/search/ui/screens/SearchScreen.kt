@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
@@ -69,20 +68,17 @@ fun SearchScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Search Input Field
             SearchInputField(
                 query = uiState.query,
                 onQueryChange = { onEvent(SearchEvent.OnQueryChange(it)) },
                 isSearching = uiState.isSearching
             )
 
-            // Dynamic Filter Chips
             FilterChipsRow(
                 activeFilter = uiState.activeFilter,
                 onFilterSelected = { onEvent(SearchEvent.OnFilterSelected(it)) }
             )
 
-            // Content Area (History vs Results)
             if (uiState.query.isBlank()) {
                 SearchHistorySection(
                     history = uiState.searchHistory,
@@ -157,7 +153,7 @@ private fun SearchInputField(
                 }
             }
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.surface,
@@ -193,7 +189,7 @@ private fun FilterChipsRow(
                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = RoundedCornerShape(16.dp)
+                shape = MaterialTheme.shapes.large
             )
         }
     }
@@ -282,14 +278,30 @@ private fun SearchResults(
                     contentDescription = stringResource(R.string.cd_track_cover),
                     placeholder = painterResource(android.R.drawable.ic_menu_gallery),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(MaterialTheme.shapes.medium)
                 )
                 Spacer(modifier = Modifier.width(Dimens.paddingMedium))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(track.title, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
-                    Text(track.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary, maxLines = 1)
+                    Text(
+                        text = track.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = track.artist,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        maxLines = 1
+                    )
                 }
-                Text(track.duration, style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = track.duration,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
         }
     }

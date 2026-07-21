@@ -11,17 +11,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -34,8 +37,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.sickimfy.R
 import com.example.sickimfy.core.data.preferences.ThemeMode
 import com.example.sickimfy.core.data.preferences.UserPreferences
 import com.example.sickimfy.core.designsystem.Dimens
@@ -45,7 +50,9 @@ import com.example.sickimfy.core.designsystem.Dimens
 fun SettingsScreen(
     state: UserPreferences,
     onThemeChange: (ThemeMode) -> Unit,
+    onLanguageChange: (String) -> Unit,
     onFontScaleChange: (Float) -> Unit,
+    onApiBaseUrlChange: (String) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,13 +60,20 @@ fun SettingsScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "Settings", fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.settings_title),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { innerPadding ->
@@ -71,34 +85,100 @@ fun SettingsScreen(
                 .padding(Dimens.paddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimens.paddingLarge)
         ) {
-            SettingsSectionCard(icon = Icons.Default.ColorLens, title = "Theme") {
-                val options = listOf(
-                    ThemeMode.SYSTEM to "System default",
-                    ThemeMode.LIGHT to "Light",
-                    ThemeMode.DARK to "Dark"
+            // ── Server URL ─────────────────────────
+            SettingsSectionCard(
+                icon = Icons.Default.Link,
+                title = stringResource(id = R.string.auth_server_url_label)
+            ) {
+                OutlinedTextField(
+                    value = state.apiBaseUrl,
+                    onValueChange = onApiBaseUrlChange,
+                    label = { Text(stringResource(id = R.string.auth_server_url_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    singleLine = true
                 )
-                options.forEach { (mode, label) ->
+            }
+
+            // ── Theme Mode ───────────────────────
+            SettingsSectionCard(
+                icon = Icons.Default.ColorLens,
+                title = stringResource(id = R.string.theme_settings)
+            ) {
+                val themeOptions = listOf(
+                    ThemeMode.SYSTEM to stringResource(id = R.string.theme_option_system),
+                    ThemeMode.LIGHT to stringResource(id = R.string.theme_option_light),
+                    ThemeMode.DARK to stringResource(id = R.string.theme_option_dark)
+                )
+                themeOptions.forEach { (mode, label) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onThemeChange(mode) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = Dimens.paddingSmall),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(selected = state.themeMode == mode, onClick = { onThemeChange(mode) })
+                        RadioButton(
+                            selected = state.themeMode == mode,
+                            onClick = { onThemeChange(mode) }
+                        )
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                        Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
 
-            SettingsSectionCard(icon = Icons.Default.TextFields, title = "Font size") {
+            // ── Language ─────────────────────────
+            SettingsSectionCard(
+                icon = Icons.Default.Language,
+                title = stringResource(id = R.string.language_settings)
+            ) {
+                val languageOptions = listOf(
+                    "system" to stringResource(id = R.string.language_option_system),
+                    "fa" to stringResource(id = R.string.language_option_persian),
+                    "en" to stringResource(id = R.string.language_option_english)
+                )
+                languageOptions.forEach { (code, label) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLanguageChange(code) }
+                            .padding(vertical = Dimens.paddingSmall),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = state.languageCode == code,
+                            onClick = { onLanguageChange(code) }
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.paddingSmall))
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            // ── Font Scale ───────────────────────
+            SettingsSectionCard(
+                icon = Icons.Default.TextFields,
+                title = stringResource(id = R.string.settings_font_scale)
+            ) {
                 Text(
-                    text = "Current: ${"%.2f".format(state.fontScale)}x",
+                    text = stringResource(id = R.string.font_scale_current_format, state.fontScale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.paddingSmall))
                 Slider(
                     value = state.fontScale,
                     onValueChange = onFontScaleChange,
@@ -108,12 +188,15 @@ fun SettingsScreen(
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                        inactiveTrackColor = MaterialTheme.colorScheme.surface
                     )
                 )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = "Small", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
-                    Text(text = "Large", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = stringResource(id = R.string.font_scale_small), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                    Text(text = stringResource(id = R.string.font_scale_large), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
@@ -123,17 +206,32 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSectionCard(icon: ImageVector, title: String, content: @Composable () -> Unit) {
+private fun SettingsSectionCard(
+    icon: ImageVector,
+    title: String,
+    content: @Composable () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(Dimens.paddingMedium)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = Dimens.paddingSmall)) {
-                Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = Dimens.paddingSmall)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
             content()
         }

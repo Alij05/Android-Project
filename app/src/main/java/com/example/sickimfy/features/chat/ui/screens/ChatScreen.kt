@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
@@ -76,7 +75,7 @@ fun ChatScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(id = R.string.cd_back)
                         )
                     }
                 },
@@ -92,7 +91,6 @@ fun ChatScreen(
                 .padding(innerPadding)
                 .imePadding()
         ) {
-            // Connection status
             if (!uiState.isConnected) {
                 Box(
                     modifier = Modifier
@@ -109,7 +107,6 @@ fun ChatScreen(
                 }
             }
 
-            // Messages
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -129,7 +126,7 @@ fun ChatScreen(
                             Text(
                                 text = stringResource(id = R.string.empty_chat),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -163,7 +160,6 @@ fun ChatScreen(
                 }
             }
 
-            // Input field
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -181,10 +177,10 @@ fun ChatScreen(
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
-                    shape = RoundedCornerShape(24.dp),
+                    shape = MaterialTheme.shapes.large,
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface
                     ),
                     singleLine = true
                 )
@@ -201,7 +197,7 @@ fun ChatScreen(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = stringResource(id = R.string.cd_send_message),
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Dimens.iconSizeNormal)
                     )
                 }
             }

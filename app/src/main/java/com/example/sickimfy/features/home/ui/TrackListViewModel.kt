@@ -21,8 +21,10 @@ sealed interface TrackListMode {
     data object RecentlyPlayed : TrackListMode
 }
 
+// UI state now exposes the mode instead of a hardcoded/bilingual title string.
+// The actual localized title is resolved in the Composable via stringResource.
 data class TrackListUiState(
-    val title: String = "",
+    val mode: TrackListMode = TrackListMode.LikedSongs,
     val tracks: List<Track> = emptyList(),
     val isLoading: Boolean = true
 )
@@ -49,14 +51,14 @@ class TrackListViewModel @Inject constructor(
         when (mode) {
             TrackListMode.LikedSongs -> {
                 TrackListUiState(
-                    title = "Liked Songs",
+                    mode = mode,
                     tracks = likedEntities.map { it.toDomain() },
                     isLoading = false
                 )
             }
             TrackListMode.RecentlyPlayed -> {
                 TrackListUiState(
-                    title = "Recently Played",
+                    mode = mode,
                     tracks = recentTracks,
                     isLoading = false
                 )
@@ -86,7 +88,6 @@ class TrackListViewModel @Inject constructor(
         val tracksList = uiState.value.tracks
         if (tracksList.isNotEmpty()) {
             val list = tracksList.map { Triple(it.id, it.title, it.audioUrl) }
-//            playbackManager.playAll(list)
             val safeList = list.map { triple ->
                 Triple(triple.first, triple.second, triple.third ?: "")
             }

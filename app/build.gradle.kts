@@ -1,16 +1,3 @@
-import java.util.Properties
-
-val localProperties = Properties().apply {
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        localPropertiesFile.inputStream().use(::load)
-    }
-}
-val sickimfyApiBaseUrl = localProperties.getProperty(
-    "sickimfy.apiBaseUrl",
-    "http://10.0.2.2:8080/"
-)
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -29,7 +16,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "API_BASE_URL", "\"$sickimfyApiBaseUrl\"")
+        buildConfigField("String", "API_BASE_URL", "\"http://127.0.0.1:8080/\"")
+//        buildConfigField("String", "API_BASE_URL", "\"http://127.0.0.1:8080/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
