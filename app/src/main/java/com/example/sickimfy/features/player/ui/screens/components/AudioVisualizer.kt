@@ -18,14 +18,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import com.example.sickimfy.core.designsystem.White
 import kotlin.math.sin
 
 @Composable
 fun AudioVisualizer(
     isPlaying: Boolean,
     modifier: Modifier = Modifier,
-    barColor: Color = Color.White.copy(alpha = 0.7f),
-    waveColor: Color = Color.White.copy(alpha = 0.4f)
+    barColor: Color = White.copy(alpha = 0.7f),
+    waveColor: Color = White.copy(alpha = 0.4f)
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
 
@@ -52,7 +53,6 @@ fun AudioVisualizer(
         val centerY = height / 2
 
         if (!isPlaying) {
-            // Static line when paused
             drawLine(
                 color = waveColor,
                 start = Offset(0f, centerY),
@@ -62,7 +62,6 @@ fun AudioVisualizer(
             return@Canvas
         }
 
-        // Draw waveform
         val path = Path()
         val amplitude = height * 0.35f
         val frequency = 0.02f
@@ -85,7 +84,6 @@ fun AudioVisualizer(
             style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
         )
 
-        // Draw secondary wave (slightly offset)
         val path2 = Path()
         path2.moveTo(0f, centerY)
 
@@ -104,7 +102,6 @@ fun AudioVisualizer(
             style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
         )
 
-        // Draw vertical bars
         val barCount = 40
         val barWidth = width / (barCount * 3)
         val spacing = width / barCount

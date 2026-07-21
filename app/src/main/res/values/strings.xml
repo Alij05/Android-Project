@@ -166,4 +166,9 @@
     <string name="close">Close</string>
     <string name="following_label">Following</string>
     <string name="follow_label">Follow</string>
+
+    <!-- Player -->
+    <string name="speed_format">Speed: %1$sx</string>
+    <string name="timer_active_short_format">Timer: %1$dm</string>
+    <string name="cd_download">Download</string>
 </resources>

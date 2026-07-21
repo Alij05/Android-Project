@@ -166,4 +166,9 @@
     <string name="close">بستن</string>
     <string name="following_label">دنبال شده</string>
     <string name="follow_label">دنبال کردن</string>
+
+    <!-- Player -->
+    <string name="speed_format">سرعت: %1$sx</string>
+    <string name="timer_active_short_format">تایمر: %1$d دقیقه</string>
+    <string name="cd_download">دانلود</string>
 </resources>

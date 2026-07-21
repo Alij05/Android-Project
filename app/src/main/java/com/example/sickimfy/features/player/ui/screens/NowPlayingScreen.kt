@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Download
@@ -33,11 +32,11 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,11 +60,12 @@ import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sickimfy.R
+import com.example.sickimfy.core.designsystem.Black
 import com.example.sickimfy.core.designsystem.Dimens
+import com.example.sickimfy.core.designsystem.White
 import com.example.sickimfy.features.player.ui.PlayerEvent
 import com.example.sickimfy.features.player.ui.PlayerUiState
 import com.example.sickimfy.features.player.ui.screens.components.AudioVisualizer
-import kotlinx.coroutines.delay
 
 @Composable
 fun NowPlayingScreen(
@@ -79,7 +79,6 @@ fun NowPlayingScreen(
     var isSeeking by remember { mutableStateOf(false) }
     var seekPosition by remember { mutableFloatStateOf(0f) }
 
-    // Extract dominant color from cover
     val context = LocalContext.current
     LaunchedEffect(uiState.coverUrl) {
         if (uiState.coverUrl.isNotBlank()) {
@@ -137,7 +136,6 @@ fun NowPlayingScreen(
                 .padding(Dimens.paddingLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -145,27 +143,26 @@ fun NowPlayingScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.now_playing),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = White
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.QueueMusic,
                     contentDescription = stringResource(id = R.string.cd_queue),
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    tint = White,
+                    modifier = Modifier.size(Dimens.iconSizeNormal)
                 )
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Rotating Cover (CD style)
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .aspectRatio(1f)
                     .rotate(if (uiState.isPlaying) coverRotation else 0f)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.3f)),
+                    .background(Black.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
@@ -180,22 +177,20 @@ fun NowPlayingScreen(
                         .clip(CircleShape)
                 )
 
-                // Center dot
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(Dimens.iconSizeNormal)
                         .clip(CircleShape)
-                        .background(Color.Black)
+                        .background(Black)
                 )
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Track info
             Text(
                 text = uiState.title,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
+                color = White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth()
@@ -203,7 +198,7 @@ fun NowPlayingScreen(
             Text(
                 text = uiState.artist,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.7f),
+                color = White.copy(alpha = 0.7f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth()
@@ -211,7 +206,6 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Audio Visualizer
             AudioVisualizer(
                 isPlaying = uiState.isPlaying,
                 modifier = Modifier
@@ -221,7 +215,6 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Progress bar
             Column(modifier = Modifier.fillMaxWidth()) {
                 Slider(
                     value = if (isSeeking) seekPosition else {
@@ -240,7 +233,7 @@ fun NowPlayingScreen(
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                        inactiveTrackColor = White.copy(alpha = 0.3f)
                     )
                 )
 
@@ -251,45 +244,41 @@ fun NowPlayingScreen(
                     Text(
                         text = formatDuration(uiState.currentPositionMs),
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = White.copy(alpha = 0.7f)
                     )
                     Text(
                         text = formatDuration(uiState.durationMs),
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = White.copy(alpha = 0.7f)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Shuffle
                 IconButton(onClick = { onEvent(PlayerEvent.ToggleShuffle) }) {
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = stringResource(id = R.string.cd_shuffle),
-                        tint = if (uiState.shuffleEnabled) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(24.dp)
+                        tint = if (uiState.shuffleEnabled) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(Dimens.iconSizeNormal)
                     )
                 }
 
-                // Previous
                 IconButton(onClick = { onEvent(PlayerEvent.SkipPrevious) }) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = stringResource(id = R.string.cd_previous),
-                        tint = Color.White,
+                        tint = White,
                         modifier = Modifier.size(36.dp)
                     )
                 }
 
-                // Play/Pause
                 IconButton(
                     onClick = { onEvent(PlayerEvent.PlayPause) },
                     modifier = Modifier
@@ -304,41 +293,38 @@ fun NowPlayingScreen(
                         } else {
                             stringResource(id = R.string.cd_play)
                         },
-                        tint = Color.White,
+                        tint = White,
                         modifier = Modifier.size(40.dp)
                     )
                 }
 
-                // Next
                 IconButton(onClick = { onEvent(PlayerEvent.SkipNext) }) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = stringResource(id = R.string.cd_next),
-                        tint = Color.White,
+                        tint = White,
                         modifier = Modifier.size(36.dp)
                     )
                 }
 
-                // Repeat
                 IconButton(onClick = { onEvent(PlayerEvent.ToggleRepeat) }) {
                     Icon(
                         imageVector = if (uiState.repeatMode == 2) Icons.Default.RepeatOne else Icons.Default.Repeat,
                         contentDescription = stringResource(id = R.string.cd_repeat),
-                        tint = if (uiState.repeatMode != 0) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(24.dp)
+                        tint = if (uiState.repeatMode != 0) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.5f),
+                        modifier = Modifier.size(Dimens.iconSizeNormal)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Sleep Timer and Speed controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                androidx.compose.material3.TextButton(
+                TextButton(
                     onClick = {
                         val newSpeed = when (uiState.playbackSpeed) {
                             1.0f -> 1.5f
@@ -349,13 +335,13 @@ fun NowPlayingScreen(
                     }
                 ) {
                     Text(
-                        text = "سرعت / Speed: ${uiState.playbackSpeed}x",
-                        color = Color.White.copy(alpha = 0.8f),
+                        text = stringResource(id = R.string.speed_format, uiState.playbackSpeed),
+                        color = White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
 
-                androidx.compose.material3.TextButton(
+                TextButton(
                     onClick = {
                         if (uiState.sleepTimerRunning) {
                             onEvent(PlayerEvent.CancelSleepTimer)
@@ -366,11 +352,11 @@ fun NowPlayingScreen(
                 ) {
                     Text(
                         text = if (uiState.sleepTimerRunning) {
-                            "تایمر / Timer: ${uiState.sleepTimerMinutes}m"
+                            stringResource(id = R.string.timer_active_short_format, uiState.sleepTimerMinutes ?: 0)
                         } else {
-                            "تایمر خواب / Sleep Timer"
+                            stringResource(id = R.string.cd_sleep_timer)
                         },
-                        color = if (uiState.sleepTimerRunning) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
+                        color = if (uiState.sleepTimerRunning) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
@@ -378,7 +364,6 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Favorite and Download buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -391,7 +376,7 @@ fun NowPlayingScreen(
                     Icon(
                         imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = stringResource(id = R.string.cd_favorite),
-                        tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
+                        tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.7f),
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -404,8 +389,8 @@ fun NowPlayingScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Download,
-                        contentDescription = "Download",
-                        tint = Color.White.copy(alpha = 0.7f),
+                        contentDescription = stringResource(id = R.string.cd_download),
+                        tint = White.copy(alpha = 0.7f),
                         modifier = Modifier.size(28.dp)
                     )
                 }

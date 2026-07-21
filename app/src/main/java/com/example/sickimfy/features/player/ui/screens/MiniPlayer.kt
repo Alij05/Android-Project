@@ -6,14 +6,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -53,11 +52,15 @@ fun MiniPlayer(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = Dimens.paddingMedium, topEnd = Dimens.paddingMedium))
+                .clip(
+                    MaterialTheme.shapes.large.copy(
+                        bottomStart = CornerSize(0.dp),
+                        bottomEnd = CornerSize(0.dp)
+                    )
+                )
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable(onClick = onExpand)
         ) {
-            // Progress bar
             val progress = if (uiState.durationMs > 0) {
                 (uiState.currentPositionMs.toFloat() / uiState.durationMs.toFloat()).coerceIn(0f, 1f)
             } else 0f
@@ -68,7 +71,7 @@ fun MiniPlayer(
                     .fillMaxWidth()
                     .height(2.dp),
                 color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                trackColor = MaterialTheme.colorScheme.surface
             )
 
             Row(
@@ -78,7 +81,6 @@ fun MiniPlayer(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Cover image
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(uiState.coverUrl)
@@ -88,10 +90,9 @@ fun MiniPlayer(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(MaterialTheme.shapes.medium)
                 )
 
-                // Title and artist
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -108,13 +109,12 @@ fun MiniPlayer(
                     Text(
                         text = uiState.artist,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.secondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                // Play/Pause button
                 IconButton(
                     onClick = onPlayPause,
                     modifier = Modifier.size(48.dp)
