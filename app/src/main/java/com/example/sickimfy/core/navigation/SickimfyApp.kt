@@ -81,16 +81,12 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 // Column to place MiniPlayer directly above the NavigationBar without overlapping
                 Column(modifier = Modifier.fillMaxWidth()) {
 
-                    // Mini Player
-                    AnimatedVisibility(
-                        visible = playerUiState.currentPositionMs > 0 || playerUiState.isPlaying // Show conditionally if a track is loaded or playing
-                    ) {
-                        MiniPlayer(
-                            uiState = playerUiState,
-                            onPlayPause = { playerViewModel.onEvent(PlayerEvent.PlayPause) },
-                            onExpand = { showFullPlayer = true }
-                        )
-                    }
+                    // Mini Player — visible as soon as any track is loaded
+                    MiniPlayer(
+                        uiState = playerUiState,
+                        onPlayPause = { playerViewModel.onEvent(PlayerEvent.PlayPause) },
+                        onExpand = { showFullPlayer = true }
+                    )
 
                     // Bottom Navigation Menu
                     NavigationBar {
@@ -135,7 +131,13 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
                     HomeScreen(
                         uiState = uiState,
-                        onEvent = viewModel::onEvent,
+                        onEvent = { event ->
+                            viewModel.onEvent(event)
+                            // Open the full player whenever a track is selected
+                            if (event is com.example.sickimfy.features.home.ui.HomeEvent.OnTrackSelected) {
+                                showFullPlayer = true
+                            }
+                        },
                         onNavigateToLikedSongs = { navController.navigate("liked_songs") },
                         onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
                         onSettingsClick = { navController.navigate("settings") },
@@ -151,7 +153,16 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable(AppDestination.SEARCH.route) {
                     val viewModel: SearchViewModel = hiltViewModel()
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                    SearchScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                    SearchScreen(
+                        uiState = uiState,
+                        onEvent = { event ->
+                            viewModel.onEvent(event)
+                            // Open the full player whenever a track is selected from search
+                            if (event is com.example.sickimfy.features.search.ui.SearchEvent.OnTrackSelected) {
+                                showFullPlayer = true
+                            }
+                        }
+                    )
                 }
                 composable(AppDestination.DOWNLOADS.route) {
                     val viewModel: DownloadsViewModel = hiltViewModel()
