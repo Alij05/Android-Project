@@ -25,11 +25,26 @@ class SettingsViewModel @Inject constructor(
         )
 
     fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch { preferences.setThemeMode(mode) }
+        viewModelScope.launch {
+            preferences.setThemeMode(mode)
+        }
     }
 
     fun setFontScale(scale: Float) {
-        viewModelScope.launch { preferences.setFontScale(scale) }
+        viewModelScope.launch {
+            preferences.setFontScale(scale)
+        }
     }
 
+    fun setLanguage(language: String) {
+        viewModelScope.launch {
+            preferences.setLanguageCode(language)
+        }
+    }
+
+    fun setApiBaseUrl(url: String) {
+        viewModelScope.launch {
+            preferences.setApiBaseUrl(url)
+        }
+    }
 }

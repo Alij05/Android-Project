@@ -28,9 +28,9 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
-            
+
             // The current release is intentionally English-only.
-            val language = "en"
+            val language = preferences.languageCode
 
             // Keep resource lookups and layout direction stable even when the device uses another locale.
             val context = androidx.compose.ui.platform.LocalContext.current
