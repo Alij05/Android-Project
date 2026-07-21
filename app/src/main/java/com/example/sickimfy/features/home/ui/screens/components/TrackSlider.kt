@@ -2,6 +2,7 @@ package com.example.sickimfy.features.home.ui.screens.components
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +52,7 @@ fun TrackSlider(
 
         LazyRow(
             contentPadding = PaddingValues(horizontal = Dimens.paddingMedium),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Dimens.paddingSmall)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
         ) {
             if (isLoading) {
                 // Render Shimmer placeholders during loading state
@@ -86,7 +86,7 @@ private fun TrackItemCard(
             with(sharedTransitionScope) {
                 Modifier
                     .size(130.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(MaterialTheme.shapes.medium)
                     .sharedElement(
                         rememberSharedContentState(key = "artwork_${track.id}"),
                         animatedVisibilityScope = animatedVisibilityScope
@@ -95,7 +95,7 @@ private fun TrackItemCard(
         } else {
             Modifier
                 .size(130.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(MaterialTheme.shapes.medium)
         }
 
         AsyncImage(
@@ -132,15 +132,15 @@ private fun ShimmerTrackItem() {
         Column(
             modifier = Modifier
                 .size(130.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(MaterialTheme.shapes.medium)
                 .shimmerEffect()
         ) {}
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimens.paddingSmall))
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(16.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .clip(MaterialTheme.shapes.small)
                 .shimmerEffect()
         ) {}
         Spacer(modifier = Modifier.height(4.dp))
@@ -148,7 +148,7 @@ private fun ShimmerTrackItem() {
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .height(12.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .clip(MaterialTheme.shapes.small)
                 .shimmerEffect()
         ) {}
     }

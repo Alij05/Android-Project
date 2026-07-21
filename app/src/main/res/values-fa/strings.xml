@@ -117,4 +117,6 @@
     <string name="message_read">خوانده شده</string>
     <string name="empty_chat">هنوز پیامی وجود ندارد. گفتگو را شروع کنید!</string>
     <string name="no_internet">اتصال اینترنت برقرار نیست</string>
+
+    <string name="section_quick_actions">دسترسی سریع</string>
 </resources>

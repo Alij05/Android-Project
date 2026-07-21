@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +34,9 @@ import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sickimfy.R
+import com.example.sickimfy.core.designsystem.Black
 import com.example.sickimfy.core.designsystem.Dimens
+import com.example.sickimfy.core.designsystem.White
 import com.example.sickimfy.core.designsystem.components.LocalAnimatedVisibilityScope
 import com.example.sickimfy.core.designsystem.components.LocalSharedTransitionScope
 import com.example.sickimfy.features.home.domain.model.Track
@@ -85,7 +86,7 @@ fun HomeCarousel(
                     )
                 }
                 .clickable { onTrackClick(track) },
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -121,7 +122,7 @@ fun HomeCarousel(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
+                                colors = listOf(Color.Transparent, Black.copy(alpha = 0.8f)),
                                 startY = 300f
                             )
                         )
@@ -135,11 +136,11 @@ fun HomeCarousel(
                 ) {
                     Text(
                         text = track.title,
-                        style = MaterialTheme.typography.titleLarge.copy(color = Color.White, fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge.copy(color = White, fontWeight = FontWeight.Bold)
                     )
                     Text(
                         text = track.artist,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.LightGray)
+                        style = MaterialTheme.typography.bodyMedium.copy(color = White.copy(alpha = 0.7f))
                     )
                 }
             }

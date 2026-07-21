@@ -9,14 +9,14 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
@@ -31,10 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 
@@ -54,23 +55,30 @@ fun QuickActionsGrid(
         modifier = modifier.padding(horizontal = Dimens.paddingMedium),
         verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
     ) {
-        // Build 2x2 grid elegantly using Compose Rows
         for (i in items.indices step 2) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
             ) {
                 QuickActionButton(
                     item = items[i],
                     onClick = { onActionClick(items[i].actionId) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                 )
                 if (i + 1 < items.size) {
                     QuickActionButton(
                         item = items[i + 1],
                         onClick = { onActionClick(items[i + 1].actionId) },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
                     )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -86,7 +94,6 @@ private fun QuickActionButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    // Smooth press-scaling feedback (Springy scale-down on click)
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.93f else 1.0f,
         animationSpec = tween(durationMillis = 100),
@@ -99,30 +106,38 @@ private fun QuickActionButton(
                 scaleX = scale
                 scaleY = scale
             }
-            .clip(RoundedCornerShape(Dimens.paddingSmall))
+            .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(
                 interactionSource = interactionSource,
-                indication = null, // Disable default ripple to enforce the unique scaling design language
+                indication = null,
                 onClick = onClick
             )
             .padding(Dimens.paddingMedium),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(Dimens.iconSizeNormal)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(Dimens.iconSizeLarge)
+                    .clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(Dimens.iconSizeNormal)
+                )
+            }
             Spacer(modifier = Modifier.size(Dimens.paddingSmall))
             Text(
                 text = item.label,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

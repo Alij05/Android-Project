@@ -118,4 +118,7 @@
     <string name="message_read">Read</string>
     <string name="empty_chat">No messages yet. Start the conversation!</string>
     <string name="no_internet">No internet connection</string>
+
+    <string name="section_quick_actions">Quick Actions</string>
+
 </resources>
