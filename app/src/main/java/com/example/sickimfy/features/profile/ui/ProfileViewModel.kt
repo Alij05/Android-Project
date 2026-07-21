@@ -41,7 +41,7 @@ class ProfileViewModel @Inject constructor(
                 toggleTheme()
             }
             ProfileEvent.OnLanguageSettingsClick -> {
-                toggleLanguage()
+                Unit
             }
             ProfileEvent.OnLogoutClick -> {
                 viewModelScope.launch {
@@ -85,8 +85,4 @@ class ProfileViewModel @Inject constructor(
         preferences.setThemeMode(if (current == ThemeMode.DARK) ThemeMode.LIGHT else ThemeMode.DARK)
     }
 
-    private fun toggleLanguage() = viewModelScope.launch {
-        val current = preferences.preferences.first().languageCode
-        preferences.setLanguageCode(if (current == "fa") "en" else "fa")
-    }
 }

@@ -78,7 +78,7 @@ class PlayerViewModel @Inject constructor(
                 viewModelScope.launch {
                     val isPremium = preferences.preferences.first().isPremium
                     if (!isPremium) {
-                        _uiState.update { it.copy(error = "دانلود فقط برای کاربران ویژه فعال است / Download is only available for Premium members") }
+                        _uiState.update { it.copy(error = "Downloads are available for Premium members only.") }
                         return@launch
                     }
                     val trackId = _uiState.value.trackId ?: return@launch

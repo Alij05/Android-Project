@@ -29,16 +29,10 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.DARK -> true
             }
             
-            // Resolve language code
-            val language = when (preferences.languageCode) {
-                "system" -> {
-                    val systemLocale = java.util.Locale.getDefault().language
-                    if (systemLocale == "fa") "fa" else "en"
-                }
-                else -> preferences.languageCode
-            }
+            // The current release is intentionally English-only.
+            val language = "en"
 
-            // Dynamic locale configuration reload
+            // Keep resource lookups and layout direction stable even when the device uses another locale.
             val context = androidx.compose.ui.platform.LocalContext.current
             androidx.compose.runtime.LaunchedEffect(language) {
                 val locale = java.util.Locale(language)
@@ -49,11 +43,7 @@ class MainActivity : ComponentActivity() {
                 resources.updateConfiguration(config, resources.displayMetrics)
             }
 
-            val layoutDirection = if (language == "fa") {
-                androidx.compose.ui.unit.LayoutDirection.Rtl
-            } else {
-                androidx.compose.ui.unit.LayoutDirection.Ltr
-            }
+            val layoutDirection = androidx.compose.ui.unit.LayoutDirection.Ltr
 
             MusicAppTheme(darkTheme = useDarkTheme) {
                 androidx.compose.runtime.CompositionLocalProvider(

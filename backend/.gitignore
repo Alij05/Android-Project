@@ -1,6 +1,8 @@
 .env
 .gradle/
 .gradle-backend/
+.kotlin/
+gradle.properties
 build/
 data/*.db
 data/*.db-shm

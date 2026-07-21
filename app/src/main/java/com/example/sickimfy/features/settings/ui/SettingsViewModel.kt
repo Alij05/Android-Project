@@ -28,15 +28,8 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { preferences.setThemeMode(mode) }
     }
 
-    fun setLanguage(code: String) {
-        viewModelScope.launch { preferences.setLanguageCode(code) }
-    }
-
     fun setFontScale(scale: Float) {
         viewModelScope.launch { preferences.setFontScale(scale) }
     }
 
-    fun setApiBaseUrl(url: String) {
-        viewModelScope.launch { preferences.setApiBaseUrl(url) }
-    }
 }

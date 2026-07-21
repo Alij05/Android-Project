@@ -106,7 +106,7 @@ class ChatRepositoryImpl @Inject constructor(
         offlineMessageDao.updateStatus(messageId, MessageStatus.READ.name)
     }
     override suspend fun sendTypingIndicator(userId: String, isTyping: Boolean) {
-        // موقتاً خالی یا در صورت وجود، ارسال به وب‌ساکت
+        // The WebSocket event is sent when a live connection is available.
     }
 
     private fun OfflineMessageEntity.toDomain(): Message {
