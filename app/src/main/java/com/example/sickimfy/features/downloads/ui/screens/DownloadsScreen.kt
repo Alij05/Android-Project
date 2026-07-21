@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.DropdownMenu
@@ -42,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -71,6 +69,7 @@ fun DownloadsScreen(
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             MusicTopBar(
                 onNotificationClick = { },
@@ -84,13 +83,11 @@ fun DownloadsScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Header & Sorting Controls
             DownloadsHeader(
                 activeSort = uiState.sortOption,
                 onSortChanged = { onEvent(DownloadsEvent.OnSortOptionChanged(it)) }
             )
 
-            // Tracks List
             if (uiState.downloadedTracks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
@@ -183,21 +180,19 @@ private fun DismissibleTrackItem(
     onDelete: (Track) -> Unit,
     onClick: (Track) -> Unit
 ) {
-    // State to manage the UI component's awareness of being swiped
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { dismissValue ->
             if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
-                true // Allow dismiss
+                true
             } else {
                 false
             }
         }
     )
 
-    // Trigger logical deletion only when the animation is fully confirmed
     LaunchedEffect(dismissState.currentValue) {
         if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
-            delay(300) // Allow animation to finish gracefully
+            delay(300)
             onDelete(track)
         }
     }
@@ -208,15 +203,15 @@ private fun DismissibleTrackItem(
     ) {
         SwipeToDismissBox(
             state = dismissState,
-            enableDismissFromStartToEnd = true, // LTR swipe
-            enableDismissFromEndToStart = true, // RTL swipe
+            enableDismissFromStartToEnd = true,
+            enableDismissFromEndToStart = true,
             backgroundContent = {
                 val color = MaterialTheme.colorScheme.error
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall)
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(MaterialTheme.shapes.medium)
                         .background(color)
                         .padding(horizontal = Dimens.paddingMedium),
                     contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Alignment.CenterEnd else Alignment.CenterStart
@@ -229,12 +224,11 @@ private fun DismissibleTrackItem(
                 }
             },
             content = {
-                // The actual track card
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall)
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.background)
                         .clickable { onClick(track) },
                     verticalAlignment = Alignment.CenterVertically
@@ -246,7 +240,7 @@ private fun DismissibleTrackItem(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(64.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(MaterialTheme.shapes.medium)
                     )
                     Spacer(modifier = Modifier.width(Dimens.paddingMedium))
                     Column(modifier = Modifier.weight(1f)) {

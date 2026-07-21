@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 
 @Composable
@@ -70,7 +72,6 @@ fun AuthScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // App Branding Logo
             Image(
                 painter = painterResource(id = android.R.drawable.ic_media_play),
                 contentDescription = null,
@@ -84,7 +85,7 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
             Text(
-                text = "Sickimfy",
+                text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     letterSpacing = 1.5.sp
                 ),
@@ -93,7 +94,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Error Message
             AnimatedVisibility(visible = uiState.error != null) {
                 uiState.error?.let { err ->
                     Text(
@@ -105,12 +105,11 @@ fun AuthScreen(
                 }
             }
 
-            // Text Inputs
             if (!uiState.isLogin) {
                 OutlinedTextField(
                     value = uiState.displayName,
                     onValueChange = viewModel::onDisplayNameChanged,
-                    label = { Text("نام نمایشی / Display Name") },
+                    label = { Text(stringResource(id = R.string.auth_display_name_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -125,7 +124,7 @@ fun AuthScreen(
             OutlinedTextField(
                 value = uiState.apiBaseUrl,
                 onValueChange = viewModel::onApiBaseUrlChanged,
-                label = { Text("آدرس سرور / Server URL") },
+                label = { Text(stringResource(id = R.string.auth_server_url_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 leadingIcon = {
@@ -147,7 +146,7 @@ fun AuthScreen(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = viewModel::onEmailChanged,
-                label = { Text("ایمیل / Email Address") },
+                label = { Text(stringResource(id = R.string.auth_email_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -163,7 +162,7 @@ fun AuthScreen(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChanged,
-                label = { Text("رمز عبور / Password") },
+                label = { Text(stringResource(id = R.string.auth_password_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 visualTransformation = PasswordVisualTransformation(),
@@ -177,7 +176,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Submit Button
             Button(
                 onClick = viewModel::onSubmit,
                 enabled = !uiState.isLoading,
@@ -198,7 +196,7 @@ fun AuthScreen(
                     )
                 } else {
                     Text(
-                        text = if (uiState.isLogin) "ورود / Sign In" else "ثبت‌نام / Register",
+                        text = stringResource(id = if (uiState.isLogin) R.string.auth_sign_in else R.string.auth_register),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 }
@@ -206,14 +204,11 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Toggle Mode Button
             TextButton(onClick = viewModel::toggleMode) {
                 Text(
-                    text = if (uiState.isLogin) {
-                        "حساب کاربری ندارید؟ ثبت‌نام کنید / Don't have an account? Register"
-                    } else {
-                        "قبلاً ثبت‌نام کرده‌اید؟ وارد شوید / Already have an account? Sign In"
-                    },
+                    text = stringResource(
+                        id = if (uiState.isLogin) R.string.auth_toggle_to_register else R.string.auth_toggle_to_login
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary
                 )

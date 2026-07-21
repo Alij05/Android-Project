@@ -44,11 +44,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.features.home.domain.model.Track
 
@@ -70,7 +72,7 @@ fun TrackListScreen(
                 title = { Text(text = title, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -90,7 +92,7 @@ fun TrackListScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "لیست خالی است / The list is empty",
+                        text = stringResource(id = R.string.track_list_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -113,7 +115,7 @@ fun TrackListScreen(
                     ) {
                         Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                        Text(text = "پخش همه / Play All")
+                        Text(text = stringResource(id = R.string.play_all))
                     }
                 }
 
@@ -153,7 +155,7 @@ fun TrackListScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete",
+                                        contentDescription = stringResource(id = R.string.cd_delete_track),
                                         tint = MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 }

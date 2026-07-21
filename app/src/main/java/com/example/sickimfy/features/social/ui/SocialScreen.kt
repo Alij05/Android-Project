@@ -59,7 +59,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.PublicProfileDto
-import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
+//import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
+import com.example.sickimfy.core.designsystem.GoldenPremium
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

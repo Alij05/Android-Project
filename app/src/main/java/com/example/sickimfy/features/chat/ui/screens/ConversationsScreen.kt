@@ -51,8 +51,9 @@ import coil.request.ImageRequest
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.ConversationSummaryDto
 import com.example.sickimfy.features.chat.ui.ConversationsViewModel
-import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
+//import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
 import androidx.compose.foundation.layout.PaddingValues
+import com.example.sickimfy.core.designsystem.GoldenPremium
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

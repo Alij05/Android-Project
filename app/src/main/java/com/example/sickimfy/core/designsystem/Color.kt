@@ -36,3 +36,5 @@ val SurfaceDark = Color(0xFF282828)
 val OnSurfaceDark = White
 val ErrorDark = Color(0xFFCF6679)
 val OnErrorDark = Black
+
+val GoldenPremium = Color(0xFFFFD700)

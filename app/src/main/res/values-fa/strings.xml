@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Top Bar / Navigation -->
     <string name="app_name">سیکیمفای</string>
     <string name="nav_home">خانه</string>
     <string name="nav_search">جستجو</string>
@@ -9,8 +10,23 @@
     <string name="cd_notification_bell">اعلان‌ها</string>
     <string name="cd_settings_gear">تنظیمات</string>
     <string name="cd_profile_picture">پروفایل کاربری</string>
+    <string name="cd_back">بازگشت</string>
+    <string name="cancel">لغو</string>
+    <string name="retry">تلاش دوباره</string>
+    <string name="no_internet">اتصال اینترنت برقرار نیست</string>
+
+    <!-- Auth Screen -->
+    <string name="auth_display_name_label">نام نمایشی</string>
+    <string name="auth_server_url_label">آدرس سرور</string>
+    <string name="auth_email_label">ایمیل</string>
+    <string name="auth_password_label">رمز عبور</string>
+    <string name="auth_sign_in">ورود</string>
+    <string name="auth_register">ثبت‌نام</string>
+    <string name="auth_toggle_to_register">حساب کاربری ندارید؟ ثبت‌نام کنید</string>
+    <string name="auth_toggle_to_login">قبلاً ثبت‌نام کرده‌اید؟ وارد شوید</string>
 
     <!-- Home Quick Actions -->
+    <string name="section_quick_actions">دسترسی سریع</string>
     <string name="qa_liked_songs">آهنگ‌های لایک شده</string>
     <string name="qa_recently_played">اخیراً شنیده شده</string>
     <string name="qa_my_playlists">پلی‌لیست‌های من</string>
@@ -33,6 +49,8 @@
     <string name="clear_history">پاک‌سازی</string>
     <string name="cd_clear_search">پاک کردن متن جستجو</string>
     <string name="cd_delete_history_item">حذف مورد از تاریخچه</string>
+    <string name="search_error">نتایج جستجو بارگذاری نشد.</string>
+    <string name="no_results_format">نتیجه‌ای برای «%1$s» پیدا نشد.</string>
 
     <!-- Downloads Screen -->
     <string name="downloads_title">دانلودها</string>
@@ -43,12 +61,17 @@
     <string name="cd_delete_track">حذف آهنگ</string>
     <string name="empty_downloads">هیچ آهنگی دانلود نشده است.</string>
 
+    <!-- Track List Screen -->
+    <string name="track_list_empty">لیست خالی است</string>
+    <string name="play_all">پخش همه</string>
+
     <!-- Playlists Screen -->
     <string name="playlists_title">پلی‌لیست‌ها</string>
     <string name="section_intl_music">موسیقی جهان</string>
     <string name="section_local_music">موسیقی داخلی</string>
     <string name="section_user_playlists">پلی‌لیست‌های شما</string>
     <string name="tracks_count_format">%1$d آهنگ</string>
+    <string name="playlists_error">پلی‌لیست‌ها بارگذاری نشدند.</string>
 
     <!-- Profile Screen -->
     <string name="profile_title">پروفایل من</string>
@@ -59,11 +82,9 @@
     <string name="settings_title">تنظیمات</string>
     <string name="theme_settings">پوسته (Theme)</string>
     <string name="language_settings">زبان برنامه</string>
+    <string name="direct_messages">گفتگوها</string>
+    <string name="log_out">خروج از حساب کاربری</string>
     <string name="upgrading_wait">در حال پردازش...</string>
-    <string name="retry">تلاش دوباره</string>
-    <string name="search_error">نتایج جستجو بارگذاری نشد.</string>
-    <string name="no_results_format">نتیجه‌ای برای «%1$s» پیدا نشد.</string>
-    <string name="playlists_error">پلی‌لیست‌ها بارگذاری نشدند.</string>
     <string name="profile_sign_in_required">برای مشاهده پروفایل باید وارد حساب شوید.</string>
 
     <!-- Player Screen -->
@@ -75,7 +96,7 @@
     <string name="cd_shuffle">تصادفی</string>
     <string name="cd_repeat">تکرار</string>
     <string name="cd_favorite">علاقه‌مندی</string>
-    <string name="cd_queue"> صف پخش</string>
+    <string name="cd_queue">صف پخش</string>
     <string name="cd_close_player">بستن پلیر</string>
     <string name="cd_speed_control">سرعت پخش</string>
     <string name="cd_sleep_timer">تایمر خواب</string>
@@ -99,7 +120,6 @@
     <string name="premium_required">اشتراک ویژه مورد نیاز است</string>
     <string name="premium_required_message">برای دانلود آهنگ‌ها جهت گوش دادن آفلاین، اشتراک ویژه تهیه کنید.</string>
     <string name="upgrade_now">ارتقا هم‌اکنون</string>
-    <string name="cancel">لغو</string>
     <string name="downloading">در حال دانلود…</string>
     <string name="download_complete">دانلود کامل شد</string>
     <string name="download_failed">دانلود ناموفق بود</string>
@@ -116,7 +136,4 @@
     <string name="message_delivered">تحویل شده</string>
     <string name="message_read">خوانده شده</string>
     <string name="empty_chat">هنوز پیامی وجود ندارد. گفتگو را شروع کنید!</string>
-    <string name="no_internet">اتصال اینترنت برقرار نیست</string>
-
-    <string name="section_quick_actions">دسترسی سریع</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Top Bar Strings -->
+    <!-- Top Bar / Navigation -->
     <string name="app_name">Sickimfy</string>
     <string name="nav_home">Home</string>
     <string name="nav_search">Search</string>
@@ -10,8 +10,23 @@
     <string name="cd_notification_bell">Notifications</string>
     <string name="cd_settings_gear">Settings</string>
     <string name="cd_profile_picture">User Profile</string>
+    <string name="cd_back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+    <string name="no_internet">No internet connection</string>
+
+    <!-- Auth Screen -->
+    <string name="auth_display_name_label">Display Name</string>
+    <string name="auth_server_url_label">Server URL</string>
+    <string name="auth_email_label">Email Address</string>
+    <string name="auth_password_label">Password</string>
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_register">Register</string>
+    <string name="auth_toggle_to_register">Don\'t have an account? Register</string>
+    <string name="auth_toggle_to_login">Already have an account? Sign In</string>
 
     <!-- Home Quick Actions -->
+    <string name="section_quick_actions">Quick Actions</string>
     <string name="qa_liked_songs">Liked Songs</string>
     <string name="qa_recently_played">Recently Played</string>
     <string name="qa_my_playlists">My Playlists</string>
@@ -34,6 +49,8 @@
     <string name="clear_history">Clear</string>
     <string name="cd_clear_search">Clear search query</string>
     <string name="cd_delete_history_item">Delete item from history</string>
+    <string name="search_error">Could not load search results.</string>
+    <string name="no_results_format">No results found for “%1$s”.</string>
 
     <!-- Downloads Screen -->
     <string name="downloads_title">Downloads</string>
@@ -44,12 +61,17 @@
     <string name="cd_delete_track">Delete Track</string>
     <string name="empty_downloads">No downloaded tracks yet.</string>
 
+    <!-- Track List Screen -->
+    <string name="track_list_empty">The list is empty</string>
+    <string name="play_all">Play All</string>
+
     <!-- Playlists Screen -->
     <string name="playlists_title">Playlists</string>
     <string name="section_intl_music">International Music</string>
     <string name="section_local_music">Domestic Music</string>
     <string name="section_user_playlists">Your Playlists</string>
     <string name="tracks_count_format">%1$d Tracks</string>
+    <string name="playlists_error">Could not load playlists.</string>
 
     <!-- Profile Screen -->
     <string name="profile_title">My Profile</string>
@@ -60,11 +82,9 @@
     <string name="settings_title">Settings</string>
     <string name="theme_settings">Theme</string>
     <string name="language_settings">Language</string>
+    <string name="direct_messages">Direct Messages</string>
+    <string name="log_out">Log Out</string>
     <string name="upgrading_wait">Processing...</string>
-    <string name="retry">Retry</string>
-    <string name="search_error">Could not load search results.</string>
-    <string name="no_results_format">No results found for “%1$s”.</string>
-    <string name="playlists_error">Could not load playlists.</string>
     <string name="profile_sign_in_required">Sign in is required to load your profile.</string>
 
     <!-- Player Screen -->
@@ -100,7 +120,6 @@
     <string name="premium_required">Premium Required</string>
     <string name="premium_required_message">Upgrade to Premium to download tracks for offline listening.</string>
     <string name="upgrade_now">Upgrade Now</string>
-    <string name="cancel">Cancel</string>
     <string name="downloading">Downloading…</string>
     <string name="download_complete">Download complete</string>
     <string name="download_failed">Download failed</string>
@@ -117,8 +136,4 @@
     <string name="message_delivered">Delivered</string>
     <string name="message_read">Read</string>
     <string name="empty_chat">No messages yet. Start the conversation!</string>
-    <string name="no_internet">No internet connection</string>
-
-    <string name="section_quick_actions">Quick Actions</string>
-
 </resources>

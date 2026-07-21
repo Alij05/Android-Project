@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ColorLens
@@ -35,7 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,7 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -55,9 +53,6 @@ import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.features.profile.ui.ProfileEvent
 import com.example.sickimfy.features.profile.ui.ProfileUiState
-
-// Define a distinct golden color for the Premium badge
-val GoldenPremium = Color(0xFFFFD700)
 
 @Composable
 fun ProfileScreen(
@@ -95,7 +90,6 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Avatar Section
             AvatarSection(
                 avatarUrl = uiState.avatarUrl,
                 onAvatarClick = { onEvent(ProfileEvent.OnAvatarClick) }
@@ -103,7 +97,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            // Name and Premium Badge Section
             UserInfoSection(
                 userName = uiState.userName,
                 isPremium = uiState.isPremium
@@ -111,7 +104,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Premium Upgrade Action
             if (!uiState.isPremium) {
                 PremiumUpgradeButton(
                     isUpgrading = uiState.isUpgrading,
@@ -120,10 +112,9 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
-            Divider(color = MaterialTheme.colorScheme.surfaceVariant)
+            Divider(color = MaterialTheme.colorScheme.surface)
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            // Settings Section
             SettingsSection(
                 onThemeClick = { onEvent(ProfileEvent.OnThemeSettingsClick) },
                 onLanguageClick = { onEvent(ProfileEvent.OnLanguageSettingsClick) },
@@ -140,7 +131,6 @@ private fun AvatarSection(
     onAvatarClick: () -> Unit
 ) {
     Box(contentAlignment = Alignment.BottomEnd) {
-        // Main Avatar Profile Picture
         if (avatarUrl != null) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(avatarUrl).crossfade(true).build(),
@@ -149,26 +139,25 @@ private fun AvatarSection(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surface)
             )
         } else {
             Box(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surface),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.secondary
                 )
             }
         }
 
-        // Edit Icon Badge
         Box(
             modifier = Modifier
                 .size(36.dp)
@@ -195,13 +184,12 @@ private fun UserInfoSection(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = userName,
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(Dimens.paddingSmall))
 
-        // Animated transition between Standard and Premium badges
         AnimatedContent(
             targetState = isPremium,
             transitionSpec = {
@@ -212,21 +200,21 @@ private fun UserInfoSection(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(if (premiumState) GoldenPremium.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
+                    .clip(MaterialTheme.shapes.large)
+                    .background(if (premiumState) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface)
                     .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall)
             ) {
                 Icon(
                     imageVector = if (premiumState) Icons.Default.WorkspacePremium else Icons.Default.Person,
                     contentDescription = null,
-                    tint = if (premiumState) GoldenPremium else MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = if (premiumState) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                 Text(
                     text = stringResource(id = if (premiumState) R.string.premium_member else R.string.standard_member),
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = if (premiumState) GoldenPremium else MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = if (premiumState) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                 )
             }
         }
@@ -242,18 +230,18 @@ private fun PremiumUpgradeButton(
         onClick = onClick,
         enabled = !isUpgrading,
         colors = ButtonDefaults.buttonColors(
-            containerColor = GoldenPremium,
-            contentColor = Color.Black // High contrast text on golden button
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         if (isUpgrading) {
             CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
-                color = Color.Black,
+                modifier = Modifier.size(Dimens.iconSizeNormal),
+                color = MaterialTheme.colorScheme.onPrimary,
                 strokeWidth = 2.dp
             )
             Spacer(modifier = Modifier.width(Dimens.paddingMedium))
@@ -263,7 +251,7 @@ private fun PremiumUpgradeButton(
             Spacer(modifier = Modifier.width(Dimens.paddingSmall))
             Text(
                 text = stringResource(id = R.string.upgrade_premium),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
             )
         }
     }
@@ -286,7 +274,7 @@ private fun SettingsSection(
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column {
@@ -304,13 +292,13 @@ private fun SettingsSection(
                 Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
                 SettingItem(
                     icon = Icons.Default.Chat,
-                    title = "گفتگوها / Direct Messages",
+                    title = stringResource(id = R.string.direct_messages),
                     onClick = onChatClick
                 )
                 Divider(color = MaterialTheme.colorScheme.background, modifier = Modifier.padding(horizontal = Dimens.paddingMedium))
                 SettingItem(
                     icon = Icons.Default.ExitToApp,
-                    title = "خروج از حساب کاربری / Log Out",
+                    title = stringResource(id = R.string.log_out),
                     onClick = onLogoutClick
                 )
             }
@@ -320,7 +308,7 @@ private fun SettingsSection(
 
 @Composable
 private fun SettingItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     onClick: () -> Unit
 ) {
@@ -334,12 +322,13 @@ private fun SettingItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(Dimens.iconSizeNormal)
         )
         Spacer(modifier = Modifier.width(Dimens.paddingMedium))
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
