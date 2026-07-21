@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -13,8 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,9 +35,9 @@ fun TypingIndicator(
     Row(
         modifier = modifier
             .padding(horizontal = Dimens.paddingMedium, vertical = 4.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -57,9 +56,9 @@ fun TypingIndicator(
                 ),
                 label = "dot$index"
             )
-            val circleColor = MaterialTheme.colorScheme.onSurfaceVariant
+            val circleColor = MaterialTheme.colorScheme.secondary
 
-            androidx.compose.foundation.Canvas(
+            Canvas(
                 modifier = Modifier.size(8.dp)
             ) {
                 drawCircle(
@@ -71,12 +70,12 @@ fun TypingIndicator(
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(Dimens.paddingSmall))
 
         Text(
             text = stringResource(id = R.string.typing_indicator),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.secondary
         )
     }
 }

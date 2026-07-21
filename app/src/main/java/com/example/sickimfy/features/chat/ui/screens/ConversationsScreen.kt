@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.People
@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,12 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.ConversationSummaryDto
 import com.example.sickimfy.features.chat.ui.ConversationsViewModel
-//import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
-import androidx.compose.foundation.layout.PaddingValues
-import com.example.sickimfy.core.designsystem.GoldenPremium
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +65,6 @@ fun ConversationsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Reload conversations on enter
     LaunchedEffect(Unit) {
         viewModel.loadConversations()
     }
@@ -75,15 +73,15 @@ fun ConversationsScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "گفتگوها / Direct Messages", fontWeight = FontWeight.Bold) },
+                title = { Text(text = stringResource(id = R.string.direct_messages), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = onNavigateToSocial) {
-                        Icon(imageVector = Icons.Default.People, contentDescription = "Social")
+                        Icon(imageVector = Icons.Default.People, contentDescription = stringResource(id = R.string.cd_social))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -104,7 +102,8 @@ fun ConversationsScreen(
             } else if (uiState.error != null && uiState.conversations.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "خطا در بارگذاری گفتگوها / Failed to load conversations",
+                        text = stringResource(id = R.string.conversations_load_error),
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -117,14 +116,14 @@ fun ConversationsScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "هنوز گفتگویی ندارید! / No active conversations yet.",
+                            text = stringResource(id = R.string.conversations_empty_title),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.secondary
                         )
                         Spacer(modifier = Modifier.height(Dimens.paddingMedium))
                         Text(
-                            text = "از آیکون بالا وارد بخش اجتماعی شده و چت با دوستان را آغاز کنید. / Go to social feed to chat.",
-                            style = MaterialTheme.typography.bodySmall,
+                            text = stringResource(id = R.string.conversations_empty_subtitle),
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.padding(horizontal = Dimens.paddingMedium)
                         )
@@ -167,7 +166,7 @@ private fun ConversationItem(
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(horizontal = Dimens.paddingMedium, vertical = Dimens.paddingSmall),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
@@ -176,7 +175,6 @@ private fun ConversationItem(
                 .padding(Dimens.paddingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Participant Avatar
             if (participant.avatarUrl != null) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current).data(participant.avatarUrl).crossfade(true).build(),
@@ -191,10 +189,10 @@ private fun ConversationItem(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                 }
             }
 
@@ -204,29 +202,33 @@ private fun ConversationItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = participant.displayName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (participant.isPremium) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(imageVector = Icons.Default.Star, contentDescription = null, tint = GoldenPremium, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(Dimens.paddingSmall))
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Last Message snippet
                 Text(
                     text = when {
-                        lastMsg == null -> "پیامی وجود ندارد / No messages"
+                        lastMsg == null -> stringResource(id = R.string.no_messages_placeholder)
                         lastMsg.content != null -> lastMsg.content
-                        lastMsg.sharedTrack != null -> "🎵 آهنگ اشتراک‌گذاری شده / Shared a track"
+                        lastMsg.sharedTrack != null -> stringResource(id = R.string.shared_track_preview)
                         else -> "..."
                     },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

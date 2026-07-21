@@ -147,4 +147,11 @@
     <string name="font_scale_current_format">مقدار فعلی: %1$.2fx</string>
     <string name="font_scale_small">کوچک</string>
     <string name="font_scale_large">بزرگ</string>
+
+    <string name="cd_social">اجتماعی</string>
+    <string name="conversations_load_error">خطا در بارگذاری گفتگوها</string>
+    <string name="conversations_empty_title">هنوز گفتگویی ندارید!</string>
+    <string name="conversations_empty_subtitle">از آیکون بالا وارد بخش اجتماعی شده و چت با دوستان را آغاز کنید.</string>
+    <string name="no_messages_placeholder">پیامی وجود ندارد</string>
+    <string name="shared_track_preview">🎵 آهنگ اشتراک‌گذاری شده</string>
 </resources>
