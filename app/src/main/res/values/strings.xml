@@ -136,4 +136,15 @@
     <string name="message_delivered">Delivered</string>
     <string name="message_read">Read</string>
     <string name="empty_chat">No messages yet. Start the conversation!</string>
+
+    <string name="theme_option_system">System</string>
+    <string name="theme_option_light">Light</string>
+    <string name="theme_option_dark">Dark</string>
+    <string name="language_option_system">System</string>
+    <string name="language_option_persian">Persian</string>
+    <string name="language_option_english">English</string>
+    <string name="settings_font_scale">Font Scale</string>
+    <string name="font_scale_current_format">Current: %1$.2fx</string>
+    <string name="font_scale_small">Small</string>
+    <string name="font_scale_large">Large</string>
 </resources>

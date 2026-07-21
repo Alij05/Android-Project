@@ -136,4 +136,15 @@
     <string name="message_delivered">تحویل شده</string>
     <string name="message_read">خوانده شده</string>
     <string name="empty_chat">هنوز پیامی وجود ندارد. گفتگو را شروع کنید!</string>
+
+    <string name="theme_option_system">سیستمی</string>
+    <string name="theme_option_light">روشن</string>
+    <string name="theme_option_dark">تاریک</string>
+    <string name="language_option_system">سیستمی</string>
+    <string name="language_option_persian">فارسی</string>
+    <string name="language_option_english">انگلیسی</string>
+    <string name="settings_font_scale">اندازه فونت</string>
+    <string name="font_scale_current_format">مقدار فعلی: %1$.2fx</string>
+    <string name="font_scale_small">کوچک</string>
+    <string name="font_scale_large">بزرگ</string>
 </resources>

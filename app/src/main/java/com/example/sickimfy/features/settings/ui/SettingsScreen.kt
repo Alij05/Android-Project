@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -37,8 +36,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.sickimfy.R
 import com.example.sickimfy.core.data.preferences.ThemeMode
 import com.example.sickimfy.core.data.preferences.UserPreferences
 import com.example.sickimfy.core.designsystem.Dimens
@@ -60,13 +62,13 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "تنظیمات / Settings",
+                        text = stringResource(id = R.string.settings_title),
                         fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -86,17 +88,17 @@ fun SettingsScreen(
             // ── Server URL ─────────────────────────
             SettingsSectionCard(
                 icon = Icons.Default.Link,
-                title = "آدرس سرور / Server URL"
+                title = stringResource(id = R.string.auth_server_url_label)
             ) {
                 OutlinedTextField(
                     value = state.apiBaseUrl,
                     onValueChange = onApiBaseUrlChange,
-                    label = { Text("آدرس سرور / Server URL") },
+                    label = { Text(stringResource(id = R.string.auth_server_url_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary
                     ),
                     singleLine = true
                 )
@@ -105,19 +107,19 @@ fun SettingsScreen(
             // ── Theme Mode ───────────────────────
             SettingsSectionCard(
                 icon = Icons.Default.ColorLens,
-                title = "تم / Theme"
+                title = stringResource(id = R.string.theme_settings)
             ) {
                 val themeOptions = listOf(
-                    ThemeMode.SYSTEM to "سیستمی / System",
-                    ThemeMode.LIGHT to "روشن / Light",
-                    ThemeMode.DARK to "تاریک / Dark"
+                    ThemeMode.SYSTEM to stringResource(id = R.string.theme_option_system),
+                    ThemeMode.LIGHT to stringResource(id = R.string.theme_option_light),
+                    ThemeMode.DARK to stringResource(id = R.string.theme_option_dark)
                 )
                 themeOptions.forEach { (mode, label) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onThemeChange(mode) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = Dimens.paddingSmall),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
@@ -127,7 +129,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                         Text(
                             text = label,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -137,19 +139,19 @@ fun SettingsScreen(
             // ── Language ─────────────────────────
             SettingsSectionCard(
                 icon = Icons.Default.Language,
-                title = "زبان / Language"
+                title = stringResource(id = R.string.language_settings)
             ) {
                 val languageOptions = listOf(
-                    "system" to "سیستمی / System",
-                    "fa" to "فارسی / Persian",
-                    "en" to "English"
+                    "system" to stringResource(id = R.string.language_option_system),
+                    "fa" to stringResource(id = R.string.language_option_persian),
+                    "en" to stringResource(id = R.string.language_option_english)
                 )
                 languageOptions.forEach { (code, label) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onLanguageChange(code) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = Dimens.paddingSmall),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
@@ -159,7 +161,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                         Text(
                             text = label,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -169,14 +171,14 @@ fun SettingsScreen(
             // ── Font Scale ───────────────────────
             SettingsSectionCard(
                 icon = Icons.Default.TextFields,
-                title = "اندازه فونت / Font Scale"
+                title = stringResource(id = R.string.settings_font_scale)
             ) {
                 Text(
-                    text = "مقدار فعلی / Current: ${"%.2f".format(state.fontScale)}x",
+                    text = stringResource(id = R.string.font_scale_current_format, state.fontScale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.paddingSmall))
                 Slider(
                     value = state.fontScale,
                     onValueChange = onFontScaleChange,
@@ -186,32 +188,32 @@ fun SettingsScreen(
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                        inactiveTrackColor = MaterialTheme.colorScheme.surface
                     )
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "کوچک / Small", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
-                    Text(text = "بزرگ / Large", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                    Text(text = stringResource(id = R.string.font_scale_small), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                    Text(text = stringResource(id = R.string.font_scale_large), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
-            Spacer(modifier = Modifier.height(80.dp)) // bottom padding for bottom nav
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
 
 @Composable
 private fun SettingsSectionCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     content: @Composable () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(Dimens.paddingMedium)) {
@@ -227,7 +229,7 @@ private fun SettingsSectionCard(
                 Spacer(modifier = Modifier.width(Dimens.paddingSmall))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
