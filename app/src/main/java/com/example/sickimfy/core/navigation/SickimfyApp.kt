@@ -57,6 +57,8 @@ import com.example.sickimfy.features.settings.ui.SettingsScreen
 import com.example.sickimfy.features.settings.ui.SettingsViewModel
 import com.example.sickimfy.features.social.ui.SocialScreen
 import kotlinx.coroutines.launch
+import com.example.sickimfy.R
+
 
 @Composable
 fun SickimfyApp(modifier: Modifier = Modifier) {
@@ -194,12 +196,14 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 }
                 composable("liked_songs") {
                     val viewModel: TrackListViewModel = hiltViewModel()
-                    LaunchedEffect(Unit) {
-                        viewModel.setMode(TrackListMode.LikedSongs)
-                    }
+                    LaunchedEffect(Unit) { viewModel.setMode(TrackListMode.LikedSongs) }
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    val title = when (uiState.mode) {
+                        TrackListMode.LikedSongs -> stringResource(R.string.title_liked_songs)
+                        TrackListMode.RecentlyPlayed -> stringResource(R.string.title_recently_played)
+                    }
                     TrackListScreen(
-                        title = uiState.title,
+                        title = title,
                         tracks = uiState.tracks,
                         onNavigateBack = { navController.popBackStack() },
                         onTrackSelected = viewModel::playTrack,
@@ -209,12 +213,14 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 }
                 composable("recently_played") {
                     val viewModel: TrackListViewModel = hiltViewModel()
-                    LaunchedEffect(Unit) {
-                        viewModel.setMode(TrackListMode.RecentlyPlayed)
-                    }
+                    LaunchedEffect(Unit) { viewModel.setMode(TrackListMode.RecentlyPlayed) }
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    val title = when (uiState.mode) {
+                        TrackListMode.LikedSongs -> stringResource(R.string.title_liked_songs)
+                        TrackListMode.RecentlyPlayed -> stringResource(R.string.title_recently_played)
+                    }
                     TrackListScreen(
-                        title = uiState.title,
+                        title = title,
                         tracks = uiState.tracks,
                         onNavigateBack = { navController.popBackStack() },
                         onTrackSelected = viewModel::playTrack,
@@ -222,6 +228,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onPlayAll = viewModel::playAll
                     )
                 }
+
                 composable("settings") {
                     val viewModel: SettingsViewModel = hiltViewModel()
                     val settingsState by viewModel.uiState.collectAsStateWithLifecycle()

@@ -171,4 +171,10 @@
     <string name="speed_format">Speed: %1$sx</string>
     <string name="timer_active_short_format">Timer: %1$dm</string>
     <string name="cd_download">Download</string>
+
+    <string name="track_list_title_liked_songs">Liked Songs</string>
+    <string name="track_list_title_recently_played">Recently Played</string>
+
+    <string name="title_liked_songs">Liked Songs</string>
+    <string name="title_recently_played">Recently Played</string>
 </resources>

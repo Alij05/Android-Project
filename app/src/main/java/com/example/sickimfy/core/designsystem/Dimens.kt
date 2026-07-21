@@ -9,4 +9,7 @@ object Dimens {
     val iconSizeNormal = 24.dp
     val iconSizeLarge = 32.dp
     val profileImageSize = 40.dp
+    val trackThumbnailSize = 48.dp
+    val playerBarHeight = 100.dp
+
 }
