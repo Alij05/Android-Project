@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Chat
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,19 +47,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.PublicProfileDto
-//import com.example.sickimfy.features.profile.ui.screens.GoldenPremium
-import com.example.sickimfy.core.designsystem.GoldenPremium
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,10 +73,10 @@ fun SocialScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "شبکه اجتماعی / Social Feed", fontWeight = FontWeight.Bold) },
+                title = { Text(text = stringResource(id = R.string.social_feed_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -99,19 +95,18 @@ fun SocialScreen(
                     .fillMaxSize()
                     .padding(horizontal = Dimens.paddingMedium)
             ) {
-                // Search Input Field
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = viewModel::onSearchQueryChanged,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = Dimens.paddingSmall),
-                    placeholder = { Text("جستجو کاربران / Search Users") },
+                    placeholder = { Text(stringResource(id = R.string.search_users_hint)) },
                     leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
                     ),
                     singleLine = true
                 )
@@ -119,17 +114,16 @@ fun SocialScreen(
                 Spacer(modifier = Modifier.height(Dimens.paddingSmall))
 
                 if (uiState.searchQuery.isNotBlank()) {
-                    // Search Results List
                     Text(
-                        text = "نتایج جستجو / Search Results",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = stringResource(id = R.string.search_results_title),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(vertical = Dimens.paddingSmall)
                     )
 
                     LazyColumn(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                     ) {
                         items(uiState.searchResults) { user ->
                             UserItem(
@@ -142,11 +136,10 @@ fun SocialScreen(
                         }
                     }
                 } else {
-                    // Friends List (Followed users)
                     Text(
-                        text = "دوستان دنبال شده / Friends",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = stringResource(id = R.string.friends_title),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(vertical = Dimens.paddingSmall)
                     )
 
@@ -158,7 +151,7 @@ fun SocialScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "هنوز کسی را دنبال نکرده‌اید. / No friends followed yet.",
+                                text = stringResource(id = R.string.no_friends_followed),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.secondary
                             )
@@ -166,7 +159,7 @@ fun SocialScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(Dimens.paddingSmall)
                         ) {
                             items(uiState.followedFriends) { user ->
                                 UserItem(
@@ -182,7 +175,6 @@ fun SocialScreen(
                 }
             }
 
-            // Selected User Details Card Overlay (Modal-like)
             AnimatedVisibility(
                 visible = uiState.selectedUser != null,
                 modifier = Modifier.fillMaxSize()
@@ -191,15 +183,15 @@ fun SocialScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.6f))
+                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
                             .clickable { viewModel.selectUser(null) },
                         contentAlignment = Alignment.BottomCenter
                     ) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable(enabled = false) {}, // Prevent clicks closing card
-                            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                                .clickable(enabled = false) {},
+                            shape = MaterialTheme.shapes.large,
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(
@@ -208,7 +200,6 @@ fun SocialScreen(
                                     .fillMaxWidth()
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // User Avatar details
                                     if (user.avatarUrl != null) {
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current).data(user.avatarUrl).crossfade(true).build(),
@@ -223,39 +214,52 @@ fun SocialScreen(
                                             modifier = Modifier
                                                 .size(64.dp)
                                                 .clip(CircleShape)
-                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                .background(MaterialTheme.colorScheme.surface),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            Icon(imageVector = Icons.Default.Person, contentDescription = null, modifier = Modifier.size(32.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.Person,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.secondary,
+                                                modifier = Modifier.size(Dimens.iconSizeLarge)
+                                            )
                                         }
                                     }
 
                                     Spacer(modifier = Modifier.width(Dimens.paddingMedium))
 
                                     Column {
-                                        Text(text = user.displayName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        Text(
+                                            text = user.displayName,
+                                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
                                         if (user.isPremium) {
-                                            Text(text = "Premium Member", color = GoldenPremium, style = MaterialTheme.typography.labelSmall)
+                                            Text(
+                                                text = stringResource(id = R.string.premium_member),
+                                                color = MaterialTheme.colorScheme.primary,
+                                                style = MaterialTheme.typography.labelSmall
+                                            )
                                         }
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.height(Dimens.paddingMedium))
-                                Divider()
+                                Divider(color = MaterialTheme.colorScheme.background)
                                 Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
                                 Text(
-                                    text = "پلی‌لیست‌های عمومی / Public Playlists",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    text = stringResource(id = R.string.public_playlists_title),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Spacer(modifier = Modifier.height(Dimens.paddingSmall))
 
                                 if (uiState.selectedUserPlaylists.isEmpty()) {
                                     Text(
-                                        text = "هیچ پلی‌لیست عمومی ندارد. / No public playlists available.",
-                                        style = MaterialTheme.typography.bodySmall,
+                                        text = stringResource(id = R.string.no_public_playlists),
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.secondary,
                                         modifier = Modifier.padding(vertical = Dimens.paddingMedium)
                                     )
@@ -273,10 +277,14 @@ fun SocialScreen(
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text(text = playlist.title, style = MaterialTheme.typography.bodyLarge)
                                                 Text(
-                                                    text = "${playlist.trackCount} Tracks",
-                                                    style = MaterialTheme.typography.bodySmall,
+                                                    text = playlist.title,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = stringResource(id = R.string.tracks_count_format, playlist.trackCount),
+                                                    style = MaterialTheme.typography.labelSmall,
                                                     color = MaterialTheme.colorScheme.secondary
                                                 )
                                             }
@@ -288,9 +296,14 @@ fun SocialScreen(
 
                                 Button(
                                     onClick = { viewModel.selectUser(null) },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = MaterialTheme.shapes.medium,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 ) {
-                                    Text("بستن / Close")
+                                    Text(stringResource(id = R.string.close))
                                 }
                             }
                         }
@@ -314,7 +327,7 @@ private fun UserItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onUserClick() },
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
@@ -323,7 +336,6 @@ private fun UserItem(
                 .padding(Dimens.paddingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // User Avatar representation
             if (user.avatarUrl != null) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current).data(user.avatarUrl).crossfade(true).build(),
@@ -338,10 +350,14 @@ private fun UserItem(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MaterialTheme.colorScheme.surface),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = null)
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
                 }
             }
 
@@ -351,38 +367,45 @@ private fun UserItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = user.displayName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (user.isPremium) {
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(imageVector = Icons.Default.Star, contentDescription = "Premium", tint = GoldenPremium, modifier = Modifier.size(16.dp))
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = stringResource(id = R.string.premium_member),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
 
-            // Quick chat trigger
             IconButton(onClick = onChatClick) {
-                Icon(imageVector = Icons.Default.Chat, contentDescription = "Chat", tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    imageVector = Icons.Default.Chat,
+                    contentDescription = stringResource(id = R.string.direct_messages),
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            // Follow button
             Button(
                 onClick = onFollowToggle,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFollowing) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
+                    containerColor = if (isFollowing) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
+                    contentColor = if (isFollowing) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                shape = MaterialTheme.shapes.small,
+                contentPadding = PaddingValues(horizontal = Dimens.paddingSmall, vertical = 4.dp)
             ) {
                 Text(
-                    text = if (isFollowing) "دنبال شده" else "دنبال کردن",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    text = stringResource(id = if (isFollowing) R.string.following_label else R.string.follow_label),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
                 )
             }
         }

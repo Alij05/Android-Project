@@ -154,4 +154,16 @@
     <string name="conversations_empty_subtitle">از آیکون بالا وارد بخش اجتماعی شده و چت با دوستان را آغاز کنید.</string>
     <string name="no_messages_placeholder">پیامی وجود ندارد</string>
     <string name="shared_track_preview">🎵 آهنگ اشتراک‌گذاری شده</string>
+
+    <!-- Social -->
+    <string name="social_feed_title">شبکه اجتماعی</string>
+    <string name="search_users_hint">جستجو کاربران</string>
+    <string name="search_results_title">نتایج جستجو</string>
+    <string name="friends_title">دوستان دنبال شده</string>
+    <string name="no_friends_followed">هنوز کسی را دنبال نکرده‌اید.</string>
+    <string name="public_playlists_title">پلی‌لیست‌های عمومی</string>
+    <string name="no_public_playlists">هیچ پلی‌لیست عمومی ندارد.</string>
+    <string name="close">بستن</string>
+    <string name="following_label">دنبال شده</string>
+    <string name="follow_label">دنبال کردن</string>
 </resources>

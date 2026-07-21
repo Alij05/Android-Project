@@ -154,4 +154,16 @@
     <string name="conversations_empty_subtitle">Go to social feed to chat with friends.</string>
     <string name="no_messages_placeholder">No messages</string>
     <string name="shared_track_preview">🎵 Shared a track</string>
+
+    <!-- Social -->
+    <string name="social_feed_title">Social Feed</string>
+    <string name="search_users_hint">Search Users</string>
+    <string name="search_results_title">Search Results</string>
+    <string name="friends_title">Friends</string>
+    <string name="no_friends_followed">No friends followed yet.</string>
+    <string name="public_playlists_title">Public Playlists</string>
+    <string name="no_public_playlists">No public playlists available.</string>
+    <string name="close">Close</string>
+    <string name="following_label">Following</string>
+    <string name="follow_label">Follow</string>
 </resources>
