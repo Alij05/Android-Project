@@ -1,10 +1,12 @@
 package com.example.sickimfy.core.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 
 @Entity(
     tableName = "user_playlist_tracks",
-    primaryKeys = ["playlistId", "trackId"]
+    primaryKeys = ["playlistId", "trackId"],
+    indices = [Index("playlistId")]
 )
 data class UserPlaylistTrackEntity(
     val playlistId: Long,
