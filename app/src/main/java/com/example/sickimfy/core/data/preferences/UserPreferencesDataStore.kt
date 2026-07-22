@@ -35,7 +35,10 @@ class UserPreferencesDataStore @Inject constructor(
     val preferences: Flow<UserPreferences> = context.userPreferencesDataStore.data.map(::mapPreferences)
 
     suspend fun setThemeMode(mode: ThemeMode) = update(ThemeModeKey, mode.name)
-    suspend fun setLanguageCode(languageCode: String) = update(LanguageKey, languageCode)
+    suspend fun setLanguageCode(languageCode: String) {
+        AppLocaleManager.persist(context, languageCode)
+        update(LanguageKey, languageCode)
+    }
     suspend fun setFontScale(scale: Float) = update(FontScaleKey, scale.coerceIn(0.85f, 1.3f))
     suspend fun setPremium(isPremium: Boolean) = update(PremiumKey, isPremium)
     suspend fun setApiBaseUrl(url: String) = update(ApiBaseUrlKey, url)
