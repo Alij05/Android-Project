@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sickimfy.core.data.preferences.ThemeMode
-import com.example.sickimfy.core.data.preferences.UserPreferences
 import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.data.preferences.AppLocaleManager
 import com.example.sickimfy.core.designsystem.MusicAppTheme
@@ -35,18 +34,19 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val preferences by userPreferences.preferences.collectAsStateWithLifecycle(
-                UserPreferences()
+                initialValue = null
             )
+            val loadedPreferences = preferences ?: return@setContent
 
             val systemDark = isSystemInDarkTheme()
 
-            val useDarkTheme = when (preferences.themeMode) {
+            val useDarkTheme = when (loadedPreferences.themeMode) {
                 ThemeMode.SYSTEM -> systemDark
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
 
-            val language = preferences.languageCode
+            val language = loadedPreferences.languageCode
             val layoutDirection = if (language == "fa") LayoutDirection.Rtl else LayoutDirection.Ltr
 
             LaunchedEffect(language) {
@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(
                     LocalLayoutDirection provides layoutDirection
                 ) {
-                    if (preferences.accessToken.isNullOrBlank()) {
+                    if (loadedPreferences.accessToken.isNullOrBlank()) {
                         com.example.sickimfy.features.auth.ui.AuthScreen()
                     } else {
                         SickimfyApp()
