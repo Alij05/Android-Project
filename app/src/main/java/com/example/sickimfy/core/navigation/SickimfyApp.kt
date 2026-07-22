@@ -215,7 +215,8 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                                 restoreState = true
                             }
                         },
-                        onPersonalPlaylistClick = { playlistId -> navController.navigate("my_playlist/$playlistId") }
+                        onPersonalPlaylistClick = { playlistId -> navController.navigate("my_playlist/$playlistId") },
+                        onManagePersonalPlaylists = { navController.navigate("my_playlists") }
                     )
                 }
                 composable(AppDestination.PROFILE.route) {

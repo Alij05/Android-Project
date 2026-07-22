@@ -47,6 +47,7 @@ fun PlaylistsScreen(
     onSettingsClick: () -> Unit,
     onProfileClick: () -> Unit,
     onPersonalPlaylistClick: (Long) -> Unit,
+    onManagePersonalPlaylists: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -111,29 +112,30 @@ fun PlaylistsScreen(
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
-                groupedPlaylists[PlaylistType.INTERNATIONAL]?.let { list ->
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeader(title = stringResource(id = R.string.section_intl_music))
-                    }
-                    items(list, key = { it.id }) { playlist ->
-                        PlaylistGridCard(playlist = playlist, onClick = { onEvent(PlaylistsEvent.OnPlaylistSelected(playlist)) })
-                    }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    SectionHeader(title = stringResource(id = R.string.section_intl_music))
+                }
+                items(groupedPlaylists[PlaylistType.INTERNATIONAL].orEmpty(), key = { it.id }) { playlist ->
+                    PlaylistGridCard(playlist = playlist, onClick = { onEvent(PlaylistsEvent.OnPlaylistSelected(playlist)) })
                 }
 
-                groupedPlaylists[PlaylistType.DOMESTIC]?.let { list ->
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeader(title = stringResource(id = R.string.section_local_music))
-                    }
-                    items(list, key = { it.id }) { playlist ->
-                        PlaylistGridCard(playlist = playlist, onClick = { onEvent(PlaylistsEvent.OnPlaylistSelected(playlist)) })
-                    }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    SectionHeader(title = stringResource(id = R.string.section_local_music))
+                }
+                items(groupedPlaylists[PlaylistType.DOMESTIC].orEmpty(), key = { it.id }) { playlist ->
+                    PlaylistGridCard(playlist = playlist, onClick = { onEvent(PlaylistsEvent.OnPlaylistSelected(playlist)) })
                 }
 
-                groupedPlaylists[PlaylistType.USER]?.let { list ->
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        SectionHeader(title = stringResource(id = R.string.section_user_playlists))
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    SectionHeader(title = stringResource(id = R.string.section_user_playlists))
+                }
+                val userPlaylists = groupedPlaylists[PlaylistType.USER].orEmpty()
+                if (userPlaylists.isEmpty()) {
+                    item {
+                        EmptyUserPlaylistCard(onClick = onManagePersonalPlaylists)
                     }
-                    items(list, key = { it.id }) { playlist ->
+                } else {
+                    items(userPlaylists, key = { it.id }) { playlist ->
                         PlaylistGridCard(
                             playlist = playlist,
                             onClick = {
@@ -193,5 +195,25 @@ private fun PlaylistGridCard(
                 color = White.copy(alpha = 0.8f)
             )
         }
+    }
+}
+
+@Composable
+private fun EmptyUserPlaylistCard(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.5f)
+            .clip(MaterialTheme.shapes.large)
+            .background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)))
+            .clickable(onClick = onClick)
+            .padding(Dimens.paddingMedium),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "+ Create playlist",
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = White
+        )
     }
 }

@@ -48,11 +48,10 @@ class PlaylistsViewModel @Inject constructor(
                     serverPlaylists = it
                     publishPlaylists()
                 }
-                .onFailure { error ->
-                    _uiState.value = PlaylistsUiState(
-                        playlists = localPlaylists.map(::localPlaylist),
-                        errorMessage = if (localPlaylists.isEmpty()) error.message.orEmpty() else null
-                    )
+                .onFailure {
+                    // The catalogue cards are available even before the server has playlists.
+                    serverPlaylists = emptyList()
+                    publishPlaylists()
                 }
         }
     }
@@ -91,7 +90,8 @@ class PlaylistsViewModel @Inject constructor(
 
     private fun publishPlaylists() {
         _uiState.value = PlaylistsUiState(
-            playlists = (serverPlaylists + localPlaylists.map(::localPlaylist)).distinctBy { it.id }
+            playlists = (curatedPlaylists + serverPlaylists + localPlaylists.map(::localPlaylist))
+                .distinctBy { it.id }
         )
     }
 
@@ -101,6 +101,37 @@ class PlaylistsViewModel @Inject constructor(
         trackCount = summary.trackCount,
         type = PlaylistType.USER,
         gradientColors = listOf(Color(0xFF009688), Color(0xFF26A69A))
+    )
+
+    private val curatedPlaylists = listOf(
+        Playlist(
+            id = "curated-world-hits",
+            title = "Global Hits",
+            trackCount = 0,
+            type = PlaylistType.INTERNATIONAL,
+            gradientColors = listOf(Color(0xFF7F00FF), Color(0xFFE100FF))
+        ),
+        Playlist(
+            id = "curated-world-chill",
+            title = "Chill Around the World",
+            trackCount = 0,
+            type = PlaylistType.INTERNATIONAL,
+            gradientColors = listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
+        ),
+        Playlist(
+            id = "curated-local-hits",
+            title = "Persian Hits",
+            trackCount = 0,
+            type = PlaylistType.DOMESTIC,
+            gradientColors = listOf(Color(0xFFFF512F), Color(0xFFF09819))
+        ),
+        Playlist(
+            id = "curated-local-chill",
+            title = "Persian Chill",
+            trackCount = 0,
+            type = PlaylistType.DOMESTIC,
+            gradientColors = listOf(Color(0xFF11998E), Color(0xFF38EF7D))
+        )
     )
 }
 
