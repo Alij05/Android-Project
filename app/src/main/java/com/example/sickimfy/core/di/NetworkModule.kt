@@ -2,6 +2,7 @@ package com.example.sickimfy.core.di
 
 import com.example.sickimfy.BuildConfig
 import com.example.sickimfy.core.network.AuthInterceptor
+import com.example.sickimfy.core.network.BackendAvailabilityInterceptor
 import com.example.sickimfy.core.network.SickimfyApi
 import dagger.Module
 import dagger.Provides
@@ -19,9 +20,13 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient =
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        backendAvailabilityInterceptor: BackendAvailabilityInterceptor
+    ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .addInterceptor(backendAvailabilityInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE

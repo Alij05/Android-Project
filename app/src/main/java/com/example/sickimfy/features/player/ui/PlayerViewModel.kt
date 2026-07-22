@@ -8,7 +8,6 @@ import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.dao.RecentlyPlayedDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
 import com.example.sickimfy.core.data.local.entity.RecentlyPlayedEntity
-import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
 import androidx.media3.common.Player
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.flow.firstOrNull
@@ -30,7 +28,6 @@ class PlayerViewModel @Inject constructor(
     private val likedTrackDao: LikedTrackDao,
     private val recentlyPlayedDao: RecentlyPlayedDao,
     private val downloadedTrackDao: DownloadedTrackDao,
-    private val preferences: UserPreferencesDataStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -75,11 +72,6 @@ class PlayerViewModel @Inject constructor(
 
             PlayerEvent.DownloadTrack -> {
                 viewModelScope.launch {
-                    val isPremium = preferences.preferences.first().isPremium
-                    if (!isPremium) {
-                        _uiState.update { it.copy(error = "Downloads are available for Premium members only.") }
-                        return@launch
-                    }
                     val trackId = _uiState.value.trackId ?: return@launch
                     val audioUrl = playbackManager.getCurrentAudioUrl() ?: return@launch
                     DownloadWorker.enqueue(

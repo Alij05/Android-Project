@@ -46,6 +46,7 @@ fun PlaylistsScreen(
     onEvent: (PlaylistsEvent) -> Unit,
     onSettingsClick: () -> Unit,
     onProfileClick: () -> Unit,
+    onPersonalPlaylistClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -133,7 +134,13 @@ fun PlaylistsScreen(
                         SectionHeader(title = stringResource(id = R.string.section_user_playlists))
                     }
                     items(list, key = { it.id }) { playlist ->
-                        PlaylistGridCard(playlist = playlist, onClick = { onEvent(PlaylistsEvent.OnPlaylistSelected(playlist)) })
+                        PlaylistGridCard(
+                            playlist = playlist,
+                            onClick = {
+                                playlist.id.removePrefix("local:").toLongOrNull()?.let(onPersonalPlaylistClick)
+                                    ?: onEvent(PlaylistsEvent.OnPlaylistSelected(playlist))
+                            }
+                        )
                     }
                 }
             }

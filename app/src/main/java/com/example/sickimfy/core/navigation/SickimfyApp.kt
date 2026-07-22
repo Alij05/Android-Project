@@ -68,12 +68,23 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val selectedRoute = backStackEntry?.destination?.route
+    val offlineModeViewModel: OfflineModeViewModel = hiltViewModel()
+    val isOffline by offlineModeViewModel.isOffline.collectAsStateWithLifecycle()
 
     val playerViewModel: PlayerViewModel = hiltViewModel()
     val playerUiState by playerViewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
     var showFullPlayer by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isOffline) {
+        if (isOffline && selectedRoute != AppDestination.DOWNLOADS.route) {
+            navController.navigate(AppDestination.DOWNLOADS.route) {
+                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     // The full player is an overlay, not a navigation destination. Consume Back to
     // collapse it instead of letting the activity finish.
@@ -97,7 +108,9 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
 
                     // Bottom Navigation Menu
                     NavigationBar {
-                        AppDestination.entries.forEach { destination ->
+                        AppDestination.entries
+                            .filter { !isOffline || it == AppDestination.DOWNLOADS }
+                            .forEach { destination ->
                             NavigationBarItem(
                                 selected = selectedRoute == destination.route,
                                 onClick = {
@@ -201,7 +214,8 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+                        onPersonalPlaylistClick = { playlistId -> navController.navigate("my_playlist/$playlistId") }
                     )
                 }
                 composable(AppDestination.PROFILE.route) {

@@ -3,11 +3,13 @@ package com.example.sickimfy.features.downloads.data.worker
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.NetworkType
 import androidx.work.WorkerParameters
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.entity.DownloadedTrackEntity
@@ -129,6 +131,11 @@ class DownloadWorker @AssistedInject constructor(
 
             val workRequest = OneTimeWorkRequestBuilder<DownloadWorker>()
                 .setInputData(inputData)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
                 .build()
 
             WorkManager.getInstance(context)
