@@ -6,6 +6,9 @@ import com.example.sickimfy.features.home.domain.usecase.GetHomeDataUseCase
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.core.playback.PlaybackQueueItem
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
+import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +20,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getHomeData: GetHomeDataUseCase,
     private val playbackManager: PlaybackManager,
-    private val downloadedTrackDao: DownloadedTrackDao
+    private val downloadedTrackDao: DownloadedTrackDao,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -54,6 +58,18 @@ class HomeViewModel @Inject constructor(
                     if (startIndex >= 0) playbackManager.playQueue(queue, startIndex)
                 }
             }
+            is HomeEvent.OnDownloadTrack -> {
+                event.track.audioUrl?.takeIf { it.isNotBlank() }?.let { audioUrl ->
+                    DownloadWorker.enqueue(
+                        context = context,
+                        trackId = event.track.id,
+                        title = event.track.title,
+                        artist = event.track.artist,
+                        imageUrl = event.track.imageUrl,
+                        audioUrl = audioUrl
+                    )
+                }
+            }
         }
     }
 
@@ -67,6 +83,11 @@ class HomeViewModel @Inject constructor(
                             carouselTracks = feed.featured,
                             popularTracks = feed.popular,
                             newReleases = feed.latest,
+                            topArtists = (feed.featured + feed.popular + feed.latest)
+                                .filter { it.artist.isNotBlank() }
+                                .distinctBy { it.artist.trim().lowercase() }
+                                .take(12)
+                                .map { track -> track.copy(id = "artist:${track.artist}", title = track.artist, artist = "Artist") },
                             globalPlaylists = feed.globalPlaylists,
                             localPlaylists = feed.localPlaylists
                         )

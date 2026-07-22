@@ -1,6 +1,9 @@
 package com.example.sickimfy.core.playback
 
 import android.content.Context
+import android.content.Intent
+import androidx.core.content.ContextCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -47,7 +50,9 @@ data class PlaybackQueueItem(
 )
 
 @Singleton
-class PlaybackManager @Inject constructor() {
+class PlaybackManager @Inject constructor(
+    @ApplicationContext private val appContext: Context
+) {
 
     private var _exoplayer: ExoPlayer? = null
     private var _simpleCache: SimpleCache? = null
@@ -93,6 +98,7 @@ class PlaybackManager @Inject constructor() {
     }
 
     fun play(trackId: String, title: String, artist: String, coverUrl: String, audioUrl: String?) {
+        ensureMediaServiceStarted()
         val player = _exoplayer ?: return
         val mediaItem = MediaItem.Builder()
             .setMediaId(trackId)
@@ -133,6 +139,7 @@ class PlaybackManager @Inject constructor() {
 
     /** Replaces the current queue and starts the selected item, so next/previous are deterministic. */
     fun playQueue(queue: List<PlaybackQueueItem>, startIndex: Int) {
+        ensureMediaServiceStarted()
         val player = _exoplayer ?: return
         if (queue.isEmpty() || startIndex !in queue.indices) return
 
@@ -170,6 +177,7 @@ class PlaybackManager @Inject constructor() {
     }
 
     fun playTrackList(tracks: List<Triple<String, String, String>>, startIndex: Int = 0) {
+        ensureMediaServiceStarted()
         val player = _exoplayer ?: return
         val mediaItems = tracks.map { (id, title, audioUrl) ->
             MediaItem.Builder()
@@ -256,6 +264,10 @@ class PlaybackManager @Inject constructor() {
     fun setRepeatMode(mode: Int) {
         _exoplayer?.repeatMode = mode
         _playbackState.update { it.copy(repeatMode = mode) }
+    }
+
+    private fun ensureMediaServiceStarted() {
+        ContextCompat.startForegroundService(appContext, Intent(appContext, MusicService::class.java))
     }
 
     /** Cycles normal -> shuffle -> repeat current track. */

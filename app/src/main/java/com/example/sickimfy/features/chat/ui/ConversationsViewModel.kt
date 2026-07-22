@@ -6,6 +6,8 @@ import com.example.sickimfy.core.network.SickimfyApi
 import com.example.sickimfy.core.network.dto.ConversationSummaryDto
 import com.example.sickimfy.core.network.dto.CreateConversationRequestDto
 import com.example.sickimfy.core.network.dto.PublicProfileDto
+import com.example.sickimfy.core.network.dto.SendMessageRequestDto
+import com.example.sickimfy.features.home.domain.model.Track
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -78,6 +80,21 @@ class ConversationsViewModel @Inject constructor(
                 .onFailure { error ->
                     _uiState.update { it.copy(userSearchError = error.message) }
                 }
+        }
+    }
+
+    fun shareTrack(conversation: ConversationSummaryDto, track: Track, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            runCatching {
+                api.sendMessage(
+                    conversation.id,
+                    SendMessageRequestDto(
+                        content = "🎵 ${track.title} - ${track.artist}",
+                        sharedTrackId = track.id.toIntOrNull()
+                    )
+                )
+            }.onSuccess { onComplete() }
+                .onFailure { error -> _uiState.update { it.copy(error = error.message) } }
         }
     }
 }

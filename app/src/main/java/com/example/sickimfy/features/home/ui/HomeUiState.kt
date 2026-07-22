@@ -12,6 +12,7 @@ sealed interface HomeUiState {
         val carouselTracks: List<Track>,
         val popularTracks: List<Track>,
         val newReleases: List<Track>,
+        val topArtists: List<Track>,
         val globalPlaylists: List<Track>,
         val localPlaylists: List<Track>
     ) : HomeUiState

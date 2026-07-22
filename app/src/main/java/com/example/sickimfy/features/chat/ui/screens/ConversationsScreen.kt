@@ -60,6 +60,7 @@ import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.core.network.dto.ConversationSummaryDto
 import com.example.sickimfy.features.chat.ui.ConversationsViewModel
+import com.example.sickimfy.features.home.domain.model.Track
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +68,8 @@ fun ConversationsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToChat: (conversationId: Int, otherUserId: String, otherUserName: String) -> Unit,
     onNavigateToSocial: () -> Unit,
+    pendingTrack: Track? = null,
+    onTrackShared: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ConversationsViewModel = hiltViewModel()
 ) {
@@ -150,11 +153,15 @@ fun ConversationsScreen(
                         ConversationItem(
                             conversation = conversation,
                             onClick = {
-                                onNavigateToChat(
-                                    conversation.id,
-                                    conversation.participant.id.toString(),
-                                    conversation.participant.displayName
-                                )
+                                if (pendingTrack == null) {
+                                    onNavigateToChat(
+                                        conversation.id,
+                                        conversation.participant.id.toString(),
+                                        conversation.participant.displayName
+                                    )
+                                } else {
+                                    viewModel.shareTrack(conversation, pendingTrack, onTrackShared)
+                                }
                             }
                         )
                     }

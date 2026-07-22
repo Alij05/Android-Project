@@ -47,6 +47,8 @@ fun HomeScreen(
     onNavigateToLikedSongs: () -> Unit,
     onNavigateToRecentlyPlayed: () -> Unit,
     onNavigateToMyPlaylists: () -> Unit,
+    onNavigateToArtist: (String) -> Unit,
+    onShareTrack: (com.example.sickimfy.features.home.domain.model.Track) -> Unit,
     onSettingsClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -126,6 +128,7 @@ fun HomeScreen(
                                             "liked_songs" -> onNavigateToLikedSongs()
                                             "recently_played" -> onNavigateToRecentlyPlayed()
                                             "my_playlists" -> onNavigateToMyPlaylists()
+                                            "top_artists" -> onNavigateToArtist("")
                                         }
                                     }
                                 )
@@ -133,16 +136,27 @@ fun HomeScreen(
                         }
                         item {
                             TrackSlider(
+                                title = stringResource(id = R.string.qa_top_artists),
+                                tracks = uiState.topArtists,
+                                onTrackClick = { artist -> onNavigateToArtist(artist.title) }
+                            )
+                        }
+                        item {
+                            TrackSlider(
                                 title = stringResource(id = R.string.section_popular),
                                 tracks = uiState.popularTracks,
-                                onTrackClick = { onEvent(HomeEvent.OnTrackSelected(it)) }
+                                onTrackClick = { onEvent(HomeEvent.OnTrackSelected(it)) },
+                                onDownload = { onEvent(HomeEvent.OnDownloadTrack(it)) },
+                                onShare = onShareTrack
                             )
                         }
                         item {
                             TrackSlider(
                                 title = stringResource(id = R.string.section_new_releases),
                                 tracks = uiState.newReleases,
-                                onTrackClick = { onEvent(HomeEvent.OnTrackSelected(it)) }
+                                onTrackClick = { onEvent(HomeEvent.OnTrackSelected(it)) },
+                                onDownload = { onEvent(HomeEvent.OnDownloadTrack(it)) },
+                                onShare = onShareTrack
                             )
                         }
                         item {

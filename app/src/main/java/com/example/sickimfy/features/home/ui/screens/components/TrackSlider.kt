@@ -14,6 +14,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -40,6 +45,8 @@ fun TrackSlider(
     title: String,
     tracks: List<Track>,
     onTrackClick: (Track) -> Unit,
+    onDownload: ((Track) -> Unit)? = null,
+    onShare: ((Track) -> Unit)? = null,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false
 ) {
@@ -62,7 +69,7 @@ fun TrackSlider(
                 }
             } else {
                 items(tracks, key = { it.id }) { track ->
-                    TrackItemCard(track = track, onTrackClick = onTrackClick)
+                    TrackItemCard(track = track, onTrackClick = onTrackClick, onDownload = onDownload, onShare = onShare)
                 }
             }
         }
@@ -73,7 +80,9 @@ fun TrackSlider(
 @Composable
 private fun TrackItemCard(
     track: Track,
-    onTrackClick: (Track) -> Unit
+    onTrackClick: (Track) -> Unit,
+    onDownload: ((Track) -> Unit)?,
+    onShare: ((Track) -> Unit)?
 ) {
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
@@ -124,7 +133,19 @@ private fun TrackItemCard(
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.secondary
         )
-        AddToPlaylistButton(track = track)
+        androidx.compose.foundation.layout.Row {
+            AddToPlaylistButton(track = track)
+            if (onDownload != null && !track.audioUrl.isNullOrBlank()) {
+                IconButton(onClick = { onDownload(track) }) {
+                    Icon(Icons.Default.Download, contentDescription = "Download")
+                }
+            }
+            if (onShare != null) {
+                IconButton(onClick = { onShare(track) }) {
+                    Icon(Icons.Default.Share, contentDescription = "Share")
+                }
+            }
+        }
     }
 }
 

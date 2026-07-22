@@ -1,6 +1,7 @@
 package com.example.sickimfy.core.navigation
 
 import androidx.activity.compose.BackHandler
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -161,6 +162,14 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onNavigateToLikedSongs = { navController.navigate("liked_songs") },
                         onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
                         onNavigateToMyPlaylists = { navController.navigate("my_playlists") },
+                        onNavigateToArtist = { artist ->
+                            if (artist.isNotBlank()) navController.navigate("artist/${Uri.encode(artist)}")
+                        },
+                        onShareTrack = { track ->
+                            navController.navigate(
+                                "share/${Uri.encode(track.id)}/${Uri.encode(track.title)}/${Uri.encode(track.artist)}/${Uri.encode(track.imageUrl)}"
+                            )
+                        },
                         onSettingsClick = { navController.navigate("settings") },
                         onProfileClick = {
                             navController.navigate(AppDestination.PROFILE.route) {
@@ -262,6 +271,18 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onPlayAll = viewModel::playAll
                     )
                 }
+                composable(
+                    route = "artist/{artist}",
+                    arguments = listOf(navArgument("artist") { type = NavType.StringType })
+                ) { entry ->
+                    val artist = entry.arguments?.getString("artist").orEmpty()
+                    val viewModel: SearchViewModel = hiltViewModel()
+                    LaunchedEffect(artist) {
+                        viewModel.onEvent(com.example.sickimfy.features.search.ui.SearchEvent.OnQueryChange(artist))
+                    }
+                    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                    SearchScreen(uiState = uiState, onEvent = viewModel::onEvent)
+                }
                 composable("my_playlists") {
                     PersonalPlaylistsScreen(
                         onNavigateBack = { navController.popBackStack() },
@@ -294,6 +315,31 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                             navController.navigate("chat/$convoId/$otherId/$otherName")
                         },
                         onNavigateToSocial = { navController.navigate("social") }
+                    )
+                }
+                composable(
+                    route = "share/{trackId}/{title}/{artist}/{cover}",
+                    arguments = listOf(
+                        navArgument("trackId") { type = NavType.StringType },
+                        navArgument("title") { type = NavType.StringType },
+                        navArgument("artist") { type = NavType.StringType },
+                        navArgument("cover") { type = NavType.StringType }
+                    )
+                ) { entry ->
+                    val args = entry.arguments
+                    val track = com.example.sickimfy.features.home.domain.model.Track(
+                        id = args?.getString("trackId").orEmpty(),
+                        title = args?.getString("title").orEmpty(),
+                        artist = args?.getString("artist").orEmpty(),
+                        imageUrl = args?.getString("cover").orEmpty(),
+                        duration = ""
+                    )
+                    ConversationsScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToChat = { convoId, otherId, otherName -> navController.navigate("chat/$convoId/$otherId/$otherName") },
+                        onNavigateToSocial = { navController.navigate("social") },
+                        pendingTrack = track,
+                        onTrackShared = { navController.popBackStack() }
                     )
                 }
                 composable("social") {

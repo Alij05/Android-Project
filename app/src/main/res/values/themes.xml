@@ -2,5 +2,8 @@
 <resources>
     <style
         name="Theme.Sickimfy"
-        parent="android:Theme.Material.Light.NoActionBar"/>
+        parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#121212</item>
+        <item name="android:colorAccent">#1DB954</item>
+    </style>
 </resources>
