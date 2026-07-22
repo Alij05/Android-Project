@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +35,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -56,6 +61,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLanguageDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -141,30 +147,18 @@ fun SettingsScreen(
                 icon = Icons.Default.Language,
                 title = stringResource(id = R.string.language_settings)
             ) {
-                val languageOptions = listOf(
-                    "system" to stringResource(id = R.string.language_option_system),
-                    "fa" to stringResource(id = R.string.language_option_persian),
-                    "en" to stringResource(id = R.string.language_option_english)
-                )
-                languageOptions.forEach { (code, label) ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onLanguageChange(code) }
-                            .padding(vertical = Dimens.paddingSmall),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = state.languageCode == code,
-                            onClick = { onLanguageChange(code) }
-                        )
-                        Spacer(modifier = Modifier.width(Dimens.paddingSmall))
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable { showLanguageDialog = true }
+                        .padding(vertical = Dimens.paddingSmall),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(stringResource(R.string.language_selected))
+                    Text(
+                        if (state.languageCode == "fa") stringResource(R.string.language_option_persian)
+                        else stringResource(R.string.language_option_english),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
@@ -202,6 +196,41 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(80.dp))
         }
+    }
+
+    if (showLanguageDialog) {
+        val languageOptions = listOf(
+            "fa" to stringResource(R.string.language_option_persian),
+            "en" to stringResource(R.string.language_option_english)
+        )
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.language_settings)) },
+            text = {
+                Column {
+                    languageOptions.forEach { (code, label) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                onLanguageChange(code)
+                                showLanguageDialog = false
+                            }.padding(vertical = Dimens.paddingSmall),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = state.languageCode == code,
+                                onClick = {
+                                    onLanguageChange(code)
+                                    showLanguageDialog = false
+                                }
+                            )
+                            Spacer(Modifier.width(Dimens.paddingSmall))
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = {}
+        )
     }
 }
 

@@ -50,6 +50,7 @@ import coil.request.ImageRequest
 import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Dimens
 import com.example.sickimfy.features.home.domain.model.Track
+import com.example.sickimfy.features.playlists.ui.screens.components.AddToPlaylistButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -242,6 +243,7 @@ fun TrackItemRow(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            AddToPlaylistButton(track = track)
         }
     }
 }

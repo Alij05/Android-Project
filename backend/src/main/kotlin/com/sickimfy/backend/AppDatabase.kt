@@ -443,6 +443,19 @@ class AppDatabase(databasePath: String) {
         }
     }
 
+    fun markMessageRead(userId: Int, conversationId: Int, messageId: Int): Message = connection { connection ->
+        ensureConversationMember(connection, conversationId, userId)
+        connection.prepareStatement(
+            "UPDATE messages SET status='READ' WHERE id=? AND conversation_id=? AND sender_id<>?"
+        ).use { statement ->
+            statement.setInt(1, messageId)
+            statement.setInt(2, conversationId)
+            statement.setInt(3, userId)
+            statement.executeUpdate()
+        }
+        message(connection, messageId) ?: notFound("Message")
+    }
+
     fun isConversationMember(userId: Int, conversationId: Int): Boolean = connection { connection ->
         connection.prepareStatement("SELECT 1 FROM conversation_members WHERE conversation_id=? AND user_id=?").use { statement ->
             statement.setInt(1, conversationId); statement.setInt(2, userId); statement.executeQuery().use { it.next() }

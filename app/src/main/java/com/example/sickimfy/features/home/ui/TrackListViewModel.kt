@@ -3,8 +3,13 @@ package com.example.sickimfy.features.home.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
+import com.example.sickimfy.core.data.local.dao.RecentlyPlayedDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
+import com.example.sickimfy.core.data.local.entity.RecentlyPlayedEntity
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
+import com.example.sickimfy.core.network.resolveMediaUrl
 import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.core.playback.PlaybackQueueItem
 import com.example.sickimfy.features.home.domain.model.Track
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,34 +37,31 @@ data class TrackListUiState(
 @HiltViewModel
 class TrackListViewModel @Inject constructor(
     private val likedTrackDao: LikedTrackDao,
-    private val playbackManager: PlaybackManager
+    private val recentlyPlayedDao: RecentlyPlayedDao,
+    private val playbackManager: PlaybackManager,
+    private val preferences: UserPreferencesDataStore
 ) : ViewModel() {
 
     private val _mode = MutableStateFlow<TrackListMode>(TrackListMode.LikedSongs)
-    private val _recentlyPlayedTracks = MutableStateFlow<List<Track>>(
-        listOf(
-            Track("101", "Mock Recent Track 1", "Mock Artist 1", "https://picsum.photos/200", "3:10", ""),
-            Track("102", "Mock Recent Track 2", "Mock Artist 2", "https://picsum.photos/200", "4:20", "")
-        )
-    )
-
     val uiState: StateFlow<TrackListUiState> = combine(
         _mode,
         likedTrackDao.observeAll(),
-        _recentlyPlayedTracks
-    ) { mode, likedEntities, recentTracks ->
+        recentlyPlayedDao.observeAll(),
+        preferences.preferences
+    ) { mode, likedEntities, recentEntities, prefs ->
+        val apiBaseUrl = prefs.apiBaseUrl
         when (mode) {
             TrackListMode.LikedSongs -> {
                 TrackListUiState(
                     mode = mode,
-                    tracks = likedEntities.map { it.toDomain() },
+                    tracks = likedEntities.map { it.toDomain(apiBaseUrl) },
                     isLoading = false
                 )
             }
             TrackListMode.RecentlyPlayed -> {
                 TrackListUiState(
                     mode = mode,
-                    tracks = recentTracks,
+                    tracks = recentEntities.map { it.toDomain(apiBaseUrl) },
                     isLoading = false
                 )
             }
@@ -75,23 +77,13 @@ class TrackListViewModel @Inject constructor(
     }
 
     fun playTrack(track: Track) {
-        playbackManager.play(
-            trackId = track.id,
-            title = track.title,
-            artist = track.artist,
-            coverUrl = track.imageUrl,
-            audioUrl = track.audioUrl
-        )
+        playQueue(track)
     }
 
     fun playAll() {
         val tracksList = uiState.value.tracks
         if (tracksList.isNotEmpty()) {
-            val list = tracksList.map { Triple(it.id, it.title, it.audioUrl) }
-            val safeList = list.map { triple ->
-                Triple(triple.first, triple.second, triple.third ?: "")
-            }
-            playbackManager.playAll(safeList)
+            playQueue(tracksList.first())
         }
     }
 
@@ -101,19 +93,38 @@ class TrackListViewModel @Inject constructor(
                 TrackListMode.LikedSongs -> {
                     likedTrackDao.delete(track.id)
                 }
-                TrackListMode.RecentlyPlayed -> {
-                    _recentlyPlayedTracks.value = _recentlyPlayedTracks.value.filterNot { it.id == track.id }
-                }
+                TrackListMode.RecentlyPlayed -> recentlyPlayedDao.delete(track.id)
             }
         }
     }
 
-    private fun LikedTrackEntity.toDomain() = Track(
+    private fun LikedTrackEntity.toDomain(apiBaseUrl: String) = Track(
         id = trackId,
         title = title,
         artist = artist,
-        imageUrl = imageUrl,
+        imageUrl = resolveMediaUrl(imageUrl, apiBaseUrl).orEmpty(),
         duration = "3:30",
-        albumName = ""
+        albumName = "",
+        audioUrl = resolveMediaUrl(audioUrl, apiBaseUrl)
     )
+
+    private fun RecentlyPlayedEntity.toDomain(apiBaseUrl: String) = Track(
+        id = trackId,
+        title = title,
+        artist = artist,
+        imageUrl = resolveMediaUrl(imageUrl, apiBaseUrl).orEmpty(),
+        duration = "3:30",
+        albumName = "",
+        audioUrl = resolveMediaUrl(audioUrl, apiBaseUrl)
+    )
+
+    private fun playQueue(selected: Track) {
+        val queue = uiState.value.tracks.mapNotNull { track ->
+            track.audioUrl?.takeIf { it.isNotBlank() }?.let {
+                PlaybackQueueItem(track.id, track.title, track.artist, track.imageUrl, it)
+            }
+        }
+        val startIndex = queue.indexOfFirst { it.id == selected.id }
+        if (startIndex >= 0) playbackManager.playQueue(queue, startIndex)
+    }
 }

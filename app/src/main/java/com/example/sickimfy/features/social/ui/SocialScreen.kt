@@ -63,7 +63,7 @@ import com.example.sickimfy.core.network.dto.PublicProfileDto
 @Composable
 fun SocialScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToChat: (conversationId: Int) -> Unit,
+    onNavigateToChat: (conversationId: Int, userId: String, userName: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SocialViewModel = hiltViewModel()
 ) {
@@ -131,7 +131,9 @@ fun SocialScreen(
                                 isFollowing = uiState.followedFriends.any { it.id == user.id },
                                 onFollowToggle = { viewModel.toggleFollow(user) },
                                 onUserClick = { viewModel.selectUser(user) },
-                                onChatClick = { viewModel.startChat(user, onNavigateToChat) }
+                                onChatClick = { viewModel.startChat(user) { conversationId, profile ->
+                                    onNavigateToChat(conversationId, profile.id.toString(), profile.displayName)
+                                } }
                             )
                         }
                     }
@@ -167,7 +169,9 @@ fun SocialScreen(
                                     isFollowing = true,
                                     onFollowToggle = { viewModel.toggleFollow(user) },
                                     onUserClick = { viewModel.selectUser(user) },
-                                    onChatClick = { viewModel.startChat(user, onNavigateToChat) }
+                                    onChatClick = { viewModel.startChat(user) { conversationId, profile ->
+                                        onNavigateToChat(conversationId, profile.id.toString(), profile.displayName)
+                                    } }
                                 )
                             }
                         }
@@ -273,6 +277,7 @@ fun SocialScreen(
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
+                                                    .clickable { viewModel.playPublicPlaylist(playlist) }
                                                     .padding(vertical = Dimens.paddingSmall),
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically

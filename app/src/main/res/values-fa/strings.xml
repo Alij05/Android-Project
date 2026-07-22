@@ -178,4 +178,15 @@
     <string name="title_liked_songs">آهنگ‌های لایک شده</string>
     <string name="title_recently_played">پخش‌شده‌های اخیر</string>
 
+    <string name="my_playlists_title">پلی‌لیست‌های من</string>
+    <string name="create_playlist">ساخت پلی‌لیست</string>
+    <string name="playlist_name">نام پلی‌لیست</string>
+    <string name="create">ساخت</string>
+    <string name="personal_playlists_empty">برای جمع‌آوری آهنگ‌های مورد علاقه‌تان یک پلی‌لیست بسازید.</string>
+    <string name="add_to_playlist">افزودن به پلی‌لیست</string>
+    <string name="cd_add_to_playlist">افزودن به پلی‌لیست</string>
+    <string name="no_personal_playlists">ابتدا از بخش پلی‌لیست‌های من یک پلی‌لیست بسازید.</string>
+    <string name="playlist_tracks_title">آهنگ‌های پلی‌لیست</string>
+    <string name="cd_share_track">اشتراک‌گذاری آهنگ فعلی</string>
+    <string name="language_selected">زبان انتخاب‌شده</string>
 </resources>

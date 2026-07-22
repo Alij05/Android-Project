@@ -32,6 +32,7 @@ import com.example.sickimfy.core.designsystem.components.LocalAnimatedVisibility
 import com.example.sickimfy.core.designsystem.components.LocalSharedTransitionScope
 import com.example.sickimfy.core.designsystem.components.shimmerEffect
 import com.example.sickimfy.features.home.domain.model.Track
+import com.example.sickimfy.features.playlists.ui.screens.components.AddToPlaylistButton
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -123,6 +124,7 @@ private fun TrackItemCard(
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.secondary
         )
+        AddToPlaylistButton(track = track)
     }
 }
 

@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -166,10 +167,10 @@ fun MessageBubble(
 @Composable
 private fun StatusIcon(status: MessageStatus, tint: Color) {
     val icon = when (status) {
-        MessageStatus.SENDING -> Icons.Default.Check
+        MessageStatus.SENDING -> Icons.Default.Schedule
         MessageStatus.SENT -> Icons.Default.Check
-        MessageStatus.DELIVERED -> Icons.Default.CheckCircle
-        MessageStatus.READ -> Icons.Default.CheckCircle
+        MessageStatus.DELIVERED -> Icons.Default.DoneAll
+        MessageStatus.READ -> Icons.Default.DoneAll
     }
     Icon(
         imageVector = icon,

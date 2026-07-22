@@ -29,6 +29,7 @@ class WebSocketManager @Inject constructor() {
     private var baseUrl: String = ""
     private var authToken: String = ""
     private var reconnectAttempt: Int = 0
+    private var otherUserId: String = ""
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var webSocket: WebSocket? = null
@@ -51,10 +52,11 @@ class WebSocketManager @Inject constructor() {
 
     private var conversationId: Int? = null
 
-    fun connect(baseUrl: String, authToken: String, conversationId: Int) {
+    fun connect(baseUrl: String, authToken: String, conversationId: Int, otherUserId: String) {
         this.baseUrl = baseUrl
         this.authToken = authToken
         this.conversationId = conversationId
+        this.otherUserId = otherUserId
         reconnectAttempt = 0
         doConnect()
     }
@@ -79,33 +81,37 @@ class WebSocketManager @Inject constructor() {
                         val json = JSONObject(text)
                         val type = json.optString("type", "")
 
-                        when (type) {
-                            "message" -> {
+                        when (type.uppercase()) {
+                            "MESSAGE" -> {
+                                val message = json.optJSONObject("message") ?: return@launch
+                                val sharedTrack = message.optJSONObject("sharedTrack")
+                                val senderId = message.optInt("senderId").toString()
                                 val dto = ChatMessageDto(
-                                    id = json.optString("id", ""),
-                                    senderId = json.optString("senderId", ""),
-                                    receiverId = json.optString("receiverId", ""),
-                                    content = json.optString("content", ""),
-                                    timestamp = json.optLong("timestamp", System.currentTimeMillis()),
-                                    status = MessageStatus.DELIVERED,
-                                    trackId = json.optString("trackId", null),
-                                    trackTitle = json.optString("trackTitle", null),
-                                    trackArtist = json.optString("trackArtist", null),
-                                    trackCoverUrl = json.optString("trackCoverUrl", null)
+                                    id = message.optInt("id").toString(),
+                                    senderId = if (senderId == otherUserId) otherUserId else "me",
+                                    receiverId = if (senderId == otherUserId) "me" else otherUserId,
+                                    content = message.optStringOrNull("content").orEmpty(),
+                                    timestamp = System.currentTimeMillis(),
+                                    status = if (senderId == otherUserId) MessageStatus.DELIVERED else MessageStatus.SENT,
+                                    trackId = sharedTrack?.optInt("id")?.takeIf { it > 0 }?.toString(),
+                                    trackTitle = sharedTrack?.optStringOrNull("title"),
+                                    trackArtist = sharedTrack?.optStringOrNull("artistName"),
+                                    trackCoverUrl = sharedTrack?.optStringOrNull("coverImageUrl")
                                 )
                                 _incomingMessages.emit(dto)
                             }
-                            "typing" -> {
+                            "TYPING" -> {
                                 val event = TypingEvent(
-                                    userId = json.optString("userId", ""),
+                                    userId = json.optInt("senderId").toString(),
                                     isTyping = json.optBoolean("isTyping", false)
                                 )
                                 _typingEvents.emit(event)
                             }
-                            "status" -> {
+                            "STATUS" -> {
                                 val update = MessageStatusUpdate(
-                                    messageId = json.optString("messageId", ""),
-                                    status = MessageStatus.valueOf(json.optString("status", "SENT"))
+                                    messageId = json.optInt("messageId").toString(),
+                                    status = runCatching { MessageStatus.valueOf(json.optString("status", "SENT")) }
+                                        .getOrDefault(MessageStatus.SENT)
                                 )
                                 _messageStatuses.emit(update)
                             }
@@ -163,8 +169,7 @@ class WebSocketManager @Inject constructor() {
 
     fun sendTypingIndicator(receiverId: String, isTyping: Boolean) {
         val json = JSONObject().apply {
-            put("type", "typing")
-            put("receiverId", receiverId)
+            put("type", "TYPING")
             put("isTyping", isTyping)
         }
         webSocket?.send(json.toString())
@@ -172,8 +177,8 @@ class WebSocketManager @Inject constructor() {
 
     fun sendReadReceipt(messageId: String) {
         val json = JSONObject().apply {
-            put("type", "read_receipt")
-            put("messageId", messageId)
+            put("type", "READ_RECEIPT")
+            put("messageId", messageId.toIntOrNull())
         }
         webSocket?.send(json.toString())
     }
@@ -184,6 +189,9 @@ class WebSocketManager @Inject constructor() {
         _connectionState.value = ConnectionState.DISCONNECTED
     }
 }
+
+private fun JSONObject.optStringOrNull(name: String): String? =
+    if (isNull(name)) null else optString(name).takeIf { it.isNotBlank() }
 
 data class ChatMessageDto(
     val id: String,

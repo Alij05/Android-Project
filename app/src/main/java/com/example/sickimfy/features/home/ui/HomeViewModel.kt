@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.features.home.domain.usecase.GetHomeDataUseCase
 import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.core.playback.PlaybackQueueItem
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,13 +37,21 @@ class HomeViewModel @Inject constructor(
                     } else {
                         event.track.audioUrl
                     }
-                    playbackManager.play(
-                        trackId = event.track.id,
-                        title = event.track.title,
-                        artist = event.track.artist,
-                        coverUrl = event.track.imageUrl,
-                        audioUrl = playUrl
-                    )
+                    val feed = _uiState.value as? HomeUiState.Success ?: return@launch
+                    val queue = listOf(
+                        feed.carouselTracks,
+                        feed.popularTracks,
+                        feed.newReleases,
+                        feed.globalPlaylists,
+                        feed.localPlaylists
+                    ).flatten().mapNotNull { track ->
+                        val url = if (track.id == event.track.id) playUrl else track.audioUrl
+                        url?.takeIf { it.isNotBlank() }?.let {
+                            PlaybackQueueItem(track.id, track.title, track.artist, track.imageUrl, it)
+                        }
+                    }
+                    val startIndex = queue.indexOfFirst { it.id == event.track.id }
+                    if (startIndex >= 0) playbackManager.playQueue(queue, startIndex)
                 }
             }
         }

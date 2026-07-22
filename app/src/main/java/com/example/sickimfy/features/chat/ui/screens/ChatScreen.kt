@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +52,8 @@ fun ChatScreen(
     uiState: ChatUiState,
     onEvent: (ChatEvent) -> Unit,
     onNavigateBack: () -> Unit,
+    canShareCurrentTrack: Boolean = false,
+    onShareCurrentTrack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -59,6 +62,11 @@ fun ChatScreen(
         if (uiState.messages.isNotEmpty()) {
             listState.animateScrollToItem(uiState.messages.size - 1)
         }
+    }
+
+    LaunchedEffect(uiState.messages) {
+        uiState.messages.filter { !it.isFromMe && it.status != com.example.sickimfy.core.network.MessageStatus.READ }
+            .forEach { onEvent(ChatEvent.OnMessageRead(it.id)) }
     }
 
     Scaffold(
@@ -77,6 +85,13 @@ fun ChatScreen(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = stringResource(id = R.string.cd_back)
                         )
+                    }
+                },
+                actions = {
+                    if (canShareCurrentTrack && onShareCurrentTrack != null) {
+                        IconButton(onClick = onShareCurrentTrack) {
+                            Icon(Icons.Default.Share, stringResource(R.string.cd_share_track))
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

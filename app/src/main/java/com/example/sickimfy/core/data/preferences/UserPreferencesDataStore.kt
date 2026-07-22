@@ -20,7 +20,7 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 data class UserPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val languageCode: String = "system",
+    val languageCode: String = "en",
     val fontScale: Float = 1f,
     val isPremium: Boolean = false,
     val accessToken: String? = null,
@@ -53,7 +53,7 @@ class UserPreferencesDataStore @Inject constructor(
 
     private fun mapPreferences(values: Preferences) = UserPreferences(
         themeMode = values[ThemeModeKey]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
-        languageCode = values[LanguageKey] ?: "system",
+        languageCode = values[LanguageKey].takeIf { it == "fa" || it == "en" } ?: "en",
         fontScale = values[FontScaleKey] ?: 1f,
         isPremium = values[PremiumKey] ?: false,
         accessToken = values[AccessTokenKey],

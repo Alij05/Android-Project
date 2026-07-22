@@ -7,6 +7,7 @@ class SendMessageUseCase @Inject constructor(
     private val repository: ChatRepository
 ) {
     suspend operator fun invoke(
+        conversationId: Int,
         receiverId: String,
         content: String,
         trackId: String? = null,
@@ -15,6 +16,7 @@ class SendMessageUseCase @Inject constructor(
         trackCoverUrl: String? = null
     ) {
         repository.sendMessage(
+            conversationId = conversationId,
             receiverId = receiverId,
             content = content,
             trackId = trackId,

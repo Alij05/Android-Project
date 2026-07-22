@@ -133,7 +133,33 @@ fun Route.chatSocket(database: AppDatabase, tokens: TokenService, hub: ChatHub) 
             for (frame in incoming) {
                 if (frame !is Frame.Text) continue
                 val event = runCatching { hub.json.decodeFromString<SocketEvent>(frame.readText()) }.getOrNull() ?: continue
-                if (event.type == SocketEventType.TYPING) hub.broadcast(conversationId, SocketEvent(SocketEventType.TYPING, isTyping = event.isTyping == true))
+                when (event.type) {
+                    SocketEventType.MESSAGE -> {
+                        val message = io {
+                            database.sendMessage(
+                                userId,
+                                conversationId,
+                                SendMessageRequest(event.content, event.sharedTrackId)
+                            )
+                        }
+                        hub.broadcast(conversationId, SocketEvent(SocketEventType.MESSAGE, message = message))
+                    }
+                    SocketEventType.TYPING -> {
+                        hub.broadcast(
+                            conversationId,
+                            SocketEvent(SocketEventType.TYPING, isTyping = event.isTyping == true, senderId = userId)
+                        )
+                    }
+                    SocketEventType.READ_RECEIPT -> {
+                        val messageId = event.messageId ?: continue
+                        val message = io { database.markMessageRead(userId, conversationId, messageId) }
+                        hub.broadcast(
+                            conversationId,
+                            SocketEvent(SocketEventType.STATUS, messageId = message.id, status = message.status)
+                        )
+                    }
+                    SocketEventType.STATUS -> Unit
+                }
             }
         } finally {
             hub.leave(conversationId, this)

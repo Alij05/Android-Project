@@ -58,5 +58,14 @@ data class Message(
 
 @Serializable enum class MessageStatus { SENDING, SENT, READ }
 @Serializable data class SendMessageRequest(val content: String? = null, val sharedTrackId: Int? = null)
-@Serializable data class SocketEvent(val type: SocketEventType, val message: Message? = null, val isTyping: Boolean? = null)
-@Serializable enum class SocketEventType { MESSAGE, TYPING }
+@Serializable data class SocketEvent(
+    val type: SocketEventType,
+    val message: Message? = null,
+    val content: String? = null,
+    val sharedTrackId: Int? = null,
+    val isTyping: Boolean? = null,
+    val senderId: Int? = null,
+    val messageId: Int? = null,
+    val status: MessageStatus? = null
+)
+@Serializable enum class SocketEventType { MESSAGE, TYPING, READ_RECEIPT, STATUS }

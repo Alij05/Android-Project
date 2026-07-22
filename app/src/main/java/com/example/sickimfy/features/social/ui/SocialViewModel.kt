@@ -5,6 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.network.SickimfyApi
 import com.example.sickimfy.core.network.dto.PublicProfileDto
 import com.example.sickimfy.core.network.dto.CreateConversationRequestDto
+import com.example.sickimfy.core.network.dto.PlaylistSummaryDto
+import com.example.sickimfy.core.network.dto.toDomain
+import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
+import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.core.playback.PlaybackQueueItem
+import kotlinx.coroutines.flow.first
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +31,9 @@ data class SocialUiState(
 
 @HiltViewModel
 class SocialViewModel @Inject constructor(
-    private val api: SickimfyApi
+    private val api: SickimfyApi,
+    private val preferences: UserPreferencesDataStore,
+    private val playbackManager: PlaybackManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SocialUiState())
@@ -100,12 +108,28 @@ class SocialViewModel @Inject constructor(
         }
     }
 
-    fun startChat(user: PublicProfileDto, onChatStarted: (conversationId: Int) -> Unit) {
+    fun startChat(user: PublicProfileDto, onChatStarted: (conversationId: Int, user: PublicProfileDto) -> Unit) {
         viewModelScope.launch {
             runCatching {
                 api.getOrCreateConversation(CreateConversationRequestDto(user.id))
             }.onSuccess { convo ->
-                onChatStarted(convo.id)
+                onChatStarted(convo.id, user)
+            }
+        }
+    }
+
+    fun playPublicPlaylist(playlist: PlaylistSummaryDto) {
+        viewModelScope.launch {
+            runCatching {
+                val baseUrl = preferences.preferences.first().apiBaseUrl
+                api.getPlaylistDetails(playlist.id).tracks.map { it.toDomain(baseUrl) }
+            }.onSuccess { tracks ->
+                val queue = tracks.mapNotNull { track ->
+                    track.audioUrl?.takeIf { it.isNotBlank() }?.let {
+                        PlaybackQueueItem(track.id, track.title, track.artist, track.imageUrl, it)
+                    }
+                }
+                if (queue.isNotEmpty()) playbackManager.playQueue(queue, 0)
             }
         }
     }

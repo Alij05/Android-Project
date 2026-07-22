@@ -8,8 +8,8 @@ import javax.inject.Singleton
 class ChatWebSocketClient @Inject constructor(
     private val webSocketManager: WebSocketManager
 ) {
-    fun connect(baseUrl: String, token: String, conversationId: Int) {
-        webSocketManager.connect(baseUrl, token, conversationId)
+    fun connect(baseUrl: String, token: String, conversationId: Int, otherUserId: String) {
+        webSocketManager.connect(baseUrl, token, conversationId, otherUserId)
     }
 
     fun disconnect() {

@@ -52,6 +52,7 @@ import com.example.sickimfy.features.search.ui.SearchUiState
 import com.example.sickimfy.features.home.domain.model.Track
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.sickimfy.features.playlists.ui.screens.components.AddToPlaylistButton
 
 @Composable
 fun SearchScreen(
@@ -106,6 +107,7 @@ fun SearchScreen(
                     }
                     else -> SearchResults(
                         tracks = uiState.searchResults,
+                        filter = uiState.activeFilter,
                         onTrackClick = { onEvent(SearchEvent.OnTrackSelected(it.id)) }
                     )
                 }
@@ -262,6 +264,7 @@ private fun SearchHistorySection(
 @Composable
 private fun SearchResults(
     tracks: List<Track>,
+    filter: SearchFilter,
     onTrackClick: (Track) -> Unit
 ) {
     LazyColumn(contentPadding = PaddingValues(vertical = Dimens.paddingSmall)) {
@@ -285,13 +288,21 @@ private fun SearchResults(
                 Spacer(modifier = Modifier.width(Dimens.paddingMedium))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = track.title,
+                        text = when (filter) {
+                            SearchFilter.ARTISTS -> track.artist
+                            SearchFilter.ALBUMS -> track.albumName ?: track.title
+                            else -> track.title
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1
                     )
                     Text(
-                        text = track.artist,
+                        text = when (filter) {
+                            SearchFilter.ARTISTS -> track.title
+                            SearchFilter.ALBUMS -> track.artist
+                            else -> track.artist
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary,
                         maxLines = 1
@@ -302,6 +313,7 @@ private fun SearchResults(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary
                 )
+                AddToPlaylistButton(track = track)
             }
         }
     }

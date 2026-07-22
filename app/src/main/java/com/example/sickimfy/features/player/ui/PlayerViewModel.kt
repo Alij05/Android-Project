@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
+import com.example.sickimfy.core.data.local.dao.RecentlyPlayedDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
+import com.example.sickimfy.core.data.local.entity.RecentlyPlayedEntity
 import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.firstOrNull
 class PlayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
     private val likedTrackDao: LikedTrackDao,
+    private val recentlyPlayedDao: RecentlyPlayedDao,
     private val downloadedTrackDao: DownloadedTrackDao,
     private val preferences: UserPreferencesDataStore,
     @ApplicationContext private val context: Context
@@ -36,6 +39,7 @@ class PlayerViewModel @Inject constructor(
 
     private var sleepTimerJob: Job? = null
     private var positionTrackingJob: Job? = null
+    private var lastRecordedTrackId: String? = null
 
     init {
         observePlaybackState()
@@ -53,18 +57,13 @@ class PlayerViewModel @Inject constructor(
             is PlayerEvent.SetSpeed -> playbackManager.setPlaybackSpeed(event.speed)
 
             PlayerEvent.ToggleShuffle -> {
-                val currentShuffle = playbackManager.getShuffleEnabled()
-                playbackManager.setShuffleMode(!currentShuffle)
+                playbackManager.setShuffleMode(!playbackManager.getShuffleEnabled())
             }
-
             PlayerEvent.ToggleRepeat -> {
-                val currentRepeat = playbackManager.getRepeatMode()
-                val nextRepeat = when (currentRepeat) {
-                    Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
-                    Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
-                    else -> Player.REPEAT_MODE_OFF
-                }
-                playbackManager.setRepeatMode(nextRepeat)
+                val repeatOne = playbackManager.getRepeatMode() == Player.REPEAT_MODE_ONE
+                playbackManager.setRepeatMode(
+                    if (repeatOne) Player.REPEAT_MODE_OFF else Player.REPEAT_MODE_ONE
+                )
             }
 
             is PlayerEvent.SetSleepTimer -> {
@@ -124,6 +123,7 @@ class PlayerViewModel @Inject constructor(
                         title = state.currentTitle,
                         artist = state.currentArtist,
                         coverUrl = state.currentCoverUrl,
+                        audioUrl = state.currentAudioUrl,
                         isPlaying = state.isPlaying,
                         currentPositionMs = state.currentPositionMs,
                         durationMs = state.durationMs,
@@ -134,7 +134,10 @@ class PlayerViewModel @Inject constructor(
                         repeatMode = state.repeatMode
                     )
                 }
-                state.currentTrackId?.let { checkFavorite(it) }
+                state.currentTrackId?.let {
+                    checkFavorite(it)
+                    recordRecentlyPlayed(state)
+                }
             }
         }
     }
@@ -183,11 +186,27 @@ class PlayerViewModel @Inject constructor(
                         title = _uiState.value.title,
                         artist = _uiState.value.artist,
                         imageUrl = _uiState.value.coverUrl,
-                        audioUrl = null
+                        audioUrl = playbackManager.getCurrentAudioUrl()
                     )
                 )
             }
             _uiState.update { it.copy(isFavorite = !isFav) }
+        }
+    }
+
+    private fun recordRecentlyPlayed(state: com.example.sickimfy.core.playback.PlaybackState) {
+        if (state.currentTrackId == lastRecordedTrackId) return
+        lastRecordedTrackId = state.currentTrackId
+        viewModelScope.launch {
+            recentlyPlayedDao.insert(
+                RecentlyPlayedEntity(
+                    trackId = state.currentTrackId ?: return@launch,
+                    title = state.currentTitle,
+                    artist = state.currentArtist,
+                    imageUrl = state.currentCoverUrl,
+                    audioUrl = playbackManager.getCurrentAudioUrl()
+                )
+            )
         }
     }
 

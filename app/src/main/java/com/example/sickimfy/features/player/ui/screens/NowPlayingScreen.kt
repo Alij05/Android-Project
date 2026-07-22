@@ -57,16 +57,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.sickimfy.R
 import com.example.sickimfy.core.designsystem.Black
 import com.example.sickimfy.core.designsystem.Dimens
+import com.example.sickimfy.core.designsystem.PrimaryBrand
 import com.example.sickimfy.core.designsystem.White
 import com.example.sickimfy.features.player.ui.PlayerEvent
 import com.example.sickimfy.features.player.ui.PlayerUiState
 import com.example.sickimfy.features.player.ui.screens.components.AudioVisualizer
+import com.example.sickimfy.features.home.domain.model.Track
+import com.example.sickimfy.features.playlists.ui.screens.components.AddToPlaylistButton
 
 @Composable
 fun NowPlayingScreen(
@@ -196,14 +200,40 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingLarge))
 
-            Text(
-                text = uiState.title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = uiState.title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                // Keep Like in the visible title area so it is never clipped on short screens.
+                IconButton(onClick = { onEvent(PlayerEvent.ToggleFavorite) }) {
+                    Icon(
+                        imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(id = R.string.cd_favorite),
+                        tint = if (uiState.isFavorite) PrimaryBrand else White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+                if (uiState.trackId != null) {
+                    AddToPlaylistButton(
+                        Track(
+                            id = uiState.trackId,
+                            title = uiState.title,
+                            artist = uiState.artist,
+                            imageUrl = uiState.coverUrl,
+                            duration = "",
+                            audioUrl = uiState.audioUrl
+                        )
+                    )
+                }
+            }
             Text(
                 text = uiState.artist,
                 style = MaterialTheme.typography.bodyMedium,
@@ -274,7 +304,7 @@ fun NowPlayingScreen(
                     Icon(
                         imageVector = Icons.Default.Shuffle,
                         contentDescription = stringResource(id = R.string.cd_shuffle),
-                        tint = if (uiState.shuffleEnabled) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.5f),
+                        tint = if (uiState.shuffleEnabled) PrimaryBrand else White.copy(alpha = 0.5f),
                         modifier = Modifier.size(Dimens.iconSizeNormal)
                     )
                 }
@@ -318,12 +348,13 @@ fun NowPlayingScreen(
 
                 IconButton(onClick = { onEvent(PlayerEvent.ToggleRepeat) }) {
                     Icon(
-                        imageVector = if (uiState.repeatMode == 2) Icons.Default.RepeatOne else Icons.Default.Repeat,
+                        imageVector = Icons.Default.RepeatOne,
                         contentDescription = stringResource(id = R.string.cd_repeat),
-                        tint = if (uiState.repeatMode != 0) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.5f),
+                        tint = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) PrimaryBrand else White.copy(alpha = 0.5f),
                         modifier = Modifier.size(Dimens.iconSizeNormal)
                     )
                 }
+
             }
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
@@ -373,36 +404,13 @@ fun NowPlayingScreen(
 
             Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { onEvent(PlayerEvent.ToggleFavorite) },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = stringResource(id = R.string.cd_favorite),
-                        tint = if (uiState.isFavorite) MaterialTheme.colorScheme.primary else White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(Dimens.paddingLarge))
-
-                IconButton(
-                    onClick = { onEvent(PlayerEvent.DownloadTrack) },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Download,
-                        contentDescription = stringResource(id = R.string.cd_download),
-                        tint = White.copy(alpha = 0.7f),
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+            IconButton(onClick = { onEvent(PlayerEvent.DownloadTrack) }) {
+                Icon(
+                    imageVector = Icons.Default.Download,
+                    contentDescription = stringResource(id = R.string.cd_download),
+                    tint = White.copy(alpha = 0.7f),
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     }

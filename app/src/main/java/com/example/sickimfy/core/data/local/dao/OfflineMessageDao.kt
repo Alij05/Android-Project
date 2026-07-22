@@ -23,6 +23,9 @@ interface OfflineMessageDao {
     @Query("UPDATE offline_messages SET status = :status WHERE messageId = :messageId")
     suspend fun updateStatus(messageId: String, status: String)
 
+    @Query("DELETE FROM offline_messages WHERE messageId = :messageId")
+    suspend fun delete(messageId: String)
+
     @Query("DELETE FROM offline_messages WHERE (senderId = :userId OR receiverId = :userId)")
     suspend fun clearConversation(userId: String)
 }

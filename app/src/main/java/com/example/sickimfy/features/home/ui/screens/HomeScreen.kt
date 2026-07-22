@@ -46,6 +46,7 @@ fun HomeScreen(
     onEvent: (HomeEvent) -> Unit,
     onNavigateToLikedSongs: () -> Unit,
     onNavigateToRecentlyPlayed: () -> Unit,
+    onNavigateToMyPlaylists: () -> Unit,
     onSettingsClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -124,6 +125,7 @@ fun HomeScreen(
                                         when (actionId) {
                                             "liked_songs" -> onNavigateToLikedSongs()
                                             "recently_played" -> onNavigateToRecentlyPlayed()
+                                            "my_playlists" -> onNavigateToMyPlaylists()
                                         }
                                     }
                                 )

@@ -28,6 +28,7 @@ data class PlaybackState(
     val currentTitle: String = "",
     val currentArtist: String = "",
     val currentCoverUrl: String = "",
+    val currentAudioUrl: String? = null,
     val currentPositionMs: Long = 0L,
     val durationMs: Long = 0L,
     val playbackSpeed: Float = 1f,
@@ -35,6 +36,14 @@ data class PlaybackState(
     val error: String? = null,
     val shuffleEnabled: Boolean = false,
     val repeatMode: Int = Player.REPEAT_MODE_OFF
+)
+
+data class PlaybackQueueItem(
+    val id: String,
+    val title: String,
+    val artist: String,
+    val coverUrl: String,
+    val audioUrl: String
 )
 
 @Singleton
@@ -116,7 +125,46 @@ class PlaybackManager @Inject constructor() {
                 currentTitle = title,
                 currentArtist = artist,
                 currentCoverUrl = coverUrl,
+                currentAudioUrl = audioUrl,
                 isLoading = true
+            )
+        }
+    }
+
+    /** Replaces the current queue and starts the selected item, so next/previous are deterministic. */
+    fun playQueue(queue: List<PlaybackQueueItem>, startIndex: Int) {
+        val player = _exoplayer ?: return
+        if (queue.isEmpty() || startIndex !in queue.indices) return
+
+        val mediaItems = queue.map { track ->
+            MediaItem.Builder()
+                .setMediaId(track.id)
+                .setUri(track.audioUrl)
+                .setMediaMetadata(
+                    androidx.media3.common.MediaMetadata.Builder()
+                        .setTitle(track.title)
+                        .setArtist(track.artist)
+                        .setArtworkUri(android.net.Uri.parse(track.coverUrl))
+                        .build()
+                )
+                .build()
+        }
+        _playlist.value = mediaItems
+        player.setMediaItems(mediaItems, startIndex, 0L)
+        player.prepare()
+        player.play()
+
+        val selected = queue[startIndex]
+        _playbackState.update {
+            it.copy(
+                currentTrackId = selected.id,
+                currentTitle = selected.title,
+                currentArtist = selected.artist,
+                currentCoverUrl = selected.coverUrl,
+                currentAudioUrl = selected.audioUrl,
+                currentPositionMs = 0L,
+                isLoading = true,
+                error = null
             )
         }
     }
@@ -173,17 +221,25 @@ class PlaybackManager @Inject constructor() {
 
     fun skipToNext() {
         val player = _exoplayer ?: return
+        if (player.mediaItemCount <= 1) return
         if (player.hasNextMediaItem()) {
             player.seekToNext()
+        } else if (player.shuffleModeEnabled) {
+            player.seekToDefaultPosition(0)
+            player.play()
         }
     }
 
     fun skipToPrevious() {
         val player = _exoplayer ?: return
+        if (player.mediaItemCount <= 1) return
         if (player.currentPosition > 3000) {
             player.seekTo(0)
         } else if (player.hasPreviousMediaItem()) {
             player.seekToPrevious()
+        } else if (player.shuffleModeEnabled) {
+            player.seekToDefaultPosition(player.mediaItemCount - 1)
+            player.play()
         }
     }
 
@@ -200,6 +256,28 @@ class PlaybackManager @Inject constructor() {
     fun setRepeatMode(mode: Int) {
         _exoplayer?.repeatMode = mode
         _playbackState.update { it.copy(repeatMode = mode) }
+    }
+
+    /** Cycles normal -> shuffle -> repeat current track. */
+    fun cyclePlaybackMode() {
+        val player = _exoplayer ?: return
+        when {
+            !player.shuffleModeEnabled && player.repeatMode == Player.REPEAT_MODE_OFF -> {
+                player.shuffleModeEnabled = true
+                player.repeatMode = Player.REPEAT_MODE_OFF
+            }
+            player.shuffleModeEnabled -> {
+                player.shuffleModeEnabled = false
+                player.repeatMode = Player.REPEAT_MODE_ONE
+            }
+            else -> {
+                player.shuffleModeEnabled = false
+                player.repeatMode = Player.REPEAT_MODE_OFF
+            }
+        }
+        _playbackState.update {
+            it.copy(shuffleEnabled = player.shuffleModeEnabled, repeatMode = player.repeatMode)
+        }
     }
 
     fun getShuffleEnabled(): Boolean = _exoplayer?.shuffleModeEnabled == true
@@ -228,6 +306,14 @@ class PlaybackManager @Inject constructor() {
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _playbackState.update { it.copy(isPlaying = isPlaying) }
+        }
+
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            _playbackState.update { it.copy(shuffleEnabled = shuffleModeEnabled) }
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            _playbackState.update { it.copy(repeatMode = repeatMode) }
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -261,6 +347,7 @@ class PlaybackManager @Inject constructor() {
                     currentTitle = item.mediaMetadata.title?.toString().orEmpty(),
                     currentArtist = item.mediaMetadata.artist?.toString().orEmpty(),
                     currentCoverUrl = item.mediaMetadata.artworkUri?.toString().orEmpty(),
+                    currentAudioUrl = item.localConfiguration?.uri?.toString(),
                     currentPositionMs = 0L,
                     durationMs = _exoplayer?.duration ?: 0L
                 )

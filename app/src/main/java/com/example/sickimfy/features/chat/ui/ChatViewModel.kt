@@ -6,6 +6,7 @@ import com.example.sickimfy.BuildConfig
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.preferences.UserPreferencesDataStore
 import com.example.sickimfy.core.network.SickimfyApi
+import com.example.sickimfy.core.network.resolveMediaUrl
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.chat.data.remote.ChatWebSocketClient
 import com.example.sickimfy.features.chat.domain.repository.ChatRepository
@@ -16,6 +17,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +36,7 @@ class ChatViewModel @Inject constructor(
 
     private var currentUserId: String = ""
     private var conversationId: Int = -1
+    private var typingStopJob: Job? = null
 
     fun initialize(conversationId: Int, userId: String) {
         this.conversationId = conversationId
@@ -43,7 +47,9 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             val token = preferences.preferences.first().accessToken.orEmpty()
-            chatWebSocketClient.connect(BuildConfig.API_BASE_URL, token, conversationId)
+            val apiBaseUrl = preferences.preferences.first().apiBaseUrl
+            chatWebSocketClient.connect(apiBaseUrl, token, conversationId, currentUserId)
+            chatRepository.syncHistory(conversationId, currentUserId)
         }
     }
 
@@ -56,8 +62,15 @@ class ChatViewModel @Inject constructor(
         when (event) {
             is ChatEvent.OnMessageInputChanged -> {
                 _uiState.update { it.copy(messageInput = event.message) }
-                if (event.message.isNotEmpty()) {
+                if (event.message.isNotBlank()) {
                     chatRepository.sendTypingIndicator(currentUserId, true)
+                    typingStopJob?.cancel()
+                    typingStopJob = viewModelScope.launch {
+                        delay(1_200)
+                        chatRepository.sendTypingIndicator(currentUserId, false)
+                    }
+                } else {
+                    chatRepository.sendTypingIndicator(currentUserId, false)
                 }
             }
             ChatEvent.OnSendMessage -> {
@@ -90,14 +103,17 @@ class ChatViewModel @Inject constructor(
                             downloaded.localFilePath
                         } else {
                             // Fetch from server to get audio URL
-                            api.getTrack(event.trackId.toInt()).audioUrl
+                            val apiBaseUrl = preferences.preferences.first().apiBaseUrl
+                            val rawUrl = api.getTrack(event.trackId.toInt()).audioUrl
+                            resolveMediaUrl(rawUrl, apiBaseUrl)
                         }
                     }.onSuccess { playUrl ->
+                        val apiBaseUrl = preferences.preferences.first().apiBaseUrl
                         playbackManager.play(
                             trackId = event.trackId,
                             title = event.title,
                             artist = event.artist,
-                            coverUrl = event.coverUrl,
+                            coverUrl = resolveMediaUrl(event.coverUrl, apiBaseUrl).orEmpty(),
                             audioUrl = playUrl
                         )
                     }
@@ -143,7 +159,10 @@ class ChatViewModel @Inject constructor(
     private fun sendMessage(content: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(messageInput = "") }
+            typingStopJob?.cancel()
+            chatRepository.sendTypingIndicator(currentUserId, false)
             chatRepository.sendMessage(
+                conversationId = conversationId,
                 receiverId = currentUserId,
                 content = content
             )
@@ -158,6 +177,7 @@ class ChatViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             chatRepository.sendMessage(
+                conversationId = conversationId,
                 receiverId = currentUserId,
                 content = "🎵 $trackTitle - $trackArtist",
                 trackId = trackId,

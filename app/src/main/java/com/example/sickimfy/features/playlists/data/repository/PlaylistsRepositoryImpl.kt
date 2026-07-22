@@ -8,6 +8,7 @@ import com.example.sickimfy.features.playlists.domain.model.Playlist
 import com.example.sickimfy.features.playlists.domain.model.PlaylistType
 import com.example.sickimfy.core.network.dto.toDomain
 import com.example.sickimfy.features.playlists.domain.repository.PlaylistsRepository
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class PlaylistsRepositoryImpl @Inject constructor(
@@ -26,7 +27,8 @@ class PlaylistsRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaylistTracks(playlistId: String): List<com.example.sickimfy.features.home.domain.model.Track> {
         val details = api.getPlaylistDetails(playlistId.toInt())
-        return details.tracks.map { it.toDomain() }
+        val apiBaseUrl = preferences.preferences.first().apiBaseUrl
+        return details.tracks.map { it.toDomain(apiBaseUrl) }
     }
 
     private fun PlaylistSummaryDto.toDomain(type: PlaylistType) = Playlist(

@@ -6,6 +6,7 @@ import com.example.sickimfy.features.home.domain.model.Track
 import com.example.sickimfy.features.search.domain.repository.SearchRepository
 import com.example.sickimfy.features.search.domain.usecase.SearchTracksUseCase
 import com.example.sickimfy.core.playback.PlaybackManager
+import com.example.sickimfy.core.playback.PlaybackQueueItem
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -87,13 +88,20 @@ class SearchViewModel @Inject constructor(
                             trackDetails.audioUrl ?: ""
                         }
 
-                        playbackManager.play(
-                            trackId = event.trackId,
-                            title = trackDetails.title ?: "Unknown Title",
-                            artist = trackDetails.artist ?: "Unknown Artist",
-                            coverUrl = trackDetails.imageUrl ?: "",
-                            audioUrl = playUrl
-                        )
+                        val queue = _uiState.value.searchResults.mapNotNull { track ->
+                            val url = if (track.id == event.trackId) playUrl else track.audioUrl
+                            url?.takeIf { it.isNotBlank() }?.let {
+                                PlaybackQueueItem(
+                                    track.id,
+                                    track.title.orEmpty(),
+                                    track.artist.orEmpty(),
+                                    track.imageUrl.orEmpty(),
+                                    it
+                                )
+                            }
+                        }
+                        val startIndex = queue.indexOfFirst { it.id == event.trackId }
+                        if (startIndex >= 0) playbackManager.playQueue(queue, startIndex)
                     }
                 }
             }
@@ -110,7 +118,7 @@ class SearchViewModel @Inject constructor(
                     _uiState.update { state ->
                         state.copy(
                             isSearching = false,
-                            searchResults = results.applyFilter(state.activeFilter)
+                            searchResults = results.applyFilter(state.activeFilter, query)
                         )
                     }
                 }
@@ -120,9 +128,16 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun List<Track>.applyFilter(filter: SearchFilter): List<Track> = when (filter) {
-        SearchFilter.ALL, SearchFilter.TRACKS -> this
-        SearchFilter.ARTISTS -> distinctBy { it.artist }
-        SearchFilter.ALBUMS -> filter { !it.albumName.isNullOrBlank() }.distinctBy { it.albumName }
+    private fun List<Track>.applyFilter(filter: SearchFilter, query: String): List<Track> {
+        val normalizedQuery = query.trim()
+        return when (filter) {
+        SearchFilter.ALL -> this
+        SearchFilter.TRACKS -> filter { it.title.contains(normalizedQuery, ignoreCase = true) }
+        SearchFilter.ARTISTS -> filter { it.artist.contains(normalizedQuery, ignoreCase = true) }
+            .distinctBy { it.artist.lowercase() }
+        SearchFilter.ALBUMS -> filter {
+            it.albumName?.contains(normalizedQuery, ignoreCase = true) == true
+        }.distinctBy { it.albumName?.lowercase() }
+        }
     }
 }

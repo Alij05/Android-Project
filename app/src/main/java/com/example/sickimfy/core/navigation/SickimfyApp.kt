@@ -1,5 +1,6 @@
 package com.example.sickimfy.core.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -49,6 +50,8 @@ import com.example.sickimfy.features.player.ui.screens.MiniPlayer
 import com.example.sickimfy.features.player.ui.screens.NowPlayingScreen
 import com.example.sickimfy.features.playlists.ui.PlaylistsViewModel
 import com.example.sickimfy.features.playlists.ui.screens.PlaylistsScreen
+import com.example.sickimfy.features.playlists.ui.screens.PersonalPlaylistsScreen
+import com.example.sickimfy.features.playlists.ui.screens.PersonalPlaylistDetailScreen
 import com.example.sickimfy.features.profile.ui.ProfileViewModel
 import com.example.sickimfy.features.profile.ui.screens.ProfileScreen
 import com.example.sickimfy.features.search.ui.SearchViewModel
@@ -71,6 +74,10 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     var showFullPlayer by remember { mutableStateOf(false) }
+
+    // The full player is an overlay, not a navigation destination. Consume Back to
+    // collapse it instead of letting the activity finish.
+    BackHandler(enabled = showFullPlayer) { showFullPlayer = false }
 
     // Root Box to overlay the full player on top of the entire application safely
     Box(modifier = modifier.fillMaxSize()) {
@@ -140,6 +147,7 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         },
                         onNavigateToLikedSongs = { navController.navigate("liked_songs") },
                         onNavigateToRecentlyPlayed = { navController.navigate("recently_played") },
+                        onNavigateToMyPlaylists = { navController.navigate("my_playlists") },
                         onSettingsClick = { navController.navigate("settings") },
                         onProfileClick = {
                             navController.navigate(AppDestination.PROFILE.route) {
@@ -239,6 +247,18 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                         onPlayAll = viewModel::playAll
                     )
                 }
+                composable("my_playlists") {
+                    PersonalPlaylistsScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onPlaylistClick = { playlistId -> navController.navigate("my_playlist/$playlistId") }
+                    )
+                }
+                composable(
+                    route = "my_playlist/{playlistId}",
+                    arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
+                ) {
+                    PersonalPlaylistDetailScreen(onNavigateBack = { navController.popBackStack() })
+                }
 
                 composable("settings") {
                     val viewModel: SettingsViewModel = hiltViewModel()
@@ -264,8 +284,8 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                 composable("social") {
                     SocialScreen(
                         onNavigateBack = { navController.popBackStack() },
-                        onNavigateToChat = { convoId ->
-                            navController.navigate("chat/$convoId/0/Friend")
+                        onNavigateToChat = { convoId, userId, userName ->
+                            navController.navigate("chat/$convoId/$userId/$userName")
                         }
                     )
                 }
@@ -293,7 +313,22 @@ fun SickimfyApp(modifier: Modifier = Modifier) {
                                 viewModel.onEvent(event)
                             }
                         },
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        canShareCurrentTrack = playerUiState.trackId != null,
+                        onShareCurrentTrack = {
+                            playerUiState.trackId?.let { trackId ->
+                                coroutineScope.launch {
+                                    viewModel.onEvent(
+                                        com.example.sickimfy.features.chat.ui.ChatEvent.OnShareTrack(
+                                            trackId = trackId,
+                                            trackTitle = playerUiState.title,
+                                            trackArtist = playerUiState.artist,
+                                            trackCoverUrl = playerUiState.coverUrl
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     )
                 }
             }

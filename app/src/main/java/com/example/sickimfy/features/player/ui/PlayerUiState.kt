@@ -5,6 +5,7 @@ data class PlayerUiState(
     val title: String = "",
     val artist: String = "",
     val coverUrl: String = "",
+    val audioUrl: String? = null,
     val isPlaying: Boolean = false,
     val currentPositionMs: Long = 0L,
     val durationMs: Long = 0L,
@@ -15,5 +16,5 @@ data class PlayerUiState(
     val sleepTimerRunning: Boolean = false,
     val error: String? = null,
     val shuffleEnabled: Boolean = false,
-    val repeatMode: Int = 0 // 0=OFF, 1=ALL, 2=ONE
+    val repeatMode: Int = 0 // Media3: 0=OFF, 1=ONE, 2=ALL
 )

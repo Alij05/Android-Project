@@ -30,6 +30,15 @@
     <string name="qa_liked_songs">Liked Songs</string>
     <string name="qa_recently_played">Recently Played</string>
     <string name="qa_my_playlists">My Playlists</string>
+    <string name="my_playlists_title">My Playlists</string>
+    <string name="create_playlist">Create playlist</string>
+    <string name="playlist_name">Playlist name</string>
+    <string name="create">Create</string>
+    <string name="personal_playlists_empty">Create a playlist to collect your favorite tracks.</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="cd_add_to_playlist">Add to playlist</string>
+    <string name="no_personal_playlists">Create a playlist first from My Playlists.</string>
+    <string name="playlist_tracks_title">Playlist tracks</string>
     <string name="qa_top_artists">Top Artists</string>
 
     <!-- Home Feed Sliders Headers -->
@@ -82,6 +91,7 @@
     <string name="settings_title">Settings</string>
     <string name="theme_settings">Theme</string>
     <string name="language_settings">Language</string>
+    <string name="language_selected">Selected language</string>
     <string name="direct_messages">Direct Messages</string>
     <string name="log_out">Log Out</string>
     <string name="upgrading_wait">Processing...</string>
@@ -95,6 +105,7 @@
     <string name="cd_previous">Previous</string>
     <string name="cd_shuffle">Shuffle</string>
     <string name="cd_repeat">Repeat</string>
+    <string name="cd_playback_mode">Playback mode</string>
     <string name="cd_favorite">Favorite</string>
     <string name="cd_queue">Queue</string>
     <string name="cd_close_player">Close player</string>
@@ -130,6 +141,7 @@
     <string name="chat_hint">Type a message…</string>
     <string name="cd_send_message">Send message</string>
     <string name="cd_shared_track">Shared track</string>
+    <string name="cd_share_track">Share current track</string>
     <string name="typing_indicator">is typing…</string>
     <string name="message_sending">Sending</string>
     <string name="message_sent">Sent</string>

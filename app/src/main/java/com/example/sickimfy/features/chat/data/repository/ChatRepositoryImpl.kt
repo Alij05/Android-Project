@@ -5,6 +5,9 @@ import com.example.sickimfy.core.data.local.entity.OfflineMessageEntity
 import com.example.sickimfy.core.network.ConnectionState
 import com.example.sickimfy.core.network.MessageStatus
 import com.example.sickimfy.core.network.WebSocketManager
+import com.example.sickimfy.core.network.SickimfyApi
+import com.example.sickimfy.core.network.dto.MessageDto
+import com.example.sickimfy.core.network.dto.SendMessageRequestDto
 import com.example.sickimfy.features.chat.domain.model.Message
 import com.example.sickimfy.features.chat.domain.repository.ChatRepository
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
     private val webSocketManager: WebSocketManager,
-    private val offlineMessageDao: OfflineMessageDao
+    private val offlineMessageDao: OfflineMessageDao,
+    private val api: SickimfyApi
 ) : ChatRepository {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -35,24 +39,32 @@ class ChatRepositoryImpl @Inject constructor(
                 }
             }
         }
+        scope.launch {
+            webSocketManager.incomingMessages.collect { message ->
+                offlineMessageDao.upsert(message.toEntity())
+            }
+        }
+        scope.launch {
+            webSocketManager.messageStatuses.collect { update ->
+                offlineMessageDao.updateStatus(update.messageId, update.status.name)
+            }
+        }
     }
 
     override fun observeMessages(userId: String): Flow<List<Message>> {
-        return combine(
-            offlineMessageDao.observeConversation(userId),
-            webSocketManager.incomingMessages
-        ) { localMessages, incoming ->
-            val localMapped = localMessages.map { it.toDomain() }
+        return offlineMessageDao.observeConversation(userId).map { messages ->
+            messages.map { it.toDomain() }
+        }
+    }
 
-            val incomingMessage = if (incoming.senderId == userId || incoming.receiverId == userId) {
-                listOf(incoming.toDomain(userId))
-            } else emptyList()
-
-            (localMapped + incomingMessage).sortedBy { it.timestamp }
+    override suspend fun syncHistory(conversationId: Int, otherUserId: String) {
+        api.getMessages(conversationId).forEach { message ->
+            offlineMessageDao.upsert(message.toEntity(otherUserId))
         }
     }
 
     override suspend fun sendMessage(
+        conversationId: Int,
         receiverId: String,
         content: String,
         trackId: String?,
@@ -77,16 +89,15 @@ class ChatRepositoryImpl @Inject constructor(
             )
         )
 
-        webSocketManager.sendMessage(
-            receiverId = receiverId,
-            content = content,
-            trackId = trackId,
-            trackTitle = trackTitle,
-            trackArtist = trackArtist,
-            trackCoverUrl = trackCoverUrl
-        )
-
-        offlineMessageDao.updateStatus(tempId, MessageStatus.SENT.name)
+        runCatching {
+            api.sendMessage(
+                conversationId,
+                SendMessageRequestDto(content = content, sharedTrackId = trackId?.toIntOrNull())
+            )
+        }.onSuccess { sent ->
+            offlineMessageDao.upsert(sent.toEntity(receiverId))
+            offlineMessageDao.delete(tempId)
+        }
     }
 
     override suspend fun loadHistory(userId: String, before: Long?, limit: Int): List<Message> {
@@ -106,7 +117,7 @@ class ChatRepositoryImpl @Inject constructor(
         offlineMessageDao.updateStatus(messageId, MessageStatus.READ.name)
     }
     override suspend fun sendTypingIndicator(userId: String, isTyping: Boolean) {
-        // The WebSocket event is sent when a live connection is available.
+        webSocketManager.sendTypingIndicator(userId, isTyping)
     }
 
     private fun OfflineMessageEntity.toDomain(): Message {
@@ -124,6 +135,32 @@ class ChatRepositoryImpl @Inject constructor(
             trackCoverUrl = trackCoverUrl
         )
     }
+
+    private fun com.example.sickimfy.core.network.ChatMessageDto.toEntity() = OfflineMessageEntity(
+        messageId = id,
+        senderId = senderId,
+        receiverId = receiverId,
+        content = content,
+        timestamp = timestamp,
+        status = status.name,
+        trackId = trackId,
+        trackTitle = trackTitle,
+        trackArtist = trackArtist,
+        trackCoverUrl = trackCoverUrl
+    )
+
+    private fun MessageDto.toEntity(otherUserId: String) = OfflineMessageEntity(
+        messageId = id.toString(),
+        senderId = if (senderId.toString() == otherUserId) otherUserId else "me",
+        receiverId = if (senderId.toString() == otherUserId) "me" else otherUserId,
+        content = content.orEmpty(),
+        timestamp = System.currentTimeMillis(),
+        status = if (senderId.toString() == otherUserId) MessageStatus.DELIVERED.name else status,
+        trackId = sharedTrack?.id?.toString(),
+        trackTitle = sharedTrack?.title,
+        trackArtist = sharedTrack?.artistName,
+        trackCoverUrl = sharedTrack?.coverImageUrl
+    )
 
     private fun com.example.sickimfy.core.network.ChatMessageDto.toDomain(currentUserId: String): Message {
         return Message(
