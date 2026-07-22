@@ -1,6 +1,10 @@
 package com.example.sickimfy.core.playback
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.core.content.ContextCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -47,7 +51,9 @@ data class PlaybackQueueItem(
 )
 
 @Singleton
-class PlaybackManager @Inject constructor() {
+class PlaybackManager @Inject constructor(
+    @ApplicationContext private val appContext: Context
+) {
 
     private var _exoplayer: ExoPlayer? = null
     private var _simpleCache: SimpleCache? = null
@@ -96,7 +102,7 @@ class PlaybackManager @Inject constructor() {
         val player = _exoplayer ?: return
         val mediaItem = MediaItem.Builder()
             .setMediaId(trackId)
-            .setUri(audioUrl)
+            .setUri(mediaUri(audioUrl))
             .setMediaMetadata(
                 androidx.media3.common.MediaMetadata.Builder()
                     .setTitle(title)
@@ -129,6 +135,7 @@ class PlaybackManager @Inject constructor() {
                 isLoading = true
             )
         }
+        startMediaServiceAfterPlayback()
     }
 
     /** Replaces the current queue and starts the selected item, so next/previous are deterministic. */
@@ -139,7 +146,7 @@ class PlaybackManager @Inject constructor() {
         val mediaItems = queue.map { track ->
             MediaItem.Builder()
                 .setMediaId(track.id)
-                .setUri(track.audioUrl)
+                .setUri(mediaUri(track.audioUrl))
                 .setMediaMetadata(
                     androidx.media3.common.MediaMetadata.Builder()
                         .setTitle(track.title)
@@ -167,6 +174,7 @@ class PlaybackManager @Inject constructor() {
                 error = null
             )
         }
+        startMediaServiceAfterPlayback()
     }
 
     fun playTrackList(tracks: List<Triple<String, String, String>>, startIndex: Int = 0) {
@@ -174,13 +182,14 @@ class PlaybackManager @Inject constructor() {
         val mediaItems = tracks.map { (id, title, audioUrl) ->
             MediaItem.Builder()
                 .setMediaId(id)
-                .setUri(audioUrl)
+                .setUri(mediaUri(audioUrl))
                 .build()
         }
         _playlist.value = mediaItems
         player.setMediaItems(mediaItems, startIndex, 0)
         player.prepare()
         player.play()
+        startMediaServiceAfterPlayback()
     }
 
     fun playAll(tracks: List<Triple<String, String, String>>) {
@@ -190,6 +199,17 @@ class PlaybackManager @Inject constructor() {
     fun pause() {
         _exoplayer?.pause()
         _playbackState.update { it.copy(isPlaying = false) }
+    }
+
+    private fun mediaUri(audioUrl: String?): Uri? {
+        if (audioUrl.isNullOrBlank()) return null
+        return if (audioUrl.startsWith("/")) Uri.fromFile(File(audioUrl)) else Uri.parse(audioUrl)
+    }
+
+    private fun startMediaServiceAfterPlayback() {
+        runCatching {
+            ContextCompat.startForegroundService(appContext, Intent(appContext, MusicService::class.java))
+        }
     }
 
     fun resume() {
