@@ -1,13 +1,12 @@
 package com.example.sickimfy.core.playback
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import androidx.core.content.ContextCompat
-import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
@@ -15,9 +14,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,13 @@ import kotlinx.coroutines.flow.update
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import android.content.ComponentName
+import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.MoreExecutors
+import androidx.core.net.toUri
 
 data class PlaybackState(
     val isPlaying: Boolean = false,
@@ -50,6 +58,7 @@ data class PlaybackQueueItem(
     val audioUrl: String
 )
 
+@UnstableApi
 @Singleton
 class PlaybackManager @Inject constructor(
     @ApplicationContext private val appContext: Context
@@ -64,13 +73,15 @@ class PlaybackManager @Inject constructor(
     private val _playlist = MutableStateFlow<List<MediaItem>>(emptyList())
     val playlist: StateFlow<List<MediaItem>> = _playlist.asStateFlow()
 
-    @UnstableApi
+    private var controllerFuture: ListenableFuture<MediaController>? = null
+
+    @OptIn(UnstableApi::class)
     fun initialize(context: Context) {
         if (_exoplayer != null) return
 
         val cacheDir = File(context.cacheDir, "media_cache")
         val databaseProvider = StandaloneDatabaseProvider(context)
-        val evictor = androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor(100 * 1024 * 1024L) // 100MB
+        val evictor = LeastRecentlyUsedCacheEvictor(100 * 1024 * 1024L) // 100MB
         val simpleCache = SimpleCache(cacheDir, evictor, databaseProvider)
         _simpleCache = simpleCache
 
@@ -90,24 +101,37 @@ class PlaybackManager @Inject constructor(
             .setMediaSourceFactory(mediaSourceFactory)
             .setHandleAudioBecomingNoisy(true)
             .setWakeMode(C.WAKE_MODE_NETWORK)
-            .setAudioAttributes(audioAttributes, /* handleAudioFocus= */ true)
+            .setAudioAttributes(audioAttributes, /* handleAudioFocus = */ true)
             .build()
             .apply {
                 addListener(playerListener)
                 repeatMode = Player.REPEAT_MODE_OFF
             }
+        startAndBindService()
     }
 
     fun play(trackId: String, title: String, artist: String, coverUrl: String, audioUrl: String?) {
         val player = _exoplayer ?: return
+        val uri = mediaUri(audioUrl) ?: return
+
+        val artworkUri = when {
+            coverUrl.isBlank() -> null
+            coverUrl.startsWith("/") -> Uri.fromFile(File(coverUrl))
+            else -> Uri.parse(coverUrl)
+        }
+        if (audioUrl.isNullOrBlank()) {
+            _playbackState.update { it.copy(error = "آدرس آهنگ موجود نیست") }
+            return
+        }
+
         val mediaItem = MediaItem.Builder()
             .setMediaId(trackId)
-            .setUri(mediaUri(audioUrl))
+            .setUri(audioUrl)
             .setMediaMetadata(
                 androidx.media3.common.MediaMetadata.Builder()
                     .setTitle(title)
                     .setArtist(artist)
-                    .setArtworkUri(android.net.Uri.parse(coverUrl))
+                    .setArtworkUri(coverUrl.toUri())
                     .build()
             )
             .build()
@@ -115,6 +139,7 @@ class PlaybackManager @Inject constructor(
         val trackIndex = _playlist.value.indexOfFirst { it.mediaId == trackId }
         if (trackIndex >= 0) {
             player.seekTo(trackIndex, 0)
+            player.playWhenReady = true
             player.play()
         } else {
             val currentList = _playlist.value.toMutableList()
@@ -122,6 +147,7 @@ class PlaybackManager @Inject constructor(
             _playlist.value = currentList
             player.setMediaItems(currentList, currentList.size - 1, 0)
             player.prepare()
+            player.playWhenReady = true
             player.play()
         }
 
@@ -132,13 +158,22 @@ class PlaybackManager @Inject constructor(
                 currentArtist = artist,
                 currentCoverUrl = coverUrl,
                 currentAudioUrl = audioUrl,
-                isLoading = true
+                isLoading = true,
+                error = null
             )
         }
-        startMediaServiceAfterPlayback()
     }
 
-    /** Replaces the current queue and starts the selected item, so next/previous are deterministic. */
+    fun startAndBindService() {
+        if (controllerFuture != null) return
+
+        val sessionToken = SessionToken(appContext, ComponentName(appContext, MusicService::class.java))
+        controllerFuture = MediaController.Builder(appContext, sessionToken).buildAsync()
+        controllerFuture?.addListener({
+        }, MoreExecutors.directExecutor())
+    }
+
+    /** Replaces the current queue and starts the selected item. */
     fun playQueue(queue: List<PlaybackQueueItem>, startIndex: Int) {
         val player = _exoplayer ?: return
         if (queue.isEmpty() || startIndex !in queue.indices) return
@@ -148,10 +183,10 @@ class PlaybackManager @Inject constructor(
                 .setMediaId(track.id)
                 .setUri(mediaUri(track.audioUrl))
                 .setMediaMetadata(
-                    androidx.media3.common.MediaMetadata.Builder()
+                    MediaMetadata.Builder()
                         .setTitle(track.title)
                         .setArtist(track.artist)
-                        .setArtworkUri(android.net.Uri.parse(track.coverUrl))
+                        .setArtworkUri(if (track.coverUrl.isNotBlank()) Uri.parse(track.coverUrl) else null)
                         .build()
                 )
                 .build()
@@ -159,6 +194,7 @@ class PlaybackManager @Inject constructor(
         _playlist.value = mediaItems
         player.setMediaItems(mediaItems, startIndex, 0L)
         player.prepare()
+        player.playWhenReady = true
         player.play()
 
         val selected = queue[startIndex]
@@ -174,7 +210,6 @@ class PlaybackManager @Inject constructor(
                 error = null
             )
         }
-        startMediaServiceAfterPlayback()
     }
 
     fun playTrackList(tracks: List<Triple<String, String, String>>, startIndex: Int = 0) {
@@ -183,13 +218,18 @@ class PlaybackManager @Inject constructor(
             MediaItem.Builder()
                 .setMediaId(id)
                 .setUri(mediaUri(audioUrl))
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(title)
+                        .build()
+                )
                 .build()
         }
         _playlist.value = mediaItems
         player.setMediaItems(mediaItems, startIndex, 0)
         player.prepare()
+        player.playWhenReady = true
         player.play()
-        startMediaServiceAfterPlayback()
     }
 
     fun playAll(tracks: List<Triple<String, String, String>>) {
@@ -203,16 +243,20 @@ class PlaybackManager @Inject constructor(
 
     private fun mediaUri(audioUrl: String?): Uri? {
         if (audioUrl.isNullOrBlank()) return null
-        return if (audioUrl.startsWith("/")) Uri.fromFile(File(audioUrl)) else Uri.parse(audioUrl)
-    }
 
-    private fun startMediaServiceAfterPlayback() {
-        runCatching {
-            ContextCompat.startForegroundService(appContext, Intent(appContext, MusicService::class.java))
+        return when {
+            audioUrl.startsWith("file://") -> Uri.parse(audioUrl)
+            audioUrl.startsWith("/") -> Uri.fromFile(File(audioUrl))
+            audioUrl.startsWith("http://") || audioUrl.startsWith("https://") -> Uri.parse(audioUrl)
+            else -> {
+                val file = File(audioUrl)
+                if (file.exists()) Uri.fromFile(file) else Uri.parse(audioUrl)
+            }
         }
     }
 
     fun resume() {
+        _exoplayer?.playWhenReady = true
         _exoplayer?.play()
         _playbackState.update { it.copy(isPlaying = true) }
     }
@@ -278,7 +322,6 @@ class PlaybackManager @Inject constructor(
         _playbackState.update { it.copy(repeatMode = mode) }
     }
 
-
     /** Cycles normal -> shuffle -> repeat current track. */
     fun cyclePlaybackMode() {
         val player = _exoplayer ?: return
@@ -314,6 +357,7 @@ class PlaybackManager @Inject constructor(
 
     fun getExoplayer(): ExoPlayer? = _exoplayer
 
+    @OptIn(UnstableApi::class)
     fun release() {
         _exoplayer?.removeListener(playerListener)
         _exoplayer?.release()
@@ -376,16 +420,33 @@ class PlaybackManager @Inject constructor(
         }
 
         override fun onTracksChanged(tracks: Tracks) {
-            // No-op, handled by media item transition
+            // No-op
         }
 
         override fun onPlayerError(error: PlaybackException) {
+            android.util.Log.e("PlaybackManager", "Error playing offline file: ${error.message}", error)
             _playbackState.update {
                 it.copy(
-                    error = error.message ?: "Playback error",
+                    error = error.message ?: "خطا در پخش فایل افلاین",
                     isLoading = false
                 )
             }
         }
     }
-}
+    suspend fun resolveAudioUrl(
+        trackId: String,
+        audioUrl: String?,
+        downloadedTrackDao: DownloadedTrackDao
+    ): String? {
+        if (audioUrl == null) return null
+        if (audioUrl.startsWith("file://") || audioUrl.startsWith("http")) {
+            return audioUrl
+        }
+        val downloaded = downloadedTrackDao.find(trackId)
+        return if (downloaded != null && File(downloaded.localFilePath).exists()) {
+            "file://${downloaded.localFilePath}"
+        } else {
+            audioUrl
+        }
+        }
+    }

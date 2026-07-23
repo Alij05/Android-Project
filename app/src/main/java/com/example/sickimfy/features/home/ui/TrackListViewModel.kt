@@ -1,7 +1,9 @@
 package com.example.sickimfy.features.home.ui
 
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
 import com.example.sickimfy.core.data.local.dao.RecentlyPlayedDao
 import com.example.sickimfy.core.data.local.entity.LikedTrackEntity
@@ -19,7 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+//import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 
 sealed interface TrackListMode {
     data object LikedSongs : TrackListMode
@@ -35,7 +37,8 @@ data class TrackListUiState(
 )
 
 @HiltViewModel
-class TrackListViewModel @Inject constructor(
+class TrackListViewModel @OptIn(UnstableApi::class)
+@Inject constructor(
     private val likedTrackDao: LikedTrackDao,
     private val recentlyPlayedDao: RecentlyPlayedDao,
     private val playbackManager: PlaybackManager,
@@ -76,7 +79,7 @@ class TrackListViewModel @Inject constructor(
         _mode.value = mode
     }
 
-    fun playTrack(track: Track) {
+     fun playTrack(track: Track) {
         playQueue(track)
     }
 
@@ -118,6 +121,7 @@ class TrackListViewModel @Inject constructor(
         audioUrl = resolveMediaUrl(audioUrl, apiBaseUrl)
     )
 
+    @OptIn(UnstableApi::class)
     private fun playQueue(selected: Track) {
         val queue = uiState.value.tracks.mapNotNull { track ->
             track.audioUrl?.takeIf { it.isNotBlank() }?.let {

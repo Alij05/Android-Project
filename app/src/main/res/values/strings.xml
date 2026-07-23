@@ -189,4 +189,8 @@
 
     <string name="title_liked_songs">Liked Songs</string>
     <string name="title_recently_played">Recently Played</string>
+    <string name="local_music_title" translatable="false">Domestic Music</string>
+    <string name="local_music_no_tracks" translatable="false">No domestic tracks found.</string>
+    <string name="local_music_tracks_count" translatable="false">%1$d tracks</string>
+    <string name="local_music_play_all">Play All</string>
 </resources>

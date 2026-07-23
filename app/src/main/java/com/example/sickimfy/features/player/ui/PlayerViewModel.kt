@@ -1,6 +1,7 @@
 package com.example.sickimfy.features.player.ui
 
 import android.content.Context
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sickimfy.core.data.local.dao.LikedTrackDao
@@ -11,6 +12,7 @@ import com.example.sickimfy.core.data.local.entity.RecentlyPlayedEntity
 import com.example.sickimfy.core.playback.PlaybackManager
 import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -22,8 +24,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlinx.coroutines.flow.firstOrNull
+import java.io.File
+
 @HiltViewModel
-class PlayerViewModel @Inject constructor(
+class PlayerViewModel @OptIn(UnstableApi::class)
+@Inject constructor(
     private val playbackManager: PlaybackManager,
     private val likedTrackDao: LikedTrackDao,
     private val recentlyPlayedDao: RecentlyPlayedDao,
@@ -43,6 +48,7 @@ class PlayerViewModel @Inject constructor(
         startPositionTracking()
     }
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event: PlayerEvent) {
         when (event) {
             PlayerEvent.PlayPause -> playbackManager.togglePlayPause()
@@ -85,12 +91,22 @@ class PlayerViewModel @Inject constructor(
                     )
                 }
             }
-
+//            is PlayerEvent.PlayTrack -> {
+//                viewModelScope.launch {
+//                    val downloaded = downloadedTrackDao.find(event.trackId)
+//                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
+//                        "file://${downloaded.localFilePath}"
+//                    } else {
+//                        event.audioUrl
+//                    }
+//                    playbackManager.play(...)
+//                }
+//            }
             is PlayerEvent.PlayTrack -> {
                 viewModelScope.launch {
                     val downloaded = downloadedTrackDao.find(event.trackId)
-                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
-                        downloaded.localFilePath
+                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
+                        "file://${downloaded.localFilePath}"
                     } else {
                         event.audioUrl
                     }
@@ -134,6 +150,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun startPositionTracking() {
         positionTrackingJob = viewModelScope.launch {
             while (true) {
@@ -150,6 +167,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun startSleepTimer(minutes: Int) {
         _uiState.update { it.copy(sleepTimerMinutes = minutes, sleepTimerRunning = true) }
         sleepTimerJob = viewModelScope.launch {
@@ -165,6 +183,7 @@ class PlayerViewModel @Inject constructor(
         _uiState.update { it.copy(sleepTimerMinutes = null, sleepTimerRunning = false) }
     }
 
+    @OptIn(UnstableApi::class)
     private fun toggleFavorite() {
         val trackId = _uiState.value.trackId ?: return
         viewModelScope.launch {
@@ -186,6 +205,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun recordRecentlyPlayed(state: com.example.sickimfy.core.playback.PlaybackState) {
         if (state.currentTrackId == lastRecordedTrackId) return
         lastRecordedTrackId = state.currentTrackId
