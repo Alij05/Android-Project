@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
 
             val language = loadedPreferences.languageCode
             val layoutDirection = if (language == "fa") LayoutDirection.Rtl else LayoutDirection.Ltr
+            val fontScale = loadedPreferences.fontScale
 
             LaunchedEffect(language) {
                 if (resources.configuration.locales[0].language != language) {
@@ -68,7 +69,8 @@ class MainActivity : ComponentActivity() {
             }
 
             MusicAppTheme(
-                darkTheme = useDarkTheme
+                darkTheme = useDarkTheme,
+                fontScale = fontScale
             ) {
                 CompositionLocalProvider(
                     LocalLayoutDirection provides layoutDirection
