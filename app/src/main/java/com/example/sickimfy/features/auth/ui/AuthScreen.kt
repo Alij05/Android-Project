@@ -18,14 +18,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -120,28 +117,6 @@ fun AuthScreen(
                 )
                 Spacer(modifier = Modifier.height(Dimens.paddingMedium))
             }
-
-            OutlinedTextField(
-                value = uiState.apiBaseUrl,
-                onValueChange = viewModel::onApiBaseUrlChanged,
-                label = { Text(stringResource(id = R.string.auth_server_url_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Link,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.secondary
-                ),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(Dimens.paddingMedium))
 
             OutlinedTextField(
                 value = uiState.email,
