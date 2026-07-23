@@ -53,12 +53,12 @@ class AuthViewModel @Inject constructor(
         _uiState.update { it.copy(displayName = value, error = null) }
     }
 
-    fun onApiBaseUrlChanged(value: String) {
-        _uiState.update { it.copy(apiBaseUrl = value, error = null) }
-        viewModelScope.launch {
-            preferences.setApiBaseUrl(value)
-        }
-    }
+//    fun onApiBaseUrlChanged(value: String) {
+//        _uiState.update { it.copy(apiBaseUrl = value, error = null) }
+//        viewModelScope.launch {
+//            preferences.setApiBaseUrl(value)
+//        }
+//    }
 
     fun toggleMode() {
         _uiState.update { it.copy(isLogin = !it.isLogin, error = null) }
