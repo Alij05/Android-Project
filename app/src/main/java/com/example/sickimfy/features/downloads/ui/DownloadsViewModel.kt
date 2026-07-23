@@ -1,7 +1,9 @@
 package com.example.sickimfy.features.downloads.ui
 
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import com.example.sickimfy.features.home.domain.model.Track
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.core.data.local.entity.DownloadedTrackEntity
@@ -17,7 +19,8 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class DownloadsViewModel @Inject constructor(
+class DownloadsViewModel @OptIn(UnstableApi::class)
+@Inject constructor(
     private val downloadedTrackDao: DownloadedTrackDao,
     private val playbackManager: PlaybackManager
 ) : ViewModel() {
@@ -45,6 +48,7 @@ class DownloadsViewModel @Inject constructor(
         initialValue = DownloadsUiState(isLoading = true)
     )
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event: DownloadsEvent) {
         when (event) {
             is DownloadsEvent.OnSortOptionChanged -> {
@@ -65,17 +69,20 @@ class DownloadsViewModel @Inject constructor(
             is DownloadsEvent.OnTrackSelected -> {
                 viewModelScope.launch {
                     val downloaded = downloadedTrackDao.find(event.track.id)
-                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
-                        downloaded.localFilePath
-                    } else {
-                        event.track.audioUrl
-                    }
+                    android.util.Log.d("Downloads", "Track ID: ${event.track.id}")
+                    android.util.Log.d("Downloads", "Downloaded: $downloaded")
+//
+//                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
+//                        "file://${downloaded.localFilePath}"
+//                    } else {
+//                        event.track.audioUrl
+//                    }
                     playbackManager.play(
                         trackId = event.track.id,
                         title = event.track.title,
                         artist = event.track.artist,
                         coverUrl = event.track.imageUrl,
-                        audioUrl = playUrl
+                        audioUrl = event.track.audioUrl
                     )
                 }
             }
@@ -88,6 +95,8 @@ class DownloadsViewModel @Inject constructor(
         artist = artist,
         imageUrl = imageUrl,
         duration = "%d:%02d".format(durationSeconds?.div(60), durationSeconds?.rem(60)),
-        albumName = ""
+        albumName = "",
+        audioUrl = "file://$localFilePath"
+
     )
 }

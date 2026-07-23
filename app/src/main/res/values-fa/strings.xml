@@ -189,4 +189,9 @@
     <string name="playlist_tracks_title">آهنگ‌های پلی‌لیست</string>
     <string name="cd_share_track">اشتراک‌گذاری آهنگ فعلی</string>
     <string name="language_selected">زبان انتخاب‌شده</string>
+
+    <string name="local_music_title">موسیقی داخلی</string>
+    <string name="local_music_no_tracks">آهنگ داخلی‌ای پیدا نشد.</string>
+    <string name="local_music_tracks_count">%1$d آهنگ</string>
+    <string name="local_music_play_all">پخش همه</string>
 </resources>

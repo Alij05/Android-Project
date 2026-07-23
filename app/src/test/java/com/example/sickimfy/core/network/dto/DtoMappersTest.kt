@@ -19,7 +19,7 @@ class DtoMappersTest {
             createdAt = "2026-07-15"
         )
 
-        val track = dto.toDomain()
+        val track = dto.toDomain(apiBaseUrl = "https://example.test")
 
         assertEquals("42", track.id)
         assertEquals("Artist", track.artist)

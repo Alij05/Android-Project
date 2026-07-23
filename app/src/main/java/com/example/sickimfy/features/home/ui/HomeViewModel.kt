@@ -8,16 +8,20 @@ import com.example.sickimfy.core.playback.PlaybackQueueItem
 import com.example.sickimfy.core.data.local.dao.DownloadedTrackDao
 import com.example.sickimfy.features.downloads.data.worker.DownloadWorker
 import android.content.Context
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel @OptIn(UnstableApi::class)
+@Inject constructor(
     private val getHomeData: GetHomeDataUseCase,
     private val playbackManager: PlaybackManager,
     private val downloadedTrackDao: DownloadedTrackDao,
@@ -30,14 +34,15 @@ class HomeViewModel @Inject constructor(
         loadHome()
     }
 
+    @OptIn(UnstableApi::class)
     fun onEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.LoadHomeFeed, HomeEvent.OnRetryClicked -> loadHome()
             is HomeEvent.OnTrackSelected -> {
                 viewModelScope.launch {
                     val downloaded = downloadedTrackDao.find(event.track.id)
-                    val playUrl = if (downloaded != null && java.io.File(downloaded.localFilePath).exists()) {
-                        downloaded.localFilePath
+                    val playUrl = if (downloaded != null && File(downloaded.localFilePath).exists()) {
+                        "file://${downloaded.localFilePath}"
                     } else {
                         event.track.audioUrl
                     }
